@@ -32,6 +32,8 @@ io.on('connection', (socket) => {
 
 app.use('/', routes)
 
-server.listen(3002, () => {
-  console.log('listening on *:3002');
+const port = process.env.PORT || 3000
+
+server.listen(port, () => {
+  console.log(`server rodando na porta ${port}`);
 }); 

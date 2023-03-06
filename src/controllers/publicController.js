@@ -28,13 +28,9 @@ module.exports = {
             if (!checkPassword) return res.status(422).json({ message: `Usuario ou senha incorretos` })
 
             //Criando token de autenticação
-            const token = jwt.sign({ username: user.name, email: email, accessLevel: user.accessLevel }, secret, { expiresIn: '12h' })
+            const token = jwt.sign({ username: user.name }, secret, { expiresIn: '12h' })
 
-            //Setando o token para o cookie
-
-            res.cookie('token', token)
-
-            return res.status(200).json({ msg: "Logado com sucesso", token: token, user: user.name })
+            return res.json({token: token, user: user.name })
         } catch (error) {
             return res.json(error)
         }
