@@ -14,5 +14,8 @@ router.get('/user', auth, userController.index)
 
 router.post('/upload', auth, propostaController.upload)
 router.get('/show', auth, propostaController.show)
+router.get('/naoRealizadas', auth, propostaController.buscarPropostasNaoRealizadas)
+router.get('/proposta/:id', auth, propostaController.mostrarPropostaPorId)
+router.put('/reagendar', auth, propostaController.reagendar)
 
 module.exports = router

@@ -183,6 +183,57 @@ module.exports = {
             })
         }
     },
+
+    buscarPropostasNaoRealizadas: async (req, res) => {
+        try {
+
+            const result = await Propostas.find()
+
+            const propostas = result.filter(e => {
+                return e.status != 'Concluído' && e.status != 'Cancelado'
+            })
+
+            return res.status(200).json({
+                propostas
+            })
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    mostrarPropostaPorId: async (req, res) => {
+        try {
+
+            const { id } = req.params
+
+            const dadosProposta = await PropostaEntrevista.findById({
+                _id: id
+            })
+
+            return res.json(dadosProposta)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    reagendar: async (req, res) => {
+        try {
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    }
 }
 
 
