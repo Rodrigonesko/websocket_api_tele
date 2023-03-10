@@ -467,6 +467,8 @@ module.exports = {
 
             const { tentativa, id } = req.body
 
+            console.log(tentativa, id);
+
             switch (tentativa) {
                 case 'tentativa 1':
                     await PropostaEntrevista.findByIdAndUpdate({
