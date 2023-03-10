@@ -224,8 +224,307 @@ module.exports = {
         }
     },
 
+    agendar: async (req, res) => {
+        try {
+
+            const { id, dataEHora, responsavel, quemAgendou } = req.body
+
+            const updateTele = await PropostaEntrevista.findByIdAndUpdate({
+                _id: id
+            }, {
+                dataEntrevista: dataEHora,
+                agendado: 'agendado',
+                enfermeiro: responsavel,
+                quemAgendou: quemAgendou
+            })
+
+            return res.json(updateTele)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
     reagendar: async (req, res) => {
         try {
+
+            const { id } = req.body
+
+            const reagendar = await PropostaEntrevista.findByIdAndUpdate({
+                _id: id
+            }, {
+                dataEntrevista: '',
+                agendado: '',
+                enfermeiro: ''
+            })
+
+            return res.json(reagendar)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    cancelar: async (req, res) => {
+        try {
+
+            const { id } = req.body
+
+            const proposta = await PropostaEntrevista.findByIdAndUpdate({
+                _id: id
+            }, {
+                status: 'Cancelado',
+                dataConclusao: moment().format('YYYY-MM-DD')
+            })
+
+            return res.json(proposta)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    delete: async (req, res) => {
+        try {
+
+            const { id } = req.params
+
+            const remove = await PropostaEntrevista.findByIdAndDelete({
+                _id: id
+            })
+
+            return res.json(remove)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    alterarTelefone: async (req, res) => {
+        try {
+
+            const { id, telefone } = req.body
+
+            const result = await PropostaEntrevista.findOneAndUpdate({
+                _id: id
+            }, {
+                telefone: telefone
+            })
+
+            return res.status(200).json({
+                result
+            })
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    agendadas: async (req, res) => {
+        try {
+
+            const propostas = await PropostaEntrevista.find({
+                agendado: 'agendado',
+                status: undefined
+            }).sort('dataEntrevista')
+
+            return res.json(propostas)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    naoAgendadas: async (req, res) => {
+        try {
+
+            const propostas = await PropostaEntrevista.find({
+                $and: [
+                    { agendado: { $ne: 'agendado' } },
+                    { status: { $ne: 'Concluído' } },
+                    { status: { $ne: 'Cancelado' } }
+                ]
+            }).sort('vigencia')
+
+            return res.status(200).json({
+                propostas,
+                total: propostas.length
+            })
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    alterarVigencia: async (req, res) => {
+        try {
+
+            const { id, vigencia } = req.body
+
+            const proposta = await PropostaEntrevista.findByIdAndUpdate({
+                _id
+            }, {
+                vigencia
+            })
+
+            return res.json(proposta)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    alterarFormulario: async (req, res) => {
+        try {
+
+            const { id, formulario } = req.body
+
+            const proposta = await PropostaEntrevista.findByIdAndUpdate({
+                _id: id
+            }, {
+                formulario
+            })
+
+            return res.status(200).json(proposta)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    alterarSexo: async (req, res) => {
+        try {
+
+            const { id, sexo } = req.body
+
+            const proposta = await PropostaEntrevista.findByIdAndUpdate({
+                _id: id
+            }, {
+                sexo
+            })
+
+            return res.status(200).json(proposta)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    voltarEntrevista: async (req, res) => {
+        try {
+
+            const { nome, proposta } = req.body
+
+            const result = await PropostaEntrevista.findOneAndUpdate({
+                nome,
+                proposta
+            }, {
+                status: ''
+            })
+
+            res.json(result)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    tentativaContato: async (req, res) => {
+        try {
+
+            const { tentativa, id } = req.body
+
+            switch (tentativa) {
+                case 'tentativa 1':
+                    await PropostaEntrevista.findByIdAndUpdate({
+                        _id: id
+                    }, {
+                        responsavelContato1: req.user,
+                        contato1: moment().format('DD/MM/YYYY HH:mm:ss')
+                    })
+                    break;
+                case 'tentativa 2':
+                    await PropostaEntrevista.findByIdAndUpdate({
+                        _id: id
+                    }, {
+                        responsavelContato2: req.user,
+                        contato2: moment().format('DD/MM/YYYY HH:mm:ss')
+                    })
+                    break;
+                case 'tentativa 3':
+                    await PropostaEntrevista.findByIdAndUpdate({
+                        _id: id
+                    }, {
+                        responsavelContato3: req.user,
+                        contato3: moment().format('DD/MM/YYYY HH:mm:ss')
+                    })
+                    break;
+                default:
+                    break;
+            }
+
+            return res.json({
+                msg: 'Tentativa de contato feita com sucesso'
+            })
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    concluir: async (req, res) => {
+        try {
+
+            const { id, houveDivergencia, cids } = req.body
+
+            const updateProposta = await PropostaEntrevista.findByIdAndUpdate({
+                _id: id
+            }, {
+                status: 'Concluído',
+                anexadoSisAmil: 'Anexar',
+                houveDivergencia,
+                divergencia: respostasConc['divergencia'],
+                cids,
+                dataConclusao: moment().format('YYYY-MM-DD')
+            })
+
+            return res.json(updateProposta)
 
         } catch (error) {
             console.log(error);
@@ -234,6 +533,8 @@ module.exports = {
             })
         }
     }
+
+
 }
 
 
