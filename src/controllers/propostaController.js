@@ -511,7 +511,7 @@ module.exports = {
     concluir: async (req, res) => {
         try {
 
-            const { id, houveDivergencia, cids } = req.body
+            const { id, houveDivergencia, cids, divergencia } = req.body
 
             const updateProposta = await PropostaEntrevista.findByIdAndUpdate({
                 _id: id
@@ -519,7 +519,7 @@ module.exports = {
                 status: 'Concluído',
                 anexadoSisAmil: 'Anexar',
                 houveDivergencia,
-                divergencia: respostasConc['divergencia'],
+                divergencia,
                 cids,
                 dataConclusao: moment().format('YYYY-MM-DD')
             })
