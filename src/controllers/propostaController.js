@@ -383,7 +383,7 @@ module.exports = {
             const { id, vigencia } = req.body
 
             const proposta = await PropostaEntrevista.findByIdAndUpdate({
-                _id
+                _id: id
             }, {
                 vigencia
             })
