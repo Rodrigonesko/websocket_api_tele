@@ -32,5 +32,9 @@ router.put('/alterarSexo', auth, propostaController.alterarSexo)
 router.put('/voltarEntrevista', auth, propostaController.voltarEntrevista)
 router.put('/tentativaContato', auth, propostaController.tentativaContato)
 router.put('/concluir', auth, propostaController.concluir)
+router.get('/naoEnviadas', auth, propostaController.naoEnviadas)
+router.get('/ajustar', auth, propostaController.propostasAAjustar)
+router.put('/ajustar', auth, propostaController.ajustarCpf)
+router.put('/enviarMensagem', auth, propostaController.enviarMensagem)
 
 module.exports = router

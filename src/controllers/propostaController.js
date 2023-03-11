@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const PropostaEntrevista = require('../models/PropostaEntrevista')
 const moment = require('moment')
+const businessDays = require('moment-business-days')
 
 module.exports = {
     upload: async (req, res) => {
@@ -9,15 +10,53 @@ module.exports = {
 
             let quantidade = 0
 
-            for (const item of result) {
+            const arrCpfTitulares = result.reduce((acc, item) => {
+                let numPropostas = []
+
+                result.forEach(e => {
+                    const proposta = e.NUM_PROPOSTA
+                    const tipoAssociado = e.TIPO_ASSOCIADO
+                    const itemExistente = numPropostas.find((elem) => elem.proposta === proposta)
+                    if (itemExistente) {
+                        if (tipoAssociado === 'Titular') {
+                            itemExistente.numTitulares += 1
+                            itemExistente.numAssociados += 1
+                            itemExistente.cpfTitular = e.NUM_CPF
+                        } else {
+                            itemExistente.numAssociados += 1
+                        }
+                    } else if (tipoAssociado === "Titular") {
+                        numPropostas.push({ proposta: proposta, numTitulares: 1, numAssociados: 1, cpfTitular: e.NUM_CPF })
+                    } else {
+                        numPropostas.push({ proposta: proposta, numAssociados: 1, numTitulares: 0 })
+                    }
+                })
+
+                const itemExistenteAssociados = numPropostas.find((elem) => elem.proposta === item.NUM_PROPOSTA)
+                if (itemExistenteAssociados.numTitulares !== 1 && itemExistenteAssociados.numTitulares !== itemExistenteAssociados.numAssociados) {
+                    console.log('problema no numero de titulares', item.NUM_PROPOSTA, item.NOME_ASSOCIADO, itemExistenteAssociados.numTitulares);
+                    acc.push({ ...item });
+                    return acc;
+                }
+
+                if (item.TIPO_ASSOCIADO === 'Titular') {
+                    item.cpfTitular = item.NUM_CPF
+                } else {
+                    const itemExistente = numPropostas.find((element) => element.proposta === item.NUM_PROPOSTA)
+                    item.cpfTitular = itemExistente.cpfTitular
+                }
+                acc.push({ ...item });
+                return acc;
+
+            }, [])
+
+            for (const item of arrCpfTitulares) {
 
                 const proposta = item.NUM_PROPOSTA
 
                 let vigencia = ExcelDateToJSDate(item.DT_VENDA)
                 vigencia.setDate(vigencia.getDate() + 1)
                 vigencia = moment(vigencia).format('YYYY-MM-DD')
-
-                console.log(vigencia);
 
                 const filial = item.FILIAL
 
@@ -105,6 +144,14 @@ module.exports = {
                     formulario = 'adulto'
                 }
 
+                const cpfTitular = item.cpfTitular
+
+                let situacao = 'A enviar'
+
+                if (!cpfTitular) {
+                    situacao = 'Corrigir'
+                }
+
                 const resultado = {
                     dataRecebimento: moment().format('YYYY-MM-DD'),
                     proposta,
@@ -144,14 +191,17 @@ module.exports = {
                     cid3,
                     tipoAssociado,
                     tipoContrato,
-                    formulario
+                    formulario,
+                    situacao,
+                    cpfTitular,
+                    ddd,
+                    celular: numero
                 }
 
                 const existeProposta = await PropostaEntrevista.findOne({
                     proposta,
                     nome
                 })
-
 
                 if (!existeProposta) {
                     const newPropostaEntrevista = await PropostaEntrevista.create(resultado)
@@ -534,8 +584,87 @@ module.exports = {
                 msg: 'Internal Server Error'
             })
         }
-    }
+    },
 
+    naoEnviadas: async (req, res) => {
+        try {
+
+            const propostas = await PropostaEntrevista.find({
+                situacao: 'A enviar'
+            })
+
+            return res.json(propostas)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    propostasAAjustar: async (req, res) => {
+        try {
+
+            const propostas = await PropostaEntrevista.find({
+                situacao: 'Corrigir'
+            })
+
+            return res.json(propostas)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    ajustarCpf: async (req, res) => {
+        try {
+            const { propostas } = req.body
+
+            for (const item of propostas) {
+                await PropostaEntrevista.findByIdAndUpdate({
+                    _id: item.id
+                }, {
+                    cpfTitular: item.cpfTitular,
+                    situacao: 'A enviar'
+                })
+            }
+
+            return res.json(propostas)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    enviarMensagem: async (req, res) => {
+        try {
+
+            const { proposta } = req.body
+
+            console.log(proposta.cpfTitular);
+
+            const result = await PropostaEntrevista.updateMany({
+                cpfTitular: proposta.cpfTitular
+            }, {
+                situacao: 'Enviada'
+            })
+
+            return res.json(result)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    }
 
 }
 

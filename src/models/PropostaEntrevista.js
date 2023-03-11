@@ -6,6 +6,7 @@ const propostaScheema = mongoose.Schema({
     administradora: String,
     divergencia: String,
     status: String,
+    situacao: String,
     horario: String,
     vigencia: String,
     idade: Number,
@@ -59,7 +60,10 @@ const propostaScheema = mongoose.Schema({
     contato2: String,
     responsavelContato2: String,
     contato3: String,
-    responsavelContato3: String
+    responsavelContato3: String,
+    cpfTitular: String,
+    ddd: String,
+    celular: String
 }, {
     timestamps: true
 })
