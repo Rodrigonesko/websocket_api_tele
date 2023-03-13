@@ -63,7 +63,13 @@ const propostaScheema = mongoose.Schema({
     responsavelContato3: String,
     cpfTitular: String,
     ddd: String,
-    celular: String
+    celular: String,
+    whatsapp: String,
+    modelo: String,
+    janelaHorario: String,
+    AtendimentoHumanizado: Boolean,
+    atendimentoEncerrado: Boolean,
+    horarioEnviado: String
 }, {
     timestamps: true
 })

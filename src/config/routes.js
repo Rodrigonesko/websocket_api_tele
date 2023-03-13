@@ -36,5 +36,10 @@ router.get('/naoEnviadas', auth, propostaController.naoEnviadas)
 router.get('/ajustar', auth, propostaController.propostasAAjustar)
 router.put('/ajustar', auth, propostaController.ajustarCpf)
 router.put('/enviarMensagem', auth, propostaController.enviarMensagem)
+router.get('/situacao/:situacao', auth, propostaController.situacao)
+
+router.post('/receiveMessage', propostaController.mensagemRecebida)
+
+router.get('/teste', propostaController.testeMensagem)
 
 module.exports = router

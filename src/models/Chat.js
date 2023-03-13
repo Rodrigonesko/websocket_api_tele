@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 
-const horariosSCheema = mongoose.Schema({
+const chatScheema = mongoose.Schema({
     de: String,
     para: String,
     mensagem: String,
@@ -8,4 +8,4 @@ const horariosSCheema = mongoose.Schema({
     lida: Boolean
 })
 
-module.exports = mongoose.model('Horario', horariosSCheema)
+module.exports = mongoose.model('Chat', chatScheema)

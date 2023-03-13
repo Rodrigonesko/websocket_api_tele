@@ -1,7 +1,12 @@
 const mongoose = require('mongoose')
 const PropostaEntrevista = require('../models/PropostaEntrevista')
+const Chat = require('../models/Chat')
 const moment = require('moment')
 const businessDays = require('moment-business-days')
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const client = require('twilio')(accountSid, authToken);
+const TwilioNumber = process.env.TWILIO_NUMBER
 
 module.exports = {
     upload: async (req, res) => {
@@ -114,8 +119,11 @@ module.exports = {
 
                 const observacao = item['OBSERVAÇÕES']
                 const ddd = item.NUM_DDD_CEL
-                const numero = item.NUM_CEL
+                const numero = item.NUM_CEL?.toString()
                 const telefone = `(${ddd}) ${numero}`
+
+                let whatsapp = `whatsapp:+55${ddd}${numero}`
+                whatsapp = whatsapp.replace(/\s/g, '')
 
                 let dataNascimento
 
@@ -195,7 +203,8 @@ module.exports = {
                     situacao,
                     cpfTitular,
                     ddd,
-                    celular: numero
+                    celular: numero,
+                    whatsapp
                 }
 
                 const existeProposta = await PropostaEntrevista.findOne({
@@ -648,13 +657,147 @@ module.exports = {
 
             const { proposta } = req.body
 
-            console.log(proposta.cpfTitular);
+            let mensagem = modeloMensagem1(proposta.nome)
 
-            const result = await PropostaEntrevista.updateMany({
+            if (new Date().getTime() > new Date(moment().format('YYYY-MM-DD 13:00'))) {
+                mensagem = modeloMensagem2(proposta.nome)
+            }
+
+            if (proposta.tipoAssociado === 'Dependente') {
+                return res.json({ msg: 'Dependente' })
+            }
+
+            let whatsapp = proposta.whatsapp
+
+            console.log(whatsapp);
+
+            const verificar = await PropostaEntrevista.findOne({
+                _id: proposta._id,
+                situacao: 'Enviado'
+            })
+
+            if (verificar) {
+                console.log('ja foi enviado');
+                return res.json({ msg: 'Ja foi enviado' })
+            }
+
+            const result = await client.messages.create({
+                from: TwilioNumber,
+                body: mensagem,
+                to: 'whatsapp:+554197971794'
+            })
+
+            const verificarStatusMensagem = await client.messages(result.sid).fetch()
+
+            if (verificarStatusMensagem.status === 'undelivered') {
+                console.log('Problema ao enviar');
+                const update = await PropostaEntrevista.updateMany({
+                    cpfTitular: proposta.cpfTitular
+                }, {
+                    situacao: 'Problemas ao Enviar'
+                })
+                return res.json({ msg: 'Problemas ao Enviar' })
+            }
+
+            if (verificarStatusMensagem.status === 'failed') {
+                console.log('Sem whatsapp');
+                const update = await PropostaEntrevista.updateMany({
+                    cpfTitular: proposta.cpfTitular
+                }, {
+                    situacao: 'Sem whatsapp'
+                })
+                return res.json({ msg: 'Sem whats' })
+            }
+
+            const update = await PropostaEntrevista.updateMany({
                 cpfTitular: proposta.cpfTitular
             }, {
-                situacao: 'Enviada'
+                situacao: 'Enviada',
+                horarioEnviado: moment().format('YYYY-MM-DD HH:mm')
             })
+
+            const mensagemBanco = await Chat.create({
+                de: TwilioNumber,
+                para: whatsapp,
+                mensagem,
+                horario: moment().format('YYYY-MM-DD HH:mm')
+            })
+
+            return res.json({ msg: 'Enviada' })
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    situacao: async (req, res) => {
+        try {
+
+            const { situacao } = req.params
+
+            const result = await PropostaEntrevista.find({
+                situacao
+            })
+
+            return res.json(result)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    mensagemRecebida: async (req, res) => {
+        try {
+
+            const { from, mensagem } = req.body
+
+            console.log(from, mensagem);
+
+            return res.json({ msg: 'oi' })
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+
+    testeMensagem: async (req, res) => {
+        try {
+
+            let mensagem = `Prezado Sr.(a) Rodrigo,
+            Somos da equipe de adesão da operadora de saúde Amil e para concluírmos a contratação do Plano de Saúde do Sr.(a), e dos seus dependentes (caso tenha) e precisamos confirmar alguns dados para que a contratação seja concluída.
+            Por gentileza escolha duas janelas de horários para entrarmos em contato com o Sr.(a)
+            *13/03/2023*
+            1. Das 13:00 às 15:00
+            2. Das 15:00 às 17:00
+            3. Das 17:00 às 19:00
+            4. Das 19:00 às 21:00
+            *14/03/2023*
+            5. Das 09:00 às 11:00
+            6. Das 11:00 às 13:00
+            7. Das 13:00 às 15:00
+            8. Das 15:00 às 17:00
+            9. Das 17:00 às 19:00
+            10. Das 19:00 às 21:00
+            Qual o melhor horário?
+            Informamos que vamos ligar dos números 11 42404975 ou 42403554, pedimos tirar do spam para evitar bloqueio da ligação. Desde já agradecemos`
+
+            const result = await client.messages.create({
+                from: TwilioNumber,
+                body: mensagem,
+                to: 'whatsapp:+554197971794'
+            })
+
+            console.log(result);
 
             return res.json(result)
 
@@ -731,4 +874,12 @@ function calcularIdade(data) {
         days: dateAge
     };
     return age.years;
+}
+
+function modeloMensagem1(nome) {
+    return `${nome}`
+}
+
+function modeloMensagem2(nome) {
+    return `${nome}`
 }
