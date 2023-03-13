@@ -759,6 +759,165 @@ module.exports = {
 
             console.log(from, mensagem);
 
+            const insertChat = Chat.create({
+                de: from,
+                para: TwilioNumber,
+                mensagem,
+                horario: moment().format('YYYY-MM-DD HH:mm')
+            })
+
+            const find = await PropostaEntrevista.findOne({
+                whatsapp: from
+            })
+
+            if (!find) {
+                //mandar mensagem para atendimento humanizado
+                const msg = "Seu número não consta em nossa base de contatos"
+                await client.messages.create({
+                    from: TwilioNumber,
+                    body: msg,
+                    to: from
+                })
+
+                await Chat.create({
+                    de: TwilioNumber,
+                    para: from,
+                    mensagem: msg,
+                    horario: moment().format('YYYY-MM-DD HH:mm')
+                })
+
+                return res.json(msg)
+            }
+
+            if (isNaN(Number(mensagem))) {
+                let concluidos = 0
+
+                // find.forEach(e => {
+                //     if (e.atendimentoEncerrado) {
+
+                //     }
+                // })
+
+                const msg = 'Nao respondeu corretamente'
+
+                return res.json(msg)
+            }
+
+            if (find.modelo === '1') {
+                switch (Number(mensagem)) {
+                    case 1:
+                        console.log(`Das 13:00 às 15:00`, find.opcao1);
+                        await PropostaEntrevista.updateMany({
+                            cpfTitular: find.cpfTitular
+                        }, {
+                            janelaHorario: `Das 13:00 às 15:00 ${find.opcao1}`
+                        })
+                        break;
+                    case 2:
+                        console.log(`Das 15:00 às 17:00`, find.opcao1);
+                        await PropostaEntrevista.updateMany({
+                            cpfTitular: find.cpfTitular
+                        }, {
+                            janelaHorario: `Das 15:00 às 17:00 ${find.opcao1}`
+                        })
+                        break;
+                    case 3:
+                        console.log(`Das 17:00 às 19:00`, find.opcao1);
+                        await PropostaEntrevista.updateMany({
+                            cpfTitular: find.cpfTitular
+                        }, {
+                            janelaHorario: `Das 17:00 às 19:00 ${find.opcao1}`
+                        })
+                        break;
+                    case 4:
+                        console.log(`Das 19:00 às 21:00`, find.opcao1);
+                        await PropostaEntrevista.updateMany({
+                            cpfTitular: find.cpfTitular
+                        }, {
+                            janelaHorario: `Das 19:00 às 21:000 ${find.opcao1}`
+                        })
+                        break;
+                    case 5:
+                        console.log(`Das 09:00 às 11:00`, find.opcao2);
+                        await PropostaEntrevista.updateMany({
+                            cpfTitular: find.cpfTitular
+                        }, {
+                            janelaHorario: `Das 09:00 às 11:00 ${find.opcao2}`
+                        })
+                        break;
+                    case 6:
+                        console.log(`Das 11:00 às 13:00`, find.opcao2);
+                        await PropostaEntrevista.updateMany({
+                            cpfTitular: find.cpfTitular
+                        }, {
+                            janelaHorario: `Das 11:00 às 13:00 ${find.opcao2}`
+                        })
+                        break;
+                    case 7:
+                        console.log(`Das 13:00 às 15:00`, find.opcao2);
+                        await PropostaEntrevista.updateMany({
+                            cpfTitular: find.cpfTitular
+                        }, {
+                            janelaHorario: `Das 13:00 às 15:00 ${find.opcao2}`
+                        })
+                        break;
+                    case 8:
+                        console.log(`Das 15:00 às 17:00`, find.opcao2);
+                        await PropostaEntrevista.updateMany({
+                            cpfTitular: find.cpfTitular
+                        }, {
+                            janelaHorario: `Das 15:00 às 17:00 ${find.opcao2}`
+                        })
+                        break;
+                    case 9:
+                        console.log(`Das 17:00 às 19:00`, find.opcao2);
+                        await PropostaEntrevista.updateMany({
+                            cpfTitular: find.cpfTitular
+                        }, {
+                            janelaHorario: `Das 17:00 às 19:00 ${find.opcao2}`
+                        })
+                        break;
+                    case 10:
+                        console.log(`Das 19:00 às 21:00`, find.opcao2);
+                        await PropostaEntrevista.updateMany({
+                            cpfTitular: find.cpfTitular
+                        }, {
+                            janelaHorario: `Das 19:00 às 21:00${find.opcao2}`
+                        })
+                        break;
+                    default:
+                        break
+                }
+
+                return res.json(mensagem)
+            }
+
+            if (find.modelo === '2') {
+
+            }
+
+            return res.json({ msg: 'oi' })
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    mensagemEnviada: async (req, res) => {
+        try {
+
+            const { to, mensagem } = req.body
+
+            const insertChat = Chat.create({
+                de: TwilioNumber,
+                para: to,
+                mensagem,
+                horario: moment().format('YYYY-MM-DD HH:mm')
+            })
+
             return res.json({ msg: 'oi' })
 
         } catch (error) {
