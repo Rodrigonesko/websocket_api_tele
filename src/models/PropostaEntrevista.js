@@ -67,9 +67,12 @@ const propostaScheema = mongoose.Schema({
     whatsapp: String,
     modelo: String,
     janelaHorario: String,
+    perguntaAtendimentoHumanizado: Boolean,
     AtendimentoHumanizado: Boolean,
     atendimentoEncerrado: Boolean,
-    horarioEnviado: String
+    horarioEnviado: String,
+    opcaoDia1: String,
+    opcaoDia2: String,
 }, {
     timestamps: true
 })
