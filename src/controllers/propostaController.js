@@ -817,6 +817,8 @@ module.exports = {
                         perguntaAtendimentoHumanizado: true
                     })
 
+                    console.log(TwilioNumber, from);
+
                     const msg = `Não entendemos sua resposta, por favor selecione uma das jánelas de horário, caso deseje falar com um atendente digite: sim`
                     await client.messages.create({
                         from: TwilioNumber,
