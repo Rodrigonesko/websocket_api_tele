@@ -294,7 +294,8 @@ module.exports = {
                 dataEntrevista: dataEHora,
                 agendado: 'agendado',
                 enfermeiro: responsavel,
-                quemAgendou: quemAgendou
+                quemAgendou: quemAgendou,
+                situacao: 'agendado'
             })
 
             return res.json(updateTele)
@@ -1094,11 +1095,10 @@ module.exports = {
         }
     },
 
-
     testeMensagem: async (req, res) => {
         try {
 
-            let mensagem = `Não entendemos sua resposta, deseja falar com um atendente? Por gentileza digite sim ou não`
+            let mensagem = modeloMensagem2('Rodrigo').mensagem
 
             const result = await client.messages.create({
                 from: TwilioNumber,
@@ -1116,7 +1116,110 @@ module.exports = {
                 msg: 'Internal Server Error'
             })
         }
+    },
+
+    problemaEnviar: async (req, res) => {
+        try {
+
+            const result = await PropostaEntrevista.find({
+                $or: [
+                    { situacao: 'Problemas ao Enviar' },
+                    { situacao: 'Sem whatsapp' },
+                ]
+            })
+
+            return res.json(result)
+
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    janelasEscolhidas: async (req, res) => {
+        try {
+
+            const result = await PropostaEntrevista.find({
+                situacao: 'Enviada',
+                janelaHorario: { $ne: undefined },
+                agendado: { $ne: 'Agendado' }
+            })
+
+            console.log(result);
+
+            return res.json(result)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    atendimentoHumanizado: async (req, res) => {
+        try {
+
+            const result = await PropostaEntrevista.find({
+                atendimentoHumanizado: true
+            })
+
+            return res.json(result)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    chat: async (req, res) => {
+        try {
+            const { whatsapp } = req.params
+
+            const chat = await Chat.find({
+                $or: [
+                    { de: whatsapp },
+                    { para: whatsapp }
+                ]
+            }).sort('horario')
+
+            return res.json(chat)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    migrarBanco: async (req, res) => {
+        try {
+
+            const { propostas } = req.body
+
+            console.log(propostas.length);
+
+            for (const item of propostas) {
+                await PropostaEntrevista.create(item)
+            }
+
+            return res.json({ msg: 'ok' })
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
     }
+
+
 
 }
 
@@ -1232,7 +1335,7 @@ function modeloMensagem2(nome) {
     *${data1}*
     1. Das 09:00 às 11:00
     2. Das 11:00 às 13:00
-    3. Das 13:00 às 15:00
+    3 Das 13:00 às 15:00
     4. Das 15:00 às 17:00
     5. Das 17:00 às 19:00
     6. Das 19:00 às 21:00

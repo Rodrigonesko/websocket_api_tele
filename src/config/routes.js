@@ -37,8 +37,14 @@ router.get('/ajustar', auth, propostaController.propostasAAjustar)
 router.put('/ajustar', auth, propostaController.ajustarCpf)
 router.put('/enviarMensagem', auth, propostaController.enviarMensagem)
 router.get('/situacao/:situacao', auth, propostaController.situacao)
+router.get('/janelasEscolhidas', auth, propostaController.janelasEscolhidas)
+router.get('/erroMensagem', auth, propostaController.problemaEnviar)
+router.get('/atendimentoHumanizado', auth, propostaController.atendimentoHumanizado)
+router.get('/chat/:whatsapp', auth, propostaController.chat)
 
 router.post('/receiveMessage', propostaController.mensagemRecebida)
+
+router.post('/migrarBanco', propostaController.migrarBanco)
 
 router.get('/teste', propostaController.testeMensagem)
 
