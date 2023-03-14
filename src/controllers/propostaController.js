@@ -657,10 +657,21 @@ module.exports = {
 
             const { proposta } = req.body
 
-            let mensagem = modeloMensagem1(proposta.nome)
+            let mensagem
+            let opcaoDia1
+            let opcaoDia2
+            let modelo
 
             if (new Date().getTime() > new Date(moment().format('YYYY-MM-DD 13:00'))) {
-                mensagem = modeloMensagem2(proposta.nome)
+                mensagem = modeloMensagem2(proposta.nome).mensagem
+                opcaoDia1 = modeloMensagem2(proposta.nome).data1
+                opcaoDia2 = modeloMensagem2(proposta.nome).data2
+                modelo = '2'
+            } else {
+                mensagem = modeloMensagem1(proposta.nome).mensagem
+                opcaoDia1 = modeloMensagem1(proposta.nome).data1
+                opcaoDia2 = modeloMensagem1(proposta.nome).data2
+                modelo = '1'
             }
 
             if (proposta.tipoAssociado === 'Dependente') {
@@ -684,7 +695,7 @@ module.exports = {
             const result = await client.messages.create({
                 from: TwilioNumber,
                 body: mensagem,
-                to: 'whatsapp:+554197971794'
+                to: whatsapp
             })
 
             const verificarStatusMensagem = await client.messages(result.sid).fetch()
@@ -713,7 +724,10 @@ module.exports = {
                 cpfTitular: proposta.cpfTitular
             }, {
                 situacao: 'Enviada',
-                horarioEnviado: moment().format('YYYY-MM-DD HH:mm')
+                horarioEnviado: moment().format('YYYY-MM-DD HH:mm'),
+                opcaoDia1,
+                opcaoDia2,
+                modelo
             })
 
             const mensagemBanco = await Chat.create({
@@ -755,19 +769,19 @@ module.exports = {
     mensagemRecebida: async (req, res) => {
         try {
 
-            const { from, mensagem } = req.body
+            const { from, mensagem, fixed } = req.body
 
             console.log(from, mensagem);
 
-            const insertChat = Chat.create({
-                de: from,
+            const insertChat = await Chat.create({
+                de: fixed,
                 para: TwilioNumber,
                 mensagem,
                 horario: moment().format('YYYY-MM-DD HH:mm')
             })
 
             const find = await PropostaEntrevista.findOne({
-                whatsapp: from
+                whatsapp: fixed
             })
 
             if (!find) {
@@ -781,7 +795,7 @@ module.exports = {
 
                 await Chat.create({
                     de: TwilioNumber,
-                    para: from,
+                    para: fixed,
                     mensagem: msg,
                     horario: moment().format('YYYY-MM-DD HH:mm')
                 })
@@ -790,13 +804,62 @@ module.exports = {
             }
 
             if (isNaN(Number(mensagem))) {
-                let concluidos = 0
 
-                // find.forEach(e => {
-                //     if (e.atendimentoEncerrado) {
+                if (find.atendimentoHumanizado) {
+                    return res.json(mensagem)
+                }
 
-                //     }
-                // })
+                if (!find.perguntaAtendimentoHumanizado) {
+
+                    await PropostaEntrevista.findOneAndUpdate({
+                        whatsapp: fixed
+                    }, {
+                        perguntaAtendimentoHumanizado: true
+                    })
+
+                    const msg = `Não entendemos sua resposta, por favor selecione uma das jánelas de horário, caso deseje falar com um atendente digite: sim`
+                    await client.messages.create({
+                        from: TwilioNumber,
+                        body: msg,
+                        to: from
+                    })
+
+                    await Chat.create({
+                        de: TwilioNumber,
+                        para: fixed,
+                        mensagem: msg,
+                        horario: moment().format('YYYY-MM-DD HH:mm')
+                    })
+
+                    return res.json(msg)
+                }
+
+                if (find.perguntaAtendimentoHumanizado) {
+                    if (mensagem.toLowerCase().trim() === 'sim') {
+                        await PropostaEntrevista.findOneAndUpdate({
+                            cpfTitular: find.cpfTitular
+                        }, {
+                            atendimentoHumanizado: true
+                        })
+
+                        const msg = 'Um dos nossos atendentes irá entrar em contato dentro de 1 a 2 minutos.'
+
+                        await client.messages.create({
+                            from: TwilioNumber,
+                            body: msg,
+                            to: from
+                        })
+
+                        await Chat.create({
+                            de: TwilioNumber,
+                            para: fixed,
+                            mensagem: msg,
+                            horario: moment().format('YYYY-MM-DD HH:mm')
+                        })
+
+                        return res.json(msg)
+                    }
+                }
 
                 const msg = 'Nao respondeu corretamente'
 
@@ -882,7 +945,7 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 19:00 às 21:00${find.opcao2}`
+                            janelaHorario: `Das 19:00 às 21:00 ${find.opcao2}`
                         })
                         break;
                     default:
@@ -893,7 +956,108 @@ module.exports = {
             }
 
             if (find.modelo === '2') {
+                switch (Number(mensagem)) {
+                    case 1:
+                        console.log(`Das 09:00 às 11:00`, find.opcao1);
+                        await PropostaEntrevista.updateMany({
+                            cpfTitular: find.cpfTitular
+                        }, {
+                            janelaHorario: `Das 09:00 às 11:00 ${find.opcao1}`
+                        })
+                        break;
+                    case 2:
+                        console.log(`Das 11:00 às 13:00`, find.opcao1);
+                        await PropostaEntrevista.updateMany({
+                            cpfTitular: find.cpfTitular
+                        }, {
+                            janelaHorario: `Das 11:00 às 13:00 ${find.opcao1}`
+                        })
+                        break;
+                    case 3:
+                        console.log(`Das 13:00 às 15:00`, find.opcao1);
+                        await PropostaEntrevista.updateMany({
+                            cpfTitular: find.cpfTitular
+                        }, {
+                            janelaHorario: `Das 13:00 às 15:00 ${find.opcao1}`
+                        })
+                        break;
+                    case 4:
+                        console.log(`Das 15:00 às 17:00`, find.opcao1);
+                        await PropostaEntrevista.updateMany({
+                            cpfTitular: find.cpfTitular
+                        }, {
+                            janelaHorario: `Das 15:00 às 17:00 ${find.opcao1}`
+                        })
+                        break;
+                    case 5:
+                        console.log(`Das 17:00 às 19:00`, find.opcao1);
+                        await PropostaEntrevista.updateMany({
+                            cpfTitular: find.cpfTitular
+                        }, {
+                            janelaHorario: `Das 17:00 às 19:00 ${find.opcao1}`
+                        })
+                        break;
+                    case 6:
+                        console.log(`Das 19:00 às 21:00`, find.opcao1);
+                        await PropostaEntrevista.updateMany({
+                            cpfTitular: find.cpfTitular
+                        }, {
+                            janelaHorario: `Das 19:00 às 21:000 ${find.opcao1}`
+                        })
+                        break;
+                    case 7:
+                        console.log(`Das 09:00 às 11:00`, find.opcao2);
+                        await PropostaEntrevista.updateMany({
+                            cpfTitular: find.cpfTitular
+                        }, {
+                            janelaHorario: `Das 09:00 às 11:00 ${find.opcao2}`
+                        })
+                        break;
+                    case 8:
+                        console.log(`Das 11:00 às 13:00`, find.opcao2);
+                        await PropostaEntrevista.updateMany({
+                            cpfTitular: find.cpfTitular
+                        }, {
+                            janelaHorario: `Das 11:00 às 13:00 ${find.opcao2}`
+                        })
+                        break;
+                    case 9:
+                        console.log(`Das 13:00 às 15:00`, find.opcao2);
+                        await PropostaEntrevista.updateMany({
+                            cpfTitular: find.cpfTitular
+                        }, {
+                            janelaHorario: `Das 13:00 às 15:00 ${find.opcao2}`
+                        })
+                        break;
+                    case 10:
+                        console.log(`Das 15:00 às 17:00`, find.opcao2);
+                        await PropostaEntrevista.updateMany({
+                            cpfTitular: find.cpfTitular
+                        }, {
+                            janelaHorario: `Das 15:00 às 17:00 ${find.opcao2}`
+                        })
+                        break;
+                    case 11:
+                        console.log(`Das 17:00 às 19:00`, find.opcao2);
+                        await PropostaEntrevista.updateMany({
+                            cpfTitular: find.cpfTitular
+                        }, {
+                            janelaHorario: `Das 17:00 às 19:00 ${find.opcao2}`
+                        })
+                        break;
+                    case 12:
+                        console.log(`Das 19:00 às 21:00`, find.opcao2);
+                        await PropostaEntrevista.updateMany({
+                            cpfTitular: find.cpfTitular
+                        }, {
+                            janelaHorario: `Das 19:00 às 21:00 ${find.opcao2}`
+                        })
+                        break;
+                    default:
+                        break
+                }
 
+                return res.json(mensagem)
             }
 
             return res.json({ msg: 'oi' })
@@ -932,23 +1096,7 @@ module.exports = {
     testeMensagem: async (req, res) => {
         try {
 
-            let mensagem = `Prezado Sr.(a) Rodrigo,
-            Somos da equipe de adesão da operadora de saúde Amil e para concluírmos a contratação do Plano de Saúde do Sr.(a), e dos seus dependentes (caso tenha) e precisamos confirmar alguns dados para que a contratação seja concluída.
-            Por gentileza escolha duas janelas de horários para entrarmos em contato com o Sr.(a)
-            *13/03/2023*
-            1. Das 13:00 às 15:00
-            2. Das 15:00 às 17:00
-            3. Das 17:00 às 19:00
-            4. Das 19:00 às 21:00
-            *14/03/2023*
-            5. Das 09:00 às 11:00
-            6. Das 11:00 às 13:00
-            7. Das 13:00 às 15:00
-            8. Das 15:00 às 17:00
-            9. Das 17:00 às 19:00
-            10. Das 19:00 às 21:00
-            Qual o melhor horário?
-            Informamos que vamos ligar dos números 11 42404975 ou 42403554, pedimos tirar do spam para evitar bloqueio da ligação. Desde já agradecemos`
+            let mensagem = `Não entendemos sua resposta, deseja falar com um atendente? Por gentileza digite sim ou não`
 
             const result = await client.messages.create({
                 from: TwilioNumber,
@@ -1036,9 +1184,65 @@ function calcularIdade(data) {
 }
 
 function modeloMensagem1(nome) {
-    return `${nome}`
+    let data1 = moment().format('DD/MM/YYYY')
+    let data2 = moment().add(1, 'day').format('DD/MM/YYYY')
+    if (moment().format('dddd') === 'Friday') {
+        data1 = moment().format('DD/MM/YYYY')
+        data2 = moment().add(3, 'days').format('DD/MM/YYYY')
+    }
+
+    let mensagem = `Prezado Sr.(a) ${nome},
+    Somos da equipe de adesão da operadora de saúde Amil e para concluírmos a contratação do Plano de Saúde do Sr.(a), e dos seus dependentes (caso tenha) e precisamos confirmar alguns dados para que a contratação seja concluída.
+    Por gentileza escolha duas janelas de horários para entrarmos em contato com o Sr.(a)
+    *${data1}*
+    1. Das 13:00 às 15:00
+    2. Das 15:00 às 17:00
+    3. Das 17:00 às 19:00
+    4. Das 19:00 às 21:00
+    *${data2}*
+    5. Das 09:00 às 11:00
+    6. Das 11:00 às 13:00
+    7. Das 13:00 às 15:00
+    8. Das 15:00 às 17:00
+    9. Das 17:00 às 19:00
+    10. Das 19:00 às 21:00
+    Qual o melhor horário?
+    Informamos que vamos ligar dos números 11 42404975 ou 42403554, pedimos tirar do spam para evitar bloqueio da ligação. Desde já agradecemos`
+
+    return { data1, data2, mensagem }
 }
 
 function modeloMensagem2(nome) {
-    return `${nome}`
+    let data1 = moment().format('DD/MM/YYYY')
+    let data2 = moment().add(1, 'day').format('DD/MM/YYYY')
+    if (moment().format('dddd') === 'Friday') {
+        data1 = moment().add(3, 'days').format('DD/MM/YYYY')
+        data2 = moment().add(4, 'days').format('DD/MM/YYYY')
+    }
+    if (moment().format('dddd') === 'Thursday') {
+        data1 = moment().add(1, 'day').format('DD/MM/YYYY')
+        data2 = moment().add(4, 'days').format('DD/MM/YYYY')
+    }
+
+    let mensagem = `Prezado Sr.(a) ${nome},
+    Somos da equipe de adesão da operadora de saúde Amil e para concluírmos a contratação do Plano de Saúde do Sr.(a), e dos seus dependentes (caso tenha) e precisamos confirmar alguns dados para que a contratação seja concluída.
+    Por gentileza escolha duas janelas de horários para entrarmos em contato com o Sr.(a)
+    *${data1}*
+    1. Das 09:00 às 11:00
+    2. Das 11:00 às 13:00
+    3. Das 13:00 às 15:00
+    4. Das 15:00 às 17:00
+    5. Das 17:00 às 19:00
+    6. Das 19:00 às 21:00
+    *${data2}*
+    7. Das 09:00 às 11:00
+    8. Das 11:00 às 13:00
+    9. Das 13:00 às 15:00
+    10. Das 15:00 às 17:00
+    11. Das 17:00 às 19:00
+    12. Das 19:00 às 21:00
+    Qual o melhor horário?
+    Informamos que vamos ligar dos números 11 42404975 ou 42403554, pedimos tirar do spam para evitar bloqueio da ligação. Desde já agradecemos`
+
+    return { data1, data2, mensagem }
 }

@@ -68,7 +68,7 @@ const propostaScheema = mongoose.Schema({
     modelo: String,
     janelaHorario: String,
     perguntaAtendimentoHumanizado: Boolean,
-    AtendimentoHumanizado: Boolean,
+    atendimentoHumanizado: Boolean,
     atendimentoEncerrado: Boolean,
     horarioEnviado: String,
     opcaoDia1: String,
