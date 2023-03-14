@@ -819,7 +819,7 @@ module.exports = {
 
                     console.log(TwilioNumber, from);
 
-                    const msg = `Não entendemos sua resposta, por favor selecione uma das jánelas de horário, caso deseje falar com um atendente digite: sim`
+                    const msg = `Não entendemos sua resposta, por favor selecione uma das janelas de horário, caso deseje falar com um atendente digite: sim`
                     await client.messages.create({
                         from: TwilioNumber,
                         body: msg,
@@ -871,83 +871,83 @@ module.exports = {
             if (find.modelo === '1') {
                 switch (Number(mensagem)) {
                     case 1:
-                        console.log(`Das 13:00 às 15:00`, find.opcao1);
+                        console.log(`Das 13:00 às 15:00`, find.opcaoDia1);
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 13:00 às 15:00 ${find.opcao1}`
+                            janelaHorario: `Das 13:00 às 15:00 ${find.opcaoDia1}`
                         })
                         break;
                     case 2:
-                        console.log(`Das 15:00 às 17:00`, find.opcao1);
+                        console.log(`Das 15:00 às 17:00`, find.opcaoDia1);
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 15:00 às 17:00 ${find.opcao1}`
+                            janelaHorario: `Das 15:00 às 17:00 ${find.opcaoDia1}`
                         })
                         break;
                     case 3:
-                        console.log(`Das 17:00 às 19:00`, find.opcao1);
+                        console.log(`Das 17:00 às 19:00`, find.opcaoDia1);
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 17:00 às 19:00 ${find.opcao1}`
+                            janelaHorario: `Das 17:00 às 19:00 ${find.opcaoDia1}`
                         })
                         break;
                     case 4:
-                        console.log(`Das 19:00 às 21:00`, find.opcao1);
+                        console.log(`Das 19:00 às 21:00`, find.opcaoDia1);
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 19:00 às 21:000 ${find.opcao1}`
+                            janelaHorario: `Das 19:00 às 21:000 ${find.opcaoDia1}`
                         })
                         break;
                     case 5:
-                        console.log(`Das 09:00 às 11:00`, find.opcao2);
+                        console.log(`Das 09:00 às 11:00`, find.opcaoDia2);
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 09:00 às 11:00 ${find.opcao2}`
+                            janelaHorario: `Das 09:00 às 11:00 ${find.opcaoDia2}`
                         })
                         break;
                     case 6:
-                        console.log(`Das 11:00 às 13:00`, find.opcao2);
+                        console.log(`Das 11:00 às 13:00`, find.opcaoDia2);
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 11:00 às 13:00 ${find.opcao2}`
+                            janelaHorario: `Das 11:00 às 13:00 ${find.opcaoDia2}`
                         })
                         break;
                     case 7:
-                        console.log(`Das 13:00 às 15:00`, find.opcao2);
+                        console.log(`Das 13:00 às 15:00`, find.opcaoDia2);
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 13:00 às 15:00 ${find.opcao2}`
+                            janelaHorario: `Das 13:00 às 15:00 ${find.opcaoDia2}`
                         })
                         break;
                     case 8:
-                        console.log(`Das 15:00 às 17:00`, find.opcao2);
+                        console.log(`Das 15:00 às 17:00`, find.opcaoDia2);
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 15:00 às 17:00 ${find.opcao2}`
+                            janelaHorario: `Das 15:00 às 17:00 ${find.opcaoDia2}`
                         })
                         break;
                     case 9:
-                        console.log(`Das 17:00 às 19:00`, find.opcao2);
+                        console.log(`Das 17:00 às 19:00`, find.opcaoDia2);
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 17:00 às 19:00 ${find.opcao2}`
+                            janelaHorario: `Das 17:00 às 19:00 ${find.opcaoDia2}`
                         })
                         break;
                     case 10:
-                        console.log(`Das 19:00 às 21:00`, find.opcao2);
+                        console.log(`Das 19:00 às 21:00`, find.opcaoDia2);
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 19:00 às 21:00 ${find.opcao2}`
+                            janelaHorario: `Das 19:00 às 21:00 ${find.opcaoDia2}`
                         })
                         break;
                     default:
@@ -960,99 +960,99 @@ module.exports = {
             if (find.modelo === '2') {
                 switch (Number(mensagem)) {
                     case 1:
-                        console.log(`Das 09:00 às 11:00`, find.opcao1);
+                        console.log(`Das 09:00 às 11:00`, find.opcaoDia1);
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 09:00 às 11:00 ${find.opcao1}`
+                            janelaHorario: `Das 09:00 às 11:00 ${find.opcaoDia1}`
                         })
                         break;
                     case 2:
-                        console.log(`Das 11:00 às 13:00`, find.opcao1);
+                        console.log(`Das 11:00 às 13:00`, find.opcaoDia1);
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 11:00 às 13:00 ${find.opcao1}`
+                            janelaHorario: `Das 11:00 às 13:00 ${find.opcaoDia1}`
                         })
                         break;
                     case 3:
-                        console.log(`Das 13:00 às 15:00`, find.opcao1);
+                        console.log(`Das 13:00 às 15:00`, find.opcaoDia1);
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 13:00 às 15:00 ${find.opcao1}`
+                            janelaHorario: `Das 13:00 às 15:00 ${find.opcaoDia1}`
                         })
                         break;
                     case 4:
-                        console.log(`Das 15:00 às 17:00`, find.opcao1);
+                        console.log(`Das 15:00 às 17:00`, find.opcaoDia1);
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 15:00 às 17:00 ${find.opcao1}`
+                            janelaHorario: `Das 15:00 às 17:00 ${find.opcaoDia1}`
                         })
                         break;
                     case 5:
-                        console.log(`Das 17:00 às 19:00`, find.opcao1);
+                        console.log(`Das 17:00 às 19:00`, find.opcaoDia1);
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 17:00 às 19:00 ${find.opcao1}`
+                            janelaHorario: `Das 17:00 às 19:00 ${find.opcaoDia1}`
                         })
                         break;
                     case 6:
-                        console.log(`Das 19:00 às 21:00`, find.opcao1);
+                        console.log(`Das 19:00 às 21:00`, find.opcaoDia1);
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 19:00 às 21:000 ${find.opcao1}`
+                            janelaHorario: `Das 19:00 às 21:000 ${find.opcaoDia1}`
                         })
                         break;
                     case 7:
-                        console.log(`Das 09:00 às 11:00`, find.opcao2);
+                        console.log(`Das 09:00 às 11:00`, find.opcaoDia2);
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 09:00 às 11:00 ${find.opcao2}`
+                            janelaHorario: `Das 09:00 às 11:00 ${find.opcaoDia2}`
                         })
                         break;
                     case 8:
-                        console.log(`Das 11:00 às 13:00`, find.opcao2);
+                        console.log(`Das 11:00 às 13:00`, find.opcaoDia2);
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 11:00 às 13:00 ${find.opcao2}`
+                            janelaHorario: `Das 11:00 às 13:00 ${find.opcaoDia2}`
                         })
                         break;
                     case 9:
-                        console.log(`Das 13:00 às 15:00`, find.opcao2);
+                        console.log(`Das 13:00 às 15:00`, find.opcaoDia2);
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 13:00 às 15:00 ${find.opcao2}`
+                            janelaHorario: `Das 13:00 às 15:00 ${find.opcaoDia2}`
                         })
                         break;
                     case 10:
-                        console.log(`Das 15:00 às 17:00`, find.opcao2);
+                        console.log(`Das 15:00 às 17:00`, find.opcaoDia2);
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 15:00 às 17:00 ${find.opcao2}`
+                            janelaHorario: `Das 15:00 às 17:00 ${find.opcaoDia2}`
                         })
                         break;
                     case 11:
-                        console.log(`Das 17:00 às 19:00`, find.opcao2);
+                        console.log(`Das 17:00 às 19:00`, find.opcaoDia2);
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 17:00 às 19:00 ${find.opcao2}`
+                            janelaHorario: `Das 17:00 às 19:00 ${find.opcaoDia2}`
                         })
                         break;
                     case 12:
-                        console.log(`Das 19:00 às 21:00`, find.opcao2);
+                        console.log(`Das 19:00 às 21:00`, find.opcaoDia2);
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 19:00 às 21:00 ${find.opcao2}`
+                            janelaHorario: `Das 19:00 às 21:00 ${find.opcaoDia2}`
                         })
                         break;
                     default:
