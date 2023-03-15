@@ -340,7 +340,8 @@ module.exports = {
                 _id: id
             }, {
                 status: 'Cancelado',
-                dataConclusao: moment().format('YYYY-MM-DD')
+                dataConclusao: moment().format('YYYY-MM-DD'),
+                situacao: 'Cancelado'
             })
 
             return res.json(proposta)
@@ -586,7 +587,8 @@ module.exports = {
                 houveDivergencia,
                 divergencia,
                 cids,
-                dataConclusao: moment().format('YYYY-MM-DD')
+                dataConclusao: moment().format('YYYY-MM-DD'),
+                situacao: 'Concluído'
             })
 
             return res.json(updateProposta)
@@ -843,7 +845,8 @@ module.exports = {
 
                     console.log(TwilioNumber, from);
 
-                    const msg = `Não entendemos sua resposta, por favor selecione uma das janelas de horário, caso deseje falar com um atendente digite: sim`
+                    const msg = `Não entendemos sua resposta, por favor selecione o número referente a janela de horário que o Sr.(a) prefere.
+                    Caso deseje falar com um atendente digite: sim`
                     await client.messages.create({
                         from: TwilioNumber,
                         body: msg,
@@ -899,7 +902,9 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 13:00 às 15:00 ${find.opcaoDia1}`
+                            janelaHorario: `Das 13:00 às 15:00 ${find.opcaoDia1}`,
+                            situacao: 'Janela escolhida',
+                            atendimentoHumanizado: false
                         })
                         break;
                     case 2:
@@ -907,7 +912,9 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 15:00 às 17:00 ${find.opcaoDia1}`
+                            janelaHorario: `Das 15:00 às 17:00 ${find.opcaoDia1}`,
+                            situacao: 'Janela escolhida',
+                            atendimentoHumanizado: false
                         })
                         break;
                     case 3:
@@ -915,7 +922,9 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 17:00 às 19:00 ${find.opcaoDia1}`
+                            janelaHorario: `Das 17:00 às 19:00 ${find.opcaoDia1}`,
+                            situacao: 'Janela escolhida',
+                            atendimentoHumanizado: false
                         })
                         break;
                     case 4:
@@ -923,7 +932,9 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 19:00 às 21:000 ${find.opcaoDia1}`
+                            janelaHorario: `Das 19:00 às 21:000 ${find.opcaoDia1}`,
+                            situacao: 'Janela escolhida',
+                            atendimentoHumanizado: false
                         })
                         break;
                     case 5:
@@ -931,7 +942,9 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 09:00 às 11:00 ${find.opcaoDia2}`
+                            janelaHorario: `Das 09:00 às 11:00 ${find.opcaoDia2}`,
+                            situacao: 'Janela escolhida',
+                            atendimentoHumanizado: false
                         })
                         break;
                     case 6:
@@ -939,7 +952,9 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 11:00 às 13:00 ${find.opcaoDia2}`
+                            janelaHorario: `Das 11:00 às 13:00 ${find.opcaoDia2}`,
+                            situacao: 'Janela escolhida',
+                            atendimentoHumanizado: false
                         })
                         break;
                     case 7:
@@ -947,7 +962,9 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 13:00 às 15:00 ${find.opcaoDia2}`
+                            janelaHorario: `Das 13:00 às 15:00 ${find.opcaoDia2}`,
+                            situacao: 'Janela escolhida',
+                            atendimentoHumanizado: false
                         })
                         break;
                     case 8:
@@ -955,7 +972,9 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 15:00 às 17:00 ${find.opcaoDia2}`
+                            janelaHorario: `Das 15:00 às 17:00 ${find.opcaoDia2}`,
+                            situacao: 'Janela escolhida',
+                            atendimentoHumanizado: false
                         })
                         break;
                     case 9:
@@ -963,7 +982,9 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 17:00 às 19:00 ${find.opcaoDia2}`
+                            janelaHorario: `Das 17:00 às 19:00 ${find.opcaoDia2}`,
+                            situacao: 'Janela escolhida',
+                            atendimentoHumanizado: false
                         })
                         break;
                     case 10:
@@ -971,7 +992,9 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 19:00 às 21:00 ${find.opcaoDia2}`
+                            janelaHorario: `Das 19:00 às 21:00 ${find.opcaoDia2}`,
+                            situacao: 'Janela escolhida',
+                            atendimentoHumanizado: false
                         })
                         break;
                     default:
@@ -988,7 +1011,9 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 09:00 às 11:00 ${find.opcaoDia1}`
+                            janelaHorario: `Das 09:00 às 11:00 ${find.opcaoDia1}`,
+                            situacao: 'Janela escolhida',
+                            atendimentoHumanizado: false
                         })
                         break;
                     case 2:
@@ -996,7 +1021,9 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 11:00 às 13:00 ${find.opcaoDia1}`
+                            janelaHorario: `Das 11:00 às 13:00 ${find.opcaoDia1}`,
+                            situacao: 'Janela escolhida',
+                            atendimentoHumanizado: false
                         })
                         break;
                     case 3:
@@ -1004,7 +1031,9 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 13:00 às 15:00 ${find.opcaoDia1}`
+                            janelaHorario: `Das 13:00 às 15:00 ${find.opcaoDia1}`,
+                            situacao: 'Janela escolhida',
+                            atendimentoHumanizado: false
                         })
                         break;
                     case 4:
@@ -1012,7 +1041,9 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 15:00 às 17:00 ${find.opcaoDia1}`
+                            janelaHorario: `Das 15:00 às 17:00 ${find.opcaoDia1}`,
+                            situacao: 'Janela escolhida',
+                            atendimentoHumanizado: false
                         })
                         break;
                     case 5:
@@ -1020,7 +1051,9 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 17:00 às 19:00 ${find.opcaoDia1}`
+                            janelaHorario: `Das 17:00 às 19:00 ${find.opcaoDia1}`,
+                            situacao: 'Janela escolhida',
+                            atendimentoHumanizado: false
                         })
                         break;
                     case 6:
@@ -1028,7 +1061,9 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 19:00 às 21:000 ${find.opcaoDia1}`
+                            janelaHorario: `Das 19:00 às 21:000 ${find.opcaoDia1}`,
+                            situacao: 'Janela escolhida',
+                            atendimentoHumanizado: false
                         })
                         break;
                     case 7:
@@ -1036,7 +1071,9 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 09:00 às 11:00 ${find.opcaoDia2}`
+                            janelaHorario: `Das 09:00 às 11:00 ${find.opcaoDia2}`,
+                            situacao: 'Janela escolhida',
+                            atendimentoHumanizado: false
                         })
                         break;
                     case 8:
@@ -1044,7 +1081,9 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 11:00 às 13:00 ${find.opcaoDia2}`
+                            janelaHorario: `Das 11:00 às 13:00 ${find.opcaoDia2}`,
+                            situacao: 'Janela escolhida',
+                            atendimentoHumanizado: false
                         })
                         break;
                     case 9:
@@ -1052,7 +1091,9 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 13:00 às 15:00 ${find.opcaoDia2}`
+                            janelaHorario: `Das 13:00 às 15:00 ${find.opcaoDia2}`,
+                            situacao: 'Janela escolhida',
+                            atendimentoHumanizado: false
                         })
                         break;
                     case 10:
@@ -1060,7 +1101,9 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 15:00 às 17:00 ${find.opcaoDia2}`
+                            janelaHorario: `Das 15:00 às 17:00 ${find.opcaoDia2}`,
+                            situacao: 'Janela escolhida',
+                            atendimentoHumanizado: false
                         })
                         break;
                     case 11:
@@ -1068,7 +1111,9 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 17:00 às 19:00 ${find.opcaoDia2}`
+                            janelaHorario: `Das 17:00 às 19:00 ${find.opcaoDia2}`,
+                            situacao: 'Janela escolhida',
+                            atendimentoHumanizado: false
                         })
                         break;
                     case 12:
@@ -1076,7 +1121,9 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 19:00 às 21:00 ${find.opcaoDia2}`
+                            janelaHorario: `Das 19:00 às 21:00 ${find.opcaoDia2}`,
+                            situacao: 'Janela escolhida',
+                            atendimentoHumanizado: false
                         })
                         break;
                     default:
@@ -1144,7 +1191,7 @@ module.exports = {
         try {
 
             const result = await PropostaEntrevista.find({
-                situacao: 'Enviada',
+                situacao: 'Janela escolhida',
                 janelaHorario: { $ne: undefined },
                 agendado: { $ne: 'Agendado' }
             })
@@ -1552,14 +1599,15 @@ function modeloMensagem1(nome) {
     9. Das 17:00 às 19:00
     10. Das 19:00 às 21:00
     Qual o melhor horário?
-    Informamos que vamos ligar dos números 11 42404975 ou 42403554, pedimos tirar do spam para evitar bloqueio da ligação. Desde já agradecemos`
+    Informamos que vamos ligar dos números 11 42404975 ou 42403554, pedimos tirar do spam para evitar bloqueio da ligação. Desde já agradecemos.
+    Atenção: o preenchimento dos horários é feito em tempo real. Caso o horário informado não esteja mais disponível, apresentarei uma nova opção.`
 
     return { data1, data2, mensagem }
 }
 
 function modeloMensagem2(nome) {
-    let data1 = moment().format('DD/MM/YYYY')
-    let data2 = moment().add(1, 'day').format('DD/MM/YYYY')
+    let data1 = moment().add(1, 'day').format('DD/MM/YYYY')
+    let data2 = moment().add(2, 'day').format('DD/MM/YYYY')
     if (moment().format('dddd') === 'Friday') {
         data1 = moment().add(3, 'days').format('DD/MM/YYYY')
         data2 = moment().add(4, 'days').format('DD/MM/YYYY')
@@ -1575,7 +1623,7 @@ function modeloMensagem2(nome) {
     *${data1}*
     1. Das 09:00 às 11:00
     2. Das 11:00 às 13:00
-    3 Das 13:00 às 15:00
+    3. Das 13:00 às 15:00
     4. Das 15:00 às 17:00
     5. Das 17:00 às 19:00
     6. Das 19:00 às 21:00
@@ -1587,7 +1635,8 @@ function modeloMensagem2(nome) {
     11. Das 17:00 às 19:00
     12. Das 19:00 às 21:00
     Qual o melhor horário?
-    Informamos que vamos ligar dos números 11 42404975 ou 42403554, pedimos tirar do spam para evitar bloqueio da ligação. Desde já agradecemos`
+    Informamos que vamos ligar dos números 11 42404975 ou 42403554, pedimos tirar do spam para evitar bloqueio da ligação. Desde já agradecemos.
+    Atenção: o preenchimento dos horários é feito em tempo real. Caso o horário informado não esteja mais disponível, apresentarei uma nova opção.`
 
     return { data1, data2, mensagem }
 }
