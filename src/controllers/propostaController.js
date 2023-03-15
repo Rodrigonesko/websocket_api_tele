@@ -400,7 +400,10 @@ module.exports = {
 
             const propostas = await PropostaEntrevista.find({
                 agendado: 'agendado',
-                status: undefined
+                $or: [
+                    { status: '' },
+                    { status: undefined }
+                ]
             }).sort('dataEntrevista')
 
             return res.json(propostas)
@@ -804,6 +807,24 @@ module.exports = {
                 return res.json(msg)
             }
 
+            if (find.status === 'Concluído') {
+                const msg = "Atendimento encerrado, a Amil agradece"
+                await client.messages.create({
+                    from: TwilioNumber,
+                    body: msg,
+                    to: from
+                })
+
+                await Chat.create({
+                    de: TwilioNumber,
+                    para: fixed,
+                    mensagem: msg,
+                    horario: moment().format('YYYY-MM-DD HH:mm')
+                })
+
+                return res.json(msg)
+            }
+
             if (isNaN(Number(mensagem))) {
 
                 if (find.atendimentoHumanizado) {
@@ -1073,28 +1094,6 @@ module.exports = {
         }
     },
 
-    mensagemEnviada: async (req, res) => {
-        try {
-
-            const { to, mensagem } = req.body
-
-            const insertChat = Chat.create({
-                de: TwilioNumber,
-                para: to,
-                mensagem,
-                horario: moment().format('YYYY-MM-DD HH:mm')
-            })
-
-            return res.json({ msg: 'oi' })
-
-        } catch (error) {
-            console.log(error);
-            return res.status(500).json({
-                msg: 'Internal Server Error'
-            })
-        }
-    },
-
     testeMensagem: async (req, res) => {
         try {
 
@@ -1198,6 +1197,29 @@ module.exports = {
         }
     },
 
+    conversas: async (req, res) => {
+        try {
+
+            const { pesquisa } = req.params
+
+            const propostas = await PropostaEntrevista.find({
+                $or: [
+                    { whatsapp: { $regex: pesquisa } },
+                    { proposta: { $regex: pesquisa } },
+                    { nome: { $regex: pesquisa } },
+                ]
+            })
+
+            return res.json(propostas)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
     migrarBanco: async (req, res) => {
         try {
 
@@ -1217,7 +1239,223 @@ module.exports = {
                 msg: 'Internal Server Error'
             })
         }
-    }
+    },
+
+    gerarMensagens: async (req, res) => {
+        try {
+
+            const propostas = await PropostaEntrevista.find({
+                $and: [
+                    { agendado: { $ne: 'agendado' } },
+                    { status: { $ne: 'Concluído' } },
+                    { status: { $ne: 'Cancelado' } }
+                ]
+            }).sort('vigencia')
+
+            let arrObj = [
+
+            ]
+
+            for (const item of propostas) {
+                const proposta = await PropostaEntrevista.find({
+                    $and: [
+                        { agendado: { $ne: 'agendado' } },
+                        { status: { $ne: 'Concluído' } },
+                        { status: { $ne: 'Cancelado' } },
+                        { proposta: item.proposta }
+                    ]
+                })
+
+                if (proposta.length >= 2) {
+                    let pessoas = []
+                    for (const iterator of proposta) {
+                        pessoas.push({
+                            nome: iterator.nome,
+                            sexo: iterator.sexo,
+                            tipoAssociado: iterator.tipoAssociado,
+                            telefone: iterator.telefone
+                        })
+                    }
+
+                    let titular = {
+                        nome: '',
+                        sexo: '',
+                        telefone: '',
+                    }
+
+                    let dependentes = []
+
+                    pessoas.forEach(e => {
+                        if (e.tipoAssociado === 'Titular' || e.tipoAssociado === 'Titular ') {
+                            if (titular.nome !== '') {
+                                dependentes.push({
+                                    nome: e.nome,
+                                    sexo: e.sexo
+                                })
+                                return
+                            }
+                            titular.nome = e.nome
+                            titular.sexo = e.sexo
+                            titular.telefone = e.telefone
+                        } else {
+                            dependentes.push({
+                                nome: e.nome,
+                                sexo: e.sexo
+                            })
+                        }
+                    })
+
+                    arrObj.push({
+                        proposta: item.proposta,
+                        dependentes: dependentes,
+                        titular: titular,
+                        tipoContrato: item.tipoContrato,
+                    })
+
+                } else {
+                    arrObj.push({
+                        proposta: item.proposta,
+                        dependentes: [],
+                        titular: {
+                            nome: item.nome,
+                            sexo: item.sexo,
+                            telefone: item.telefone
+                        },
+                        tipoContrato: item.tipoContrato
+                    })
+                }
+            }
+
+            let msgs = arrObj.map(item => {
+                let saudacao = ''
+                let parte1 = ''
+                let parte2 = ''
+                let parte3 = ''
+                let parte4 = ''
+                let parte5 = []
+                let parte6 = ''
+                if (item.titular.sexo === 'M') {
+                    saudacao = `Prezado Sr. ${item.titular.nome}, `
+                    parte1 = `Somos da equipe de adesão da operadora de saúde Amil e para concluirmos a contratação do Plano de Saúde do Sr. e `
+                } else {
+                    saudacao = `Prezada Sra. ${item.titular.nome}, `
+                    parte1 = `Somos da equipe de adesão da operadora de saúde Amil e para concluirmos a contratação do Plano de Saúde da Sra. e `
+                }
+
+                item.dependentes.forEach(dependete => {
+                    if (dependete.sexo === 'M') {
+                        parte2 += `do Sr. ${dependete.nome}, `
+                    } else {
+                        parte2 += `da Sra. ${dependete.nome}, `
+                    }
+                })
+
+                parte3 = 'precisamos confirmar alguns dados para que a contratação seja concluída. '
+
+                parte4 = `Por gentileza escolha duas janelas de horários para entrarmos em contato com o Sr.(a)`
+
+                let data1 = moment().format('DD/MM/YYYY')
+                let data2 = moment().format('DD/MM/YYYY')
+                let diaSemana = moment().format('dddd')
+
+                if (diaSemana === 'Friday') {
+                    if (new Date().getTime() > new Date(moment().format('YYYY-MM-DD 13:00'))) {
+                        data1 = moment().add(3, 'days').format('DD/MM/YYYY')
+                        data2 = moment().add(4, 'days').format('DD/MM/YYYY')
+                    } else {
+                        data1 = moment().format('DD/MM/YYYY')
+                        data2 = moment().add(3, 'days').format('DD/MM/YYYY')
+                    }
+                } else if (diaSemana === 'Thursday') {
+                    if (new Date().getTime() > new Date(moment().format('YYYY-MM-DD 13:00'))) {
+                        data1 = moment().add(1, 'day').format('DD/MM/YYYY')
+                        data2 = moment().add(4, 'days').format('DD/MM/YYYY')
+                    } else {
+                        data1 = moment().format('DD/MM/YYYY')
+                        data2 = moment().add(1, 'day').format('DD/MM/YYYY')
+                    }
+                } else {
+                    if (new Date().getTime() > new Date(moment().format('YYYY-MM-DD 13:00'))) {
+                        data1 = moment().add(1, 'day').format('DD/MM/YYYY')
+                        data2 = moment().add(2, 'days').format('DD/MM/YYYY')
+                    } else {
+                        data1 = moment().format('DD/MM/YYYY')
+                        data2 = moment().add(1, 'day').format('DD/MM/YYYY')
+                    }
+                }
+
+                if (new Date().getTime() > new Date(moment().format('YYYY-MM-DD 13:00'))) {
+                    parte5.push(`*${data1}*`, 'Das 09:00 às 11:00', 'Das 11:00 às 13:00', 'Das 13:00 às 15:00', 'Das 15:00 às 17:00', 'Das 17:00 às 19:00', 'Das 19:00 às 21:00', `*${data2}*`, 'Das 09:00 às 11:00', 'Das 11:00 às 13:00', 'Das 13:00 às 15:00', 'Das 15:00 às 17:00', 'Das 17:00 às 19:00', 'Das 19:00 às 21:00')
+                } else {
+                    parte5.push(`*${data1}*`, 'Das 13:00 às 15:00', 'Das 15:00 às 17:00', 'Das 17:00 às 19:00', 'Das 19:00 às 21:00', `*${data2}*`, 'Das 09:00 às 11:00', 'Das 11:00 às 13:00', 'Das 13:00 às 15:00', 'Das 15:00 às 17:00', 'Das 17:00 às 19:00', 'Das 19:00 às 21:00')
+                }
+
+                parte5.push('Qual melhor horário?')
+
+                parte6 = 'Informamos que vamos ligar dos números 11 42404975 ou 42403554, pedimos tirar do spam para evitar bloqueio da ligação.'
+
+                let parte8 = 'Desde já agradecemos.'
+
+                let parte7 = ` Proposta: ${item.proposta}`
+
+                const msg = {
+                    saudacao,
+                    parte1,
+                    parte2,
+                    parte3,
+                    parte4,
+                    parte5,
+                    parte6,
+                    parte7,
+                    parte8,
+                    proposta: item.proposta,
+                    tipoContrato: item.tipoContrato
+
+                }
+
+                return msg
+            })
+
+            setMsg = new Set()
+
+            msgs = msgs.filter((item) => {
+                const msgDuplicada = setMsg.has(item.proposta)
+                setMsg.add(item.proposta)
+                return !msgDuplicada
+            })
+
+            return res.status(200).json({
+                msgs
+            })
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: "Internal Server Error"
+            })
+        }
+    },
+
+    naoRealizadas: async (req, res) => {
+        try {
+
+            const result = await Propostas.find()
+
+            const propostas = result.filter(e => {
+                return e.status != 'Concluído' && e.status != 'Cancelado'
+            })
+
+            return res.status(200).json({
+                propostas
+            })
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
 
 
 

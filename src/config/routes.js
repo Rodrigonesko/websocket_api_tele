@@ -41,6 +41,9 @@ router.get('/janelasEscolhidas', auth, propostaController.janelasEscolhidas)
 router.get('/erroMensagem', auth, propostaController.problemaEnviar)
 router.get('/atendimentoHumanizado', auth, propostaController.atendimentoHumanizado)
 router.get('/chat/:whatsapp', auth, propostaController.chat)
+router.get('/conversas/:pesquisa', auth, propostaController.conversas)
+router.get('/gerarMensagens', auth, propostaController.gerarMensagens)
+router.get('/naoRealizadas', auth, propostaController.naoRealizadas)
 
 router.post('/receiveMessage', propostaController.mensagemRecebida)
 
