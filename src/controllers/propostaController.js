@@ -731,7 +731,9 @@ module.exports = {
                 horarioEnviado: moment().format('YYYY-MM-DD HH:mm'),
                 opcaoDia1,
                 opcaoDia2,
-                modelo
+                modelo,
+                contato1: moment().format('YYYY-MM-DD HH:mm'),
+                responsavelContato1: 'Bot Whatsapp',
             })
 
             const mensagemBanco = await Chat.create({
