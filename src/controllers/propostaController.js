@@ -689,6 +689,10 @@ module.exports = {
                 return res.json({ msg: 'sem cpfTitular' })
             }
 
+            if(proposta.situacao !== 'A enviar'){
+                return res.json({msg: 'Não ajustado'})
+            }
+
             let whatsapp = proposta.whatsapp
 
             console.log(whatsapp);
