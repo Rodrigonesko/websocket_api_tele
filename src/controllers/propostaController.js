@@ -872,7 +872,7 @@ module.exports = {
                             atendimentoHumanizado: true
                         })
 
-                        const msg = 'Um dos nossos atendentes irá entrar em contato dentro de 1 a 2 minutos.'
+                        const msg = 'Um dos nossos atendentes irá entrar em contato.'
 
                         await client.messages.create({
                             from: TwilioNumber,
