@@ -690,7 +690,8 @@ module.exports = {
 
             const verificar = await PropostaEntrevista.findOne({
                 _id: proposta._id,
-                situacao: 'Enviado'
+                situacao: 'Enviado',
+                naoEnviar: true
             })
 
             if (verificar) {
