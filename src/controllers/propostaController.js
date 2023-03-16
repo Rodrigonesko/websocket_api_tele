@@ -659,6 +659,28 @@ module.exports = {
         }
     },
 
+    voltarAjuste: async (req, res) => {
+        try {
+
+            const { id } = req.body
+
+            const result = await PropostaEntrevista.findByIdAndUpdate({
+                _id: id
+            }, {
+                situacao: 'Corrigir',
+                cpfTitular: null
+            })
+
+            return res.json(result)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
     enviarMensagem: async (req, res) => {
         try {
 
@@ -689,8 +711,8 @@ module.exports = {
                 return res.json({ msg: 'sem cpfTitular' })
             }
 
-            if(proposta.situacao !== 'A enviar'){
-                return res.json({msg: 'Não ajustado'})
+            if (proposta.situacao !== 'A enviar') {
+                return res.json({ msg: 'Não ajustado' })
             }
 
             let whatsapp = proposta.whatsapp

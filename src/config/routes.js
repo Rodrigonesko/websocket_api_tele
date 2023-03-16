@@ -44,7 +44,8 @@ router.get('/chat/:whatsapp', auth, propostaController.chat)
 router.get('/conversas/:pesquisa', auth, propostaController.conversas)
 router.get('/gerarMensagens', auth, propostaController.gerarMensagens)
 router.get('/naoRealizadas', auth, propostaController.naoRealizadas)
-router.get('/aaaaa', propostaController.ajustar)
+router.put('/voltarAjuste', auth, propostaController.voltarAjuste)
+
 
 router.post('/receiveMessage', propostaController.mensagemRecebida)
 
