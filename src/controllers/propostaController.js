@@ -93,9 +93,7 @@ module.exports = {
 
                 const tipoContrato = item.TIPO_CONTRATO
 
-                if (tipoContrato !== 'Coletivo por Adesão com Administradora') {
-                    vigencia = moment().businessAdd(2).format('YYYY-MM-DD')
-                }
+                vigencia = moment().businessAdd(2).format('YYYY-MM-DD')
 
                 const grupoCarencia = item.GRUPO_CARENCIA
 
@@ -295,7 +293,8 @@ module.exports = {
                 agendado: 'agendado',
                 enfermeiro: responsavel,
                 quemAgendou: quemAgendou,
-                situacao: 'agendado'
+                situacao: 'agendado',
+                atendimentoHumanizado: false
             })
 
             return res.json(updateTele)
@@ -341,7 +340,8 @@ module.exports = {
             }, {
                 status: 'Cancelado',
                 dataConclusao: moment().format('YYYY-MM-DD'),
-                situacao: 'Cancelado'
+                situacao: 'Cancelado',
+                atendimentoHumanizado: false
             })
 
             return res.json(proposta)
@@ -588,7 +588,8 @@ module.exports = {
                 divergencia,
                 cids,
                 dataConclusao: moment().format('YYYY-MM-DD'),
-                situacao: 'Concluído'
+                situacao: 'Concluído',
+                atendimentoHumanizado: false
             })
 
             return res.json(updateProposta)
@@ -682,6 +683,10 @@ module.exports = {
 
             if (proposta.tipoAssociado === 'Dependente') {
                 return res.json({ msg: 'Dependente' })
+            }
+
+            if (!proposta.cpfTitular) {
+                return res.json({ msg: 'sem cpfTitular' })
             }
 
             let whatsapp = proposta.whatsapp
@@ -1507,7 +1512,26 @@ module.exports = {
         }
     },
 
+    ajustar: async (req, res) => {
+        try {
 
+            const result = await PropostaEntrevista.updateMany({
+                cpfTitular: 'sem'
+            }, {
+                situacao: ''
+            })
+
+            console.log(result.length);
+
+            return res.json(result)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    }
 
 }
 
