@@ -45,7 +45,8 @@ router.get('/conversas/:pesquisa', auth, propostaController.conversas)
 router.get('/gerarMensagens', auth, propostaController.gerarMensagens)
 router.get('/naoRealizadas', auth, propostaController.naoRealizadas)
 router.put('/voltarAjuste', auth, propostaController.voltarAjuste)
-
+router.put('/mandarAtendimentoHumanizado', auth, propostaController.mandarAtendimentoHumanizado)
+router.post('/sendMessage', auth, propostaController.mandarMensagem)
 
 router.post('/receiveMessage', propostaController.mensagemRecebida)
 
