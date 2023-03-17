@@ -1554,15 +1554,13 @@ module.exports = {
 
             const { whatsapp, mensagem } = req.body
 
-            const result = client.messages.create({
+            const result = await client.messages.create({
                 from: TwilioNumber,
                 body: mensagem,
                 to: whatsapp
             })
 
-            const sid = result.sid
-
-            const statusMessage = await client.messages(sid).fetch()
+            const statusMessage = await client.messages(result.sid).fetch()
 
             if (statusMessage.status === 'undelivered') {
                 return res.status(500).json({
