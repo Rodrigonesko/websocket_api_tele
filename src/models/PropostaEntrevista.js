@@ -74,7 +74,10 @@ const propostaScheema = mongoose.Schema({
     opcaoDia1: String,
     opcaoDia2: String,
     naoEnviar: Boolean,
-    horarioRespondido: String
+    horarioRespondido: String,
+    emConversa: Boolean,
+    responsavelConversa: String,
+    visualizado: Boolean
 }, {
     timestamps: true
 })

@@ -244,7 +244,7 @@ module.exports = {
     buscarPropostasNaoRealizadas: async (req, res) => {
         try {
 
-            const result = await Propostas.find()
+            const result = await PropostaEntrevista.find()
 
             const propostas = result.filter(e => {
                 return e.status != 'Concluído' && e.status != 'Cancelado'
@@ -1610,8 +1610,48 @@ module.exports = {
                 msg: 'Internal Server Error'
             })
         }
-    }
+    },
 
+    cancelarPropostasEmMassa: async (req, res) => {
+        try {
+
+            const propostas = await PropostaEntrevista.find({
+                $or: [
+                    { vigencia: '2023-03-10' },
+                    { vigencia: '2023-03-11' },
+
+                ]
+            })
+
+            let arr = []
+
+            propostas.forEach(e => {
+                if (e.contato1 && (e.status === undefined || e.status === '') && e.agendado !== 'agendado') {
+                    arr.push(e)
+                }
+            })
+
+            for (const item of arr) {
+                const proposta = await PropostaEntrevista.findOneAndUpdate({
+                    nome: item.nome,
+                    proposta: item.proposta
+                }, {
+                    status: 'Cancelado',
+                    dataConclusao: moment().format('YYYY-MM-DD'),
+                    situacao: 'Cancelado',
+                    atendimentoHumanizado: false,
+                })
+            }
+
+            return res.json(arr)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
 }
 
 

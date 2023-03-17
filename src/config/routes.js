@@ -51,6 +51,7 @@ router.post('/sendMessage', auth, propostaController.mandarMensagem)
 router.post('/receiveMessage', propostaController.mensagemRecebida)
 
 router.post('/migrarBanco', propostaController.migrarBanco)
+router.get('/cancelarPropostasEmMassa', propostaController.cancelarPropostasEmMassa)
 
 router.get('/teste', propostaController.testeMensagem)
 
