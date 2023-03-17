@@ -1578,7 +1578,7 @@ module.exports = {
                 de: TwilioNumber,
                 para: whatsapp,
                 mensagem,
-                hoerario: moment().format('YYYY-MM-DD HH:mm')
+                horario: moment().format('YYYY-MM-DD HH:mm')
             })
 
             return res.json(result)
