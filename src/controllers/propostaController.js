@@ -293,8 +293,6 @@ module.exports = {
                 agendado: 'agendado',
                 enfermeiro: responsavel,
                 quemAgendou: quemAgendou,
-                situacao: 'agendado',
-                atendimentoHumanizado: false
             })
 
             return res.json(updateTele)
@@ -339,9 +337,7 @@ module.exports = {
                 _id: id
             }, {
                 status: 'Cancelado',
-                dataConclusao: moment().format('YYYY-MM-DD'),
-                situacao: 'Cancelado',
-                atendimentoHumanizado: false
+                dataConclusao: moment().format('YYYY-MM-DD')
             })
 
             return res.json(proposta)
@@ -587,9 +583,7 @@ module.exports = {
                 houveDivergencia,
                 divergencia,
                 cids,
-                dataConclusao: moment().format('YYYY-MM-DD'),
-                situacao: 'Concluído',
-                atendimentoHumanizado: false
+                dataConclusao: moment().format('YYYY-MM-DD')
             })
 
             return res.json(updateProposta)
@@ -870,15 +864,14 @@ module.exports = {
                 if (!find.perguntaAtendimentoHumanizado) {
 
                     await PropostaEntrevista.findOneAndUpdate({
-                        whatsapp: fixed
+                        cpfTitular: find.cpfTitular
                     }, {
                         perguntaAtendimentoHumanizado: true
                     })
 
                     console.log(TwilioNumber, from);
 
-                    const msg = `Não entendemos sua resposta, por favor selecione o número referente a janela de horário que o Sr.(a) prefere.
-                    Caso deseje falar com um atendente digite: sim`
+                    const msg = `Não entendemos sua resposta, por favor digite somente o *número* referente a janela de horário que o Sr.(a) prefere.`
                     await client.messages.create({
                         from: TwilioNumber,
                         body: msg,
@@ -896,30 +889,30 @@ module.exports = {
                 }
 
                 if (find.perguntaAtendimentoHumanizado) {
-                    if (mensagem.toLowerCase().trim() === 'sim') {
-                        await PropostaEntrevista.findOneAndUpdate({
-                            cpfTitular: find.cpfTitular
-                        }, {
-                            atendimentoHumanizado: true
-                        })
 
-                        const msg = 'Um dos nossos atendentes irá entrar em contato.'
+                    await PropostaEntrevista.findOneAndUpdate({
+                        cpfTitular: find.cpfTitular
+                    }, {
+                        atendimentoHumanizado: true
+                    })
 
-                        await client.messages.create({
-                            from: TwilioNumber,
-                            body: msg,
-                            to: from
-                        })
+                    const msg = 'Não entendemos sua resposta novamente e um dos nossos atendentes irá entar em contato.'
 
-                        await Chat.create({
-                            de: TwilioNumber,
-                            para: fixed,
-                            mensagem: msg,
-                            horario: moment().format('YYYY-MM-DD HH:mm')
-                        })
+                    await client.messages.create({
+                        from: TwilioNumber,
+                        body: msg,
+                        to: from
+                    })
 
-                        return res.json(msg)
-                    }
+                    await Chat.create({
+                        de: TwilioNumber,
+                        para: fixed,
+                        mensagem: msg,
+                        horario: moment().format('YYYY-MM-DD HH:mm')
+                    })
+
+                    return res.json(msg)
+
                 }
 
                 const msg = 'Nao respondeu corretamente'
@@ -1201,9 +1194,7 @@ module.exports = {
         try {
 
             const result = await PropostaEntrevista.find({
-                situacao: 'Janela escolhida',
-                janelaHorario: { $ne: undefined },
-                agendado: { $ne: 'Agendado' }
+                situacao: 'Janela escolhida'
             }).sort('horarioRespondido')
 
             console.log(result);
@@ -1652,6 +1643,69 @@ module.exports = {
             })
         }
     },
+
+    encerrarAtendimentoJanela: async (req, res) => {
+        try {
+
+            const { id } = req.body
+
+            const result = await PropostaEntrevista.findByIdAndUpdate({
+                _id: id
+            }, {
+                situacao: 'Agendado'
+            })
+
+            return res.json(result)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    encerrarHumanizado: async (req, res) => {
+        try {
+
+            const { id } = req.body
+
+            const result = await PropostaEntrevista.findByIdAndUpdate({
+                _id: id
+            }, {
+                situacao: 'Agendado',
+                atendimentoHumanizado: false
+            })
+
+            return res.json(result)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    assumirAtendimento: async (req, res) => {
+        try {
+            const { id } = req.body
+
+            const result = await PropostaEntrevista.findByIdAndUpdate({
+                _id: id
+            }, {
+                responsavelConversa: req.user
+            })
+
+            return res.json(result)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    }
 }
 
 
@@ -1729,7 +1783,7 @@ function modeloMensagem1(nome) {
 
     let mensagem = `Prezado Sr.(a) ${nome},
     Somos da equipe de adesão da operadora de saúde Amil e para concluírmos a contratação do Plano de Saúde do Sr.(a), e dos seus dependentes (caso tenha) e precisamos confirmar alguns dados para que a contratação seja concluída.
-    Por gentileza escolha duas janelas de horários para entrarmos em contato com o Sr.(a)
+    Por gentileza escolha o *NÚMERO* referente a janela de horários para entrarmos em contato com o Sr.(a)
     *${data1}*
     1. Das 13:00 às 15:00
     2. Das 15:00 às 17:00
@@ -1761,7 +1815,7 @@ function modeloMensagem2(nome) {
 
     let mensagem = `Prezado Sr.(a) ${nome},
     Somos da equipe de adesão da operadora de saúde Amil e para concluírmos a contratação do Plano de Saúde do Sr.(a), e dos seus dependentes (caso tenha) e precisamos confirmar alguns dados para que a contratação seja concluída.
-    Por gentileza escolha duas janelas de horários para entrarmos em contato com o Sr.(a)
+    Por gentileza escolha o *NÚMERO* referente a janela de horários para entrarmos em contato com o Sr.(a)
     *${data1}*
     1. Das 09:00 às 11:00
     2. Das 11:00 às 13:00

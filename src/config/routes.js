@@ -47,6 +47,9 @@ router.get('/naoRealizadas', auth, propostaController.naoRealizadas)
 router.put('/voltarAjuste', auth, propostaController.voltarAjuste)
 router.put('/mandarAtendimentoHumanizado', auth, propostaController.mandarAtendimentoHumanizado)
 router.post('/sendMessage', auth, propostaController.mandarMensagem)
+router.put('/encerrarAtendimento', auth, propostaController.encerrarAtendimentoJanela)
+router.put('/encerrarHumanizado', auth, propostaController.encerrarHumanizado)
+router.put('/assumirConversa', auth, propostaController.assumirAtendimento)
 
 router.post('/receiveMessage', propostaController.mensagemRecebida)
 

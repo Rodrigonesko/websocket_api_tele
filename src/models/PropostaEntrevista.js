@@ -75,7 +75,6 @@ const propostaScheema = mongoose.Schema({
     opcaoDia2: String,
     naoEnviar: Boolean,
     horarioRespondido: String,
-    emConversa: Boolean,
     responsavelConversa: String,
     visualizado: Boolean
 }, {
