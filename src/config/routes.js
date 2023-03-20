@@ -50,6 +50,7 @@ router.post('/sendMessage', auth, propostaController.mandarMensagem)
 router.put('/encerrarAtendimento', auth, propostaController.encerrarAtendimentoJanela)
 router.put('/encerrarHumanizado', auth, propostaController.encerrarHumanizado)
 router.put('/assumirConversa', auth, propostaController.assumirAtendimento)
+router.put('/visualizarMensagem', auth, propostaController.visualizarMensagem)
 
 router.post('/receiveMessage', propostaController.mensagemRecebida)
 

@@ -855,6 +855,12 @@ module.exports = {
                 return res.json(msg)
             }
 
+            await PropostaEntrevista.findByIdAndUpdate({
+                _id: find._id
+            }, {
+                visualizado: true
+            })
+
             if (isNaN(Number(mensagem))) {
 
                 if (find.atendimentoHumanizado) {
@@ -896,7 +902,7 @@ module.exports = {
                         atendimentoHumanizado: true
                     })
 
-                    const msg = 'Não entendemos sua resposta novamente e um dos nossos atendentes irá entar em contato.'
+                    const msg = 'Não entendemos sua resposta novamente, um dos nossos atendentes irá entar em contato.'
 
                     await client.messages.create({
                         from: TwilioNumber,
@@ -1608,19 +1614,37 @@ module.exports = {
 
             const propostas = await PropostaEntrevista.find({
                 $or: [
-                    { vigencia: '2023-03-10' },
-                    { vigencia: '2023-03-11' },
-
+                    { vigencia: '2023-03-14' },
                 ]
             })
 
             let arr = []
 
-            propostas.forEach(e => {
+
+            let count = 0
+
+            for (const e of propostas) {
                 if (e.contato1 && (e.status === undefined || e.status === '') && e.agendado !== 'agendado') {
                     arr.push(e)
+                    count++
+                    if (count == 30) {
+                        break
+                    }
                 }
-            })
+            }
+
+            // propostas.forEach(e => {
+            //     if (e.contato1 && (e.status === undefined || e.status === '') && e.agendado !== 'agendado') {
+            //         arr.push(e)
+            //         count++
+            //         if (count == 30) {
+            //             return 0
+            //         }
+            //     }
+            // })
+
+            console.log(arr.length, count);
+
 
             for (const item of arr) {
                 const proposta = await PropostaEntrevista.findOneAndUpdate({
@@ -1628,7 +1652,7 @@ module.exports = {
                     proposta: item.proposta
                 }, {
                     status: 'Cancelado',
-                    dataConclusao: moment().format('YYYY-MM-DD'),
+                    dataConclusao: item.contato2 ? item.contato2 : moment().format('YYYY-MM-DD'),
                     situacao: 'Cancelado',
                     atendimentoHumanizado: false,
                 })
@@ -1695,6 +1719,31 @@ module.exports = {
                 _id: id
             }, {
                 responsavelConversa: req.user
+            })
+
+            return res.json(result)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    visualizarMensagem: async (req, res) => {
+        try {
+
+            const { whatsapp } = req.body
+
+            const dados = await PropostaEntrevista.findOne({
+                whatsapp
+            })
+
+            const result = await PropostaEntrevista.updateMany({
+                cpfTitular: dados.cpfTitular
+            }, {
+                visualizado: false
             })
 
             return res.json(result)
