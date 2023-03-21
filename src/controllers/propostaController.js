@@ -1620,12 +1620,13 @@ module.exports = {
 
             const propostas = await PropostaEntrevista.find({
                 $or: [
-                    { vigencia: '2023-03-14' },
+                    { vigencia: '2023-03-15' },
                 ]
             })
 
             let arr = []
 
+            console.log(propostas.length);
 
             let count = 0
 
@@ -1633,24 +1634,13 @@ module.exports = {
                 if (e.contato1 && (e.status === undefined || e.status === '') && e.agendado !== 'agendado') {
                     arr.push(e)
                     count++
-                    if (count == 30) {
+                    if (count == 20) {
                         break
                     }
                 }
             }
 
-            // propostas.forEach(e => {
-            //     if (e.contato1 && (e.status === undefined || e.status === '') && e.agendado !== 'agendado') {
-            //         arr.push(e)
-            //         count++
-            //         if (count == 30) {
-            //             return 0
-            //         }
-            //     }
-            // })
-
-            console.log(arr.length, count);
-
+            console.log(arr.length);
 
             for (const item of arr) {
                 const proposta = await PropostaEntrevista.findOneAndUpdate({
@@ -1679,13 +1669,67 @@ module.exports = {
 
             const { id } = req.body
 
-            const result = await PropostaEntrevista.findByIdAndUpdate({
+            const result = await PropostaEntrevista.findById({
                 _id: id
-            }, {
-                situacao: 'Agendado'
             })
 
-            return res.json(result)
+            if (result.tipoAssociado === 'Dependente') {
+                return res.json(result)
+            }
+
+            const dependentes = await PropostaEntrevista.find({
+                cpfTitular: result.cpfTitular
+            })
+
+            if (dependentes.length > 1) {
+                let msg = `Agendado. Lembrando que a entrevista é para o Senhor(a) e os dependentes, `
+                let count = 0
+                for (const e of dependentes) {
+                    count++
+                    if (e.nome === result.nome) {
+                        continue
+                    }
+                    if (count === dependentes.length - 1) {
+                        msg += `Sr (a) ${e.nome}.`
+                        continue
+                    }
+                    msg += `Sr (a) ${e.nome}, `
+
+                }
+                msg += ` Caso os mesmos não estejam presentes no seu horário, o Sr (a) pode informar o contato deles durante a realização da sua entrevista para que possamos entrar em contato com os mesmos neste mesmo horário.`
+                console.log(msg);
+
+                await client.messages.create({
+                    to: result.whatsapp,
+                    from: TwilioNumber,
+                    body: msg
+                })
+
+                await Chat.create({
+                    para: result.whatsapp,
+                    de: TwilioNumber,
+                    horario: moment().format('YYYY-MM-DD HH:mm'),
+                    mensagem: msg
+                })
+
+                return res.json(msg)
+            }
+
+            await client.messages.create({
+                to: result.whatsapp,
+                from: TwilioNumber,
+                body: 'Agendado.'
+            })
+
+            await Chat.create({
+                para: result.whatsapp,
+                de: TwilioNumber,
+                horario: moment().format('YYYY-MM-DD HH:mm'),
+                mensagem: 'Agendado.'
+            })
+
+            return res.json('Agendado')
+
 
         } catch (error) {
             console.log(error);
