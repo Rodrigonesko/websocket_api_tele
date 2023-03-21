@@ -1669,8 +1669,10 @@ module.exports = {
 
             const { id } = req.body
 
-            const result = await PropostaEntrevista.findById({
+            const result = await PropostaEntrevista.findByIdAndUpdate({
                 _id: id
+            }, {
+                situacao: 'agendado'
             })
 
             if (result.tipoAssociado === 'Dependente') {
