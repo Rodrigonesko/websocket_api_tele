@@ -837,6 +837,12 @@ module.exports = {
                 return res.json(msg)
             }
 
+            await PropostaEntrevista.findByIdAndUpdate({
+                _id: find._id
+            }, {
+                visualizado: true
+            })
+
             if (find.status === 'Concluído') {
                 const msg = "Atendimento encerrado, a Amil agradece"
                 await client.messages.create({
@@ -855,11 +861,13 @@ module.exports = {
                 return res.json(msg)
             }
 
-            await PropostaEntrevista.findByIdAndUpdate({
-                _id: find._id
-            }, {
-                visualizado: true
-            })
+
+
+            if (find.situacao === 'Janela escolhida') {
+                return res.json({
+                    msg: 'janela ja escolhida'
+                })
+            }
 
             if (isNaN(Number(mensagem))) {
 
@@ -874,8 +882,6 @@ module.exports = {
                     }, {
                         perguntaAtendimentoHumanizado: true
                     })
-
-                    console.log(TwilioNumber, from);
 
                     const msg = `Não entendemos sua resposta, por favor digite somente o *número* referente a janela de horário que o Sr.(a) prefere.`
                     await client.messages.create({
