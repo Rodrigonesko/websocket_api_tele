@@ -466,6 +466,28 @@ module.exports = {
 
             const { id, formulario } = req.body
 
+            if(formulario === 'adulto-f'){
+                const proposta = await PropostaEntrevista.findByIdAndUpdate({
+                    _id: id
+                }, {
+                    formulario: 'adulto',
+                    sexo: 'F'
+                })
+
+                return res.status(200).json(proposta)
+            }
+
+            if(formulario === 'adulto-m'){
+                const proposta = await PropostaEntrevista.findByIdAndUpdate({
+                    _id: id
+                }, {
+                    formulario: 'adulto',
+                    sexo: 'M'
+                })
+
+                return res.status(200).json(proposta)
+            }
+
             const proposta = await PropostaEntrevista.findByIdAndUpdate({
                 _id: id
             }, {
@@ -808,9 +830,7 @@ module.exports = {
 
             const { from, mensagem, fixed } = req.body
 
-            io.emit('teste', { message: 'teste' })
-
-            console.log(from, mensagem);
+            io.emit('receivedMessage', { whatsapp: fixed })
 
             const insertChat = await Chat.create({
                 de: fixed,
@@ -1623,7 +1643,7 @@ module.exports = {
 
             const propostas = await PropostaEntrevista.find({
                 $or: [
-                    { vigencia: '2023-03-22' },
+                    { vigencia: '2023-03-23' },
                 ]
             })
 
@@ -1810,7 +1830,7 @@ module.exports = {
     testeIo: async (req, res) => {
         try {
 
-            io.emit('teste', { message: 'teste' })
+            io.emit('receivedMessage', { whatsapp: 'whatsapp:+5541997971794' })
 
             console.log('ola');
 
