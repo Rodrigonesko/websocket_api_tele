@@ -3,8 +3,19 @@ const app = express();
 const cookieParser = require('cookie-parser')
 const http = require('http');
 const server = http.createServer(app);
-const { Server } = require("socket.io");
-const io = new Server(server);
+// const { Server } = require("socket.io");
+// const io = new Server(server, {
+//   cors: {
+//     origin: true
+//   }
+// });
+
+const io = require('socket.io')(server, {
+  cors: {
+    origin: true
+  }
+})
+
 require('dotenv').config()
 const cors = require("cors");
 app.use(cors({ credentials: true, origin: true }));
@@ -13,8 +24,12 @@ app.use(cors({ credentials: true, origin: true }));
 const mongoose = require('mongoose')
 mongoose.connect(process.env.MONGODB_URL)
 
-const routes = require('./src/config/routes')
+module.exports = {
+  io
+}
 
+
+const routes = require('./src/config/routes')
 
 app.use(express.json({ limit: '100mb' }))
 app.use(cookieParser())
@@ -24,10 +39,6 @@ app.use(function (req, res, next) {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
   res.setHeader('Access-Control-Allow-Credentials', true);
   next();
-});
-
-io.on('connection', (socket) => {
-  console.log('a user connected');
 });
 
 app.use('/', routes)

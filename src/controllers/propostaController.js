@@ -8,6 +8,9 @@ const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = require('twilio')(accountSid, authToken);
 const TwilioNumber = process.env.TWILIO_NUMBER
 
+const { io } = require('../../index')
+
+
 module.exports = {
     upload: async (req, res) => {
         try {
@@ -805,6 +808,8 @@ module.exports = {
 
             const { from, mensagem, fixed } = req.body
 
+            io.emit('teste', { message: 'teste' })
+
             console.log(from, mensagem);
 
             const insertChat = await Chat.create({
@@ -1208,8 +1213,6 @@ module.exports = {
             const result = await PropostaEntrevista.find({
                 situacao: 'Janela escolhida'
             }).sort('horarioRespondido')
-
-            console.log(result);
 
             return res.json(result)
 
@@ -1620,7 +1623,7 @@ module.exports = {
 
             const propostas = await PropostaEntrevista.find({
                 $or: [
-                    { vigencia: '2023-03-15' },
+                    { vigencia: '2023-03-22' },
                 ]
             })
 
@@ -1633,10 +1636,6 @@ module.exports = {
             for (const e of propostas) {
                 if (e.contato1 && (e.status === undefined || e.status === '') && e.agendado !== 'agendado') {
                     arr.push(e)
-                    count++
-                    if (count == 20) {
-                        break
-                    }
                 }
             }
 
@@ -1648,7 +1647,7 @@ module.exports = {
                     proposta: item.proposta
                 }, {
                     status: 'Cancelado',
-                    dataConclusao: item.contato2 ? item.contato2 : moment().format('YYYY-MM-DD'),
+                    dataConclusao: moment().format('YYYY-MM-DD'),
                     situacao: 'Cancelado',
                     atendimentoHumanizado: false,
                 })
@@ -1799,6 +1798,28 @@ module.exports = {
             })
 
             return res.json(result)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    testeIo: async (req, res) => {
+        try {
+
+            io.emit('teste', { message: 'teste' })
+
+            console.log('ola');
+
+            // io.on('connection', (socket) => {
+            //     console.log('a user connected');
+            //     socket.emit('teste', { message: 'teste' })
+            // });
+
+            return res.json({ msg: 'teste' })
 
         } catch (error) {
             console.log(error);

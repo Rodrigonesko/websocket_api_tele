@@ -7,6 +7,7 @@ const propostaController = require('../controllers/propostaController')
 const auth = require('../middlewares/auth')
 const verifyToken = require('../middlewares/verifyToken')
 
+
 router.get('/verifyToken', auth, verifyToken.verify)
 
 router.get('/', publicController.index)
@@ -56,6 +57,8 @@ router.post('/receiveMessage', propostaController.mensagemRecebida)
 
 router.post('/migrarBanco', propostaController.migrarBanco)
 router.get('/cancelarPropostasEmMassa', propostaController.cancelarPropostasEmMassa)
+
+router.get('/testeio', propostaController.testeIo)
 
 router.get('/teste', propostaController.testeMensagem)
 
