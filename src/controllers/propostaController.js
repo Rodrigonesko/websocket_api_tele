@@ -466,7 +466,7 @@ module.exports = {
 
             const { id, formulario } = req.body
 
-            if(formulario === 'adulto-f'){
+            if (formulario === 'adulto-f') {
                 const proposta = await PropostaEntrevista.findByIdAndUpdate({
                     _id: id
                 }, {
@@ -477,7 +477,7 @@ module.exports = {
                 return res.status(200).json(proposta)
             }
 
-            if(formulario === 'adulto-m'){
+            if (formulario === 'adulto-m') {
                 const proposta = await PropostaEntrevista.findByIdAndUpdate({
                     _id: id
                 }, {
@@ -1211,8 +1211,9 @@ module.exports = {
 
             const result = await PropostaEntrevista.find({
                 $or: [
-                    { situacao: 'Problemas ao Enviar' },
-                    { situacao: 'Sem whatsapp' },
+                    { situacao: 'Problemas ao Enviar', status: undefined },
+                    { situacao: 'Sem whatsapp', status: undefined },
+
                 ]
             })
 
