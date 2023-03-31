@@ -1186,10 +1186,9 @@ module.exports = {
     testeMensagem: async (req, res) => {
         try {
 
-            let mensagem = `Horários disponíveis para o dia 30/03/2023:
-12:00 - 12:20 - 12:40 - 14:20 - 14:40 - 15:20 - 15:40 - 16:00 - 16:20 - 16:40 - 17:40 -
-Qual o melhor horário?
-Cumpre informar que essa entrevista de complementação é necessária para Adesão ao Plano de Saúde, este que permanecerá paralisado o processo até a realização desta entrevista, informar por gentileza qual o melhor horário.`
+            let mensagem = modeloMensagem2('RODRIGO ONESKO DIAS').mensagem
+
+            console.log(mensagem);
 
             const result = await client.messages.create({
                 from: TwilioNumber,
@@ -1975,21 +1974,21 @@ function modeloMensagem1(nome) {
     }
 
     let mensagem = `Prezado Sr.(a) ${nome},
-Somos da equipe de adesão da operadora de saúde Amil e para concluírmos a contratação do Plano de Saúde do Sr.(a), e dos seus dependentes(caso tenha) e precisamos confirmar alguns dados para que a contratação seja concluída.
-Por gentileza escolha o * NÚMERO * referente a janela de horários para entrarmos em contato com o Sr.(a)
-*${data1}*
-1. Das 13: 00 às 15: 00
-2. Das 15: 00 às 17: 00
-3. Das 17: 00 às 19: 00
-*${data2}*
-4. Das 09: 00 às 11: 00
-5. Das 11: 00 às 13: 00
-6. Das 13: 00 às 15: 00
-7. Das 15: 00 às 17: 00
-8. Das 17: 00 às 19: 00
-Qual o melhor horário ?
-Informamos que vamos ligar dos números 11 42404975 ou 42403554, pedimos tirar do spam para evitar bloqueio da ligação.Desde já agradecemos.
-Atenção: o preenchimento dos horários é feito em tempo real.Caso o horário informado não esteja mais disponível, apresentarei uma nova opção.`
+    Somos da equipe de adesão da operadora de saúde Amil e para concluírmos a contratação do Plano de Saúde do Sr.(a), e dos seus dependentes (caso tenha) e precisamos confirmar alguns dados para que a contratação seja concluída.
+    Por gentileza escolha o *NÚMERO* referente a janela de horários para entrarmos em contato com o Sr.(a)
+    *${data1}*
+    1. Das 13:00 às 15:00
+    2. Das 15:00 às 17:00
+    3. Das 17:00 às 19:00
+    *${data2}*
+    4. Das 09:00 às 11:00
+    5. Das 11:00 às 13:00
+    6. Das 13:00 às 15:00
+    7. Das 15:00 às 17:00
+    8. Das 17:00 às 19:00
+    Qual o melhor horário?
+    Informamos que vamos ligar dos números 11 42404975 ou 42403554, pedimos tirar do spam para evitar bloqueio da ligação. Desde já agradecemos.
+    Atenção: o preenchimento dos horários é feito em tempo real. Caso o horário informado não esteja mais disponível, apresentarei uma nova opção.`
 
     return { data1, data2, mensagem }
 }
@@ -2007,23 +2006,23 @@ function modeloMensagem2(nome) {
     }
 
     let mensagem = `Prezado Sr.(a) ${nome},
-Somos da equipe de adesão da operadora de saúde Amil e para concluírmos a contratação do Plano de Saúde do Sr.(a), e dos seus dependentes(caso tenha) e precisamos confirmar alguns dados para que a contratação seja concluída.
-Por gentileza escolha o * NÚMERO * referente a janela de horários para entrarmos em contato com o Sr.(a)
-*${data1}*
-1. Das 09: 00 às 11: 00
-2. Das 11: 00 às 13: 00
-3. Das 13: 00 às 15: 00
-4. Das 15: 00 às 17: 00
-5. Das 17: 00 às 19: 00
-*${data2}*
-6. Das 09: 00 às 11: 00
-7. Das 11: 00 às 13: 00
-8. Das 13: 00 às 15: 00
-9. Das 15: 00 às 17: 00
-10. Das 17: 00 às 19: 00
-Qual o melhor horário ?
-Informamos que vamos ligar dos números 11 42404975 ou 42403554, pedimos tirar do spam para evitar bloqueio da ligação.Desde já agradecemos.
-Atenção: o preenchimento dos horários é feito em tempo real.Caso o horário informado não esteja mais disponível, apresentarei uma nova opção.`
+    Somos da equipe de adesão da operadora de saúde Amil e para concluírmos a contratação do Plano de Saúde do Sr.(a), e dos seus dependentes (caso tenha) e precisamos confirmar alguns dados para que a contratação seja concluída.
+    Por gentileza escolha o *NÚMERO* referente a janela de horários para entrarmos em contato com o Sr.(a)
+    *${data1}*
+    1. Das 09:00 às 11:00
+    2. Das 11:00 às 13:00
+    3. Das 13:00 às 15:00
+    4. Das 15:00 às 17:00
+    5. Das 17:00 às 19:00
+    *${data2}*
+    6. Das 09:00 às 11:00
+    7. Das 11:00 às 13:00
+    8. Das 13:00 às 15:00
+    9. Das 15:00 às 17:00
+    10. Das 17:00 às 19:00
+    Qual o melhor horário?
+    Informamos que vamos ligar dos números 11 42404975 ou 42403554, pedimos tirar do spam para evitar bloqueio da ligação. Desde já agradecemos.
+    Atenção: o preenchimento dos horários é feito em tempo real. Caso o horário informado não esteja mais disponível, apresentarei uma nova opção.`
 
     return { data1, data2, mensagem }
 }
