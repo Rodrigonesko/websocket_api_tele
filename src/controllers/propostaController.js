@@ -1977,11 +1977,11 @@ function modeloMensagem1(nome) {
     let mensagem = `Prezado Sr.(a) ${nome},
 Somos da equipe de adesão da operadora de saúde Amil e para concluírmos a contratação do Plano de Saúde do Sr.(a), e dos seus dependentes(caso tenha) e precisamos confirmar alguns dados para que a contratação seja concluída.
 Por gentileza escolha o * NÚMERO * referente a janela de horários para entrarmos em contato com o Sr.(a)
-* ${data1}*
+*${data1}*
 1. Das 13: 00 às 15: 00
 2. Das 15: 00 às 17: 00
 3. Das 17: 00 às 19: 00
-* ${data2}*
+*${data2}*
 4. Das 09: 00 às 11: 00
 5. Das 11: 00 às 13: 00
 6. Das 13: 00 às 15: 00
@@ -2009,13 +2009,13 @@ function modeloMensagem2(nome) {
     let mensagem = `Prezado Sr.(a) ${nome},
 Somos da equipe de adesão da operadora de saúde Amil e para concluírmos a contratação do Plano de Saúde do Sr.(a), e dos seus dependentes(caso tenha) e precisamos confirmar alguns dados para que a contratação seja concluída.
 Por gentileza escolha o * NÚMERO * referente a janela de horários para entrarmos em contato com o Sr.(a)
-* ${data1}*
+*${data1}*
 1. Das 09: 00 às 11: 00
 2. Das 11: 00 às 13: 00
 3. Das 13: 00 às 15: 00
 4. Das 15: 00 às 17: 00
 5. Das 17: 00 às 19: 00
-* ${data2}*
+*${data2}*
 6. Das 09: 00 às 11: 00
 7. Das 11: 00 às 13: 00
 8. Das 13: 00 às 15: 00
