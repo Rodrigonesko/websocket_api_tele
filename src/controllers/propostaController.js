@@ -120,8 +120,13 @@ module.exports = {
 
                 const observacao = item['OBSERVAÇÕES']
                 const ddd = item.NUM_DDD_CEL
-                const numero = item.NUM_CEL?.toString()
+                let numero = item.NUM_CEL?.toString()
                 const telefone = `(${ddd}) ${numero}`
+
+                if (numero.length !== 9) {
+                    numero = `9${numero}`
+                }
+
 
                 let whatsapp = `whatsapp:+55${ddd}${numero}`
                 whatsapp = whatsapp.replace(/\s/g, '')
@@ -1531,7 +1536,6 @@ module.exports = {
                     parte8,
                     proposta: item.proposta,
                     tipoContrato: item.tipoContrato
-
                 }
 
                 return msg
