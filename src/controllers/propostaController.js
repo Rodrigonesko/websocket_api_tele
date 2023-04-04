@@ -214,15 +214,15 @@ module.exports = {
                     whatsapp
                 }
 
-                // const existeProposta = await PropostaEntrevista.findOne({
-                //     proposta,
-                //     nome
-                // })
+                const existeProposta = await PropostaEntrevista.findOne({
+                    proposta,
+                    nome
+                })
 
-                // if (!existeProposta) {
-                //     const newPropostaEntrevista = await PropostaEntrevista.create(resultado)
-                //     quantidade++
-                // }
+                if (!existeProposta) {
+                    const newPropostaEntrevista = await PropostaEntrevista.create(resultado)
+                    quantidade++
+                }
 
             }
 
