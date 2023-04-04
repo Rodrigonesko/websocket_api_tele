@@ -120,11 +120,12 @@ module.exports = {
 
                 const observacao = item['OBSERVAÇÕES']
                 const ddd = item.NUM_DDD_CEL
-                let numero = item.NUM_CEL?.toString()
+                let numero = item.NUM_CEL?.toString().replace(/\s/g, '')
                 const telefone = `(${ddd}) ${numero}`
 
-                if (numero?.replace(/\s/g, '').length !== 9 && numero !== undefined) {
+                if (numero?.length !== 9 && numero !== undefined) {
                     numero = `9${numero}`
+                    console.log(numero);
                 }
 
 
@@ -213,15 +214,15 @@ module.exports = {
                     whatsapp
                 }
 
-                const existeProposta = await PropostaEntrevista.findOne({
-                    proposta,
-                    nome
-                })
+                // const existeProposta = await PropostaEntrevista.findOne({
+                //     proposta,
+                //     nome
+                // })
 
-                if (!existeProposta) {
-                    const newPropostaEntrevista = await PropostaEntrevista.create(resultado)
-                    quantidade++
-                }
+                // if (!existeProposta) {
+                //     const newPropostaEntrevista = await PropostaEntrevista.create(resultado)
+                //     quantidade++
+                // }
 
             }
 
