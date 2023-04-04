@@ -123,7 +123,7 @@ module.exports = {
                 let numero = item.NUM_CEL?.toString()
                 const telefone = `(${ddd}) ${numero}`
 
-                if (numero?.length !== 9 && numero !== undefined) {
+                if (numero?.replace(/\s/g, '').length !== 9 && numero !== undefined) {
                     numero = `9${numero}`
                 }
 
