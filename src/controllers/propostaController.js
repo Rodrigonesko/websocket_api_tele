@@ -717,12 +717,12 @@ module.exports = {
             let modelo
 
             if (modeloEscolhido === 'Modelo 1') {
-                mensagem = modeloMensagem1(proposta.nome, data1, data2)
+                mensagem = modeloMensagem1(proposta.nome, data1, data2).mensagem
                 modelo = '1'
             }
 
             if (modeloEscolhido === 'Modelo 2') {
-                mensagem = modeloMensagem2(proposta.nome, data1, data2)
+                mensagem = modeloMensagem2(proposta.nome, data1, data2).mensagem
                 modelo = '2'
             }
 
