@@ -709,23 +709,21 @@ module.exports = {
     enviarMensagem: async (req, res) => {
         try {
 
-            const { proposta } = req.body
+            const { proposta, modeloEscolhido, data1, data2 } = req.body
 
             let mensagem
-            let opcaoDia1
-            let opcaoDia2
+            let opcaoDia1 = data1
+            let opcaoDia2 = data2
             let modelo
 
-            if (new Date().getTime() > new Date(moment().format('YYYY-MM-DD 13:00'))) {
-                mensagem = modeloMensagem2(proposta.nome).mensagem
-                opcaoDia1 = modeloMensagem2(proposta.nome).data1
-                opcaoDia2 = modeloMensagem2(proposta.nome).data2
-                modelo = '2'
-            } else {
-                mensagem = modeloMensagem1(proposta.nome).mensagem
-                opcaoDia1 = modeloMensagem1(proposta.nome).data1
-                opcaoDia2 = modeloMensagem1(proposta.nome).data2
+            if (modeloEscolhido === 'Modelo 1') {
+                mensagem = modeloMensagem1(proposta.nome, data1, data2)
                 modelo = '1'
+            }
+
+            if (modeloEscolhido === 'Modelo 2') {
+                mensagem = modeloMensagem2(proposta.nome, data1, data2)
+                modelo = '2'
             }
 
             if (proposta.tipoAssociado === 'Dependente') {
@@ -1970,13 +1968,7 @@ function calcularIdade(data) {
     return age.years;
 }
 
-function modeloMensagem1(nome) {
-    let data1 = moment().format('DD/MM/YYYY')
-    let data2 = moment().add(1, 'day').format('DD/MM/YYYY')
-    if (moment().format('dddd') === 'Friday') {
-        data1 = moment().format('DD/MM/YYYY')
-        data2 = moment().add(3, 'days').format('DD/MM/YYYY')
-    }
+function modeloMensagem1(nome, data1, data2) {
 
     let mensagem = `Prezado Sr.(a) ${nome},
     Somos da equipe de adesão da operadora de saúde Amil e para concluírmos a contratação do Plano de Saúde do Sr.(a), e dos seus dependentes (caso tenha) e precisamos confirmar alguns dados para que a contratação seja concluída.
@@ -1998,17 +1990,7 @@ function modeloMensagem1(nome) {
     return { data1, data2, mensagem }
 }
 
-function modeloMensagem2(nome) {
-    let data1 = moment().add(1, 'day').format('DD/MM/YYYY')
-    let data2 = moment().add(2, 'day').format('DD/MM/YYYY')
-    if (moment().format('dddd') === 'Friday') {
-        data1 = moment().add(3, 'days').format('DD/MM/YYYY')
-        data2 = moment().add(4, 'days').format('DD/MM/YYYY')
-    }
-    if (moment().format('dddd') === 'Thursday') {
-        data1 = moment().add(1, 'day').format('DD/MM/YYYY')
-        data2 = moment().add(4, 'days').format('DD/MM/YYYY')
-    }
+function modeloMensagem2(nome, data1, data2) {
 
     let mensagem = `Prezado Sr.(a) ${nome},
     Somos da equipe de adesão da operadora de saúde Amil e para concluírmos a contratação do Plano de Saúde do Sr.(a), e dos seus dependentes (caso tenha) e precisamos confirmar alguns dados para que a contratação seja concluída.
