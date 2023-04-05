@@ -119,8 +119,8 @@ module.exports = {
                 const cid3 = item.CID_PI_ANT_3
 
                 const observacao = item['OBSERVAÇÕES']
-                const ddd = item.NUM_DDD_CEL
-                let numero = item.NUM_CEL?.toString().replace(/\s/g, '')
+                const ddd = item.NUM_DDD_CEL || item.NUM_DDD_TEL
+                let numero = item.NUM_CEL?.toString().replace(/\s/g, '') || item.NUM_TEL?.toString().replace(/\s/g, '')
                 const telefone = `(${ddd}) ${numero}`
 
                 if (numero?.length !== 9 && numero !== undefined) {
