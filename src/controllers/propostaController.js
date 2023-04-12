@@ -937,7 +937,7 @@ module.exports = {
                         atendimentoHumanizado: true
                     })
 
-                    const msg = 'Não entendemos sua resposta novamente, um dos nossos atendentes irá entar em contato.'
+                    const msg = 'Um dos nossos atendentes irá entar em contato.'
 
                     await client.messages.create({
                         from: TwilioNumber,
@@ -1881,8 +1881,7 @@ module.exports = {
             await PropostaEntrevista.updateMany({
                 cpfTitular: proposta.cpfTitular
             }, {
-                atendimentoHumanizado: true,
-                situacao: 'Atendimento humanizado'
+                perguntaAtendimentoHumanizado: true
             })
 
             await Chat.create({
