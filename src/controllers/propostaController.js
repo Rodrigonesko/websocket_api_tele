@@ -60,7 +60,7 @@ module.exports = {
 
             for (const item of arrCpfTitulares) {
 
-                const proposta = item.NUM_PROPOSTA
+                const proposta = item.NUM_PROPOSTA.trim()
 
                 let vigencia = ExcelDateToJSDate(item.DT_VENDA)
                 vigencia.setDate(vigencia.getDate() + 1)
