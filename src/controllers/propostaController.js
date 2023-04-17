@@ -817,7 +817,8 @@ module.exports = {
 
             const result = await PropostaEntrevista.find({
                 situacao,
-                agendado: {$ne: 'Agendado'}
+                agendado: { $ne: 'Agendado' },
+                atendimentoHumanizado: false
             })
 
             return res.json(result)
@@ -932,7 +933,7 @@ module.exports = {
 
                 if (find.perguntaAtendimentoHumanizado) {
 
-                    await PropostaEntrevista.findOneAndUpdate({
+                    await PropostaEntrevista.updateMany({
                         cpfTitular: find.cpfTitular
                     }, {
                         atendimentoHumanizado: true
@@ -1930,7 +1931,7 @@ module.exports = {
     lembreteMensagem: async (req, res) => {
         try {
 
-            const {id} = req.body
+            const { id } = req.body
 
             const find = await PropostaEntrevista.findOne({
                 _id: id
