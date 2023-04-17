@@ -1259,8 +1259,8 @@ module.exports = {
 
             const result = await PropostaEntrevista.find({
                 atendimentoHumanizado: true,
-                status: {$ne: 'Cancelado', $ne: 'Concluído'},
-                agendado: {$ne: 'Agendado'}
+                status: { $ne: 'Cancelado', $ne: 'Concluído' },
+                agendado: { $ne: 'Agendado' }
             })
 
             return res.json(result)
@@ -1906,41 +1906,22 @@ module.exports = {
         }
     },
 
-    salvarMensagem: async (req, res) => {
-        try {
-
-            const { mensagem, para, de } = req.body
-
-            console.log(mensagem, para, de);
-
-            await Chat.create({
-                mensagem,
-                para,
-                de
-            })
-
-            return res.json({
-                msg: 'ok'
-            })
-
-        } catch (error) {
-            console.log(error);
-            return res.status(500).json({
-                msg: 'Internal Server Error'
-            })
-        }
-    },
-
     lembreteMensagem: async (req, res) => {
         try {
 
-            const { id } = req.body
-
-            const find = await PropostaEntrevista.findOne({
-                _id: id
+            const find = await PropostaEntrevista.find({
+                agendado: 'Agendado',
+                status: { $ne: 'Concluído', $ne: 'Cancelado' }
             })
 
+            console.log(find.length);
 
+            for (const item of find) {
+                const dataEntrevista = new Date(item.dataEntrevista)
+                const agora = new Date()
+
+                console.log(verificarTempoEntreDatas(dataEntrevista, agora));
+            }
 
             return res.json({
                 msg: 'ok'
@@ -2064,4 +2045,14 @@ function modeloMensagem2(nome, data1, data2) {
     Atenção: o preenchimento dos horários é feito em tempo real. Caso o horário informado não esteja mais disponível, apresentarei uma nova opção.`
 
     return { data1, data2, mensagem }
+}
+
+function verificarTempoEntreDatas(date1, date2) {
+    // Calcula a diferença em milissegundos entre as duas datas
+    const diferencaEmMilissegundos = Math.abs(date2 - date1);
+
+    // Compara a diferença em milissegundos com 10 minutos em milissegundos
+    const dezMinutosEmMilissegundos = 600000;
+    console.log(diferencaEmMilissegundos);
+    return diferencaEmMilissegundos >= (dezMinutosEmMilissegundos - 300000) && diferencaEmMilissegundos <= (dezMinutosEmMilissegundos + 300000);
 }

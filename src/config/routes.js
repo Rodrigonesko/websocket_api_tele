@@ -53,7 +53,7 @@ router.put('/encerrarHumanizado', auth, propostaController.encerrarHumanizado)
 router.put('/assumirConversa', auth, propostaController.assumirAtendimento)
 router.put('/visualizarMensagem', auth, propostaController.visualizarMensagem)
 router.put('/reenviarMensagens', propostaController.reenviarMensagens)
-router.post('/salvarMensagem', auth, propostaController.salvarMensagem)
+router.post('/lembreteMensagem', auth, propostaController.lembreteMensagem)
 
 router.post('/receiveMessage', propostaController.mensagemRecebida)
 
