@@ -1910,8 +1910,11 @@ module.exports = {
         try {
 
             const find = await PropostaEntrevista.find({
-                agendado: 'Agendado',
-                status: { $ne: 'Concluído', $ne: 'Cancelado' }
+                agendado: 'agendado',
+                $or: [
+                    { status: '' },
+                    { status: undefined }
+                ]
             })
 
             console.log(find.length);
