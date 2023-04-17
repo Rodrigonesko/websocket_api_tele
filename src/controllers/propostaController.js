@@ -816,7 +816,8 @@ module.exports = {
             const { situacao } = req.params
 
             const result = await PropostaEntrevista.find({
-                situacao
+                situacao,
+                agendado: {$ne: 'Agendado'}
             })
 
             return res.json(result)
@@ -1892,6 +1893,54 @@ module.exports = {
             })
 
             return res.json(msg)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    salvarMensagem: async (req, res) => {
+        try {
+
+            const { mensagem, para, de } = req.body
+
+            console.log(mensagem, para, de);
+
+            await Chat.create({
+                mensagem,
+                para,
+                de
+            })
+
+            return res.json({
+                msg: 'ok'
+            })
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    lembreteMensagem: async (req, res) => {
+        try {
+
+            const {id} = req.body
+
+            const find = await PropostaEntrevista.findOne({
+                _id: id
+            })
+
+
+
+            return res.json({
+                msg: 'ok'
+            })
 
         } catch (error) {
             console.log(error);
