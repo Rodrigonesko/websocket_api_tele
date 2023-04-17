@@ -846,8 +846,9 @@ module.exports = {
             })
 
             const find = await PropostaEntrevista.findOne({
-                whatsapp: fixed
-            })
+                whatsapp: fixed,
+                status: { $ne: 'Cancelado', $ne: 'Concluído' }
+            });
 
             if (!find) {
                 //mandar mensagem para atendimento humanizado
