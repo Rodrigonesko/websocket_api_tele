@@ -1954,6 +1954,24 @@ module.exports = {
                 msg: 'Internal Server Error'
             })
         }
+    },
+
+    testeWebHook: async (req, res) => {
+        try {
+
+            console.log(req);
+            console.log(res);
+
+            return res.json({
+                msg: 'ok'
+            })
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
     }
 }
 
