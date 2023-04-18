@@ -324,7 +324,8 @@ module.exports = {
             }, {
                 dataEntrevista: '',
                 agendado: '',
-                enfermeiro: ''
+                enfermeiro: '',
+                lembrete: false
             })
 
             return res.json(reagendar)
