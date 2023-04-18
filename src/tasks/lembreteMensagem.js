@@ -42,7 +42,8 @@ async function lembreteMensagem() {
             await Chat.create({
                 de: TwilioNumber,
                 para: whatsapp,
-                mensagem
+                mensagem,
+                horario: moment().format('YYYY-MM-DD HH:mm')
             })
 
             await client.messages.create({
