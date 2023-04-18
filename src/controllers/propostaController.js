@@ -558,8 +558,6 @@ module.exports = {
 
             const { tentativa, id } = req.body
 
-            console.log(tentativa, id);
-
             switch (tentativa) {
                 case 'tentativa 1':
                     await PropostaEntrevista.findByIdAndUpdate({
@@ -1922,6 +1920,25 @@ module.exports = {
             for (const item of find) {
                 const dataEntrevista = new Date(item.dataEntrevista)
                 const agora = new Date()
+
+                const findWhatsapp = await PropostaEntrevista.findOne({
+                    cpfTitular: item.cpfTitular,
+                    tipoAssociado: 'Titular'
+                })
+
+                const whatsapp = findWhatsapp.whatsapp
+
+                console.log(whatsapp);
+
+                if (verificarTempoEntreDatas(dataEntrevista, agora) && !item.lembrete) {
+
+                    client.messages.create({
+                        to: 'whatsapp:+5541997971794',
+                        from: TwilioNumber,
+                        body: ``
+                    })
+
+                }
 
                 console.log(verificarTempoEntreDatas(dataEntrevista, agora));
             }
