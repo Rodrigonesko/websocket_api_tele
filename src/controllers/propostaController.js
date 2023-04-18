@@ -1959,8 +1959,7 @@ module.exports = {
     testeWebHook: async (req, res) => {
         try {
 
-            console.log(req);
-            console.log(res);
+            console.log(req.body);
 
             return res.json({
                 msg: 'ok'
