@@ -32,9 +32,9 @@ module.exports = {
 
 const lembreteMensagem = require('./src/tasks/lembreteMensagem')
 
-setInterval(lembreteMensagem, 300000)
+// setInterval(lembreteMensagem, 300000)
 
-lembreteMensagem()
+// lembreteMensagem()
 
 
 const routes = require('./src/config/routes')
