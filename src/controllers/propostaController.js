@@ -1963,8 +1963,6 @@ module.exports = {
     testeWebHook: async (req, res) => {
         try {
 
-            console.log(req.body);
-
             const body = req.body; // Corpo da requisição
 
             // Verificar se o corpo da requisição é um array
