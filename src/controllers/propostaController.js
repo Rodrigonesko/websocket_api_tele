@@ -2030,11 +2030,16 @@ module.exports = {
 
     webHookChamada: async (req, res) => {
         try {
+            
 
             const voiceResponse = new twilio.twiml.VoiceResponse()
 
+            voiceResponse.say({voice: 'alice'}, 'hello world!')
+
             // Gravar a chamada
-            voiceResponse.record({ maxLength: 60 });
+            voiceResponse.record();
+
+            voiceResponse.hangup()
 
             res.set('Content-Type', 'text/xml');
             res.send(voiceResponse.toString());
