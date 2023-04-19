@@ -68,4 +68,6 @@ router.post('/testeWebHoook', propostaController.testeWebHook)
 router.get('/teste', propostaController.testeMensagem)
 router.get('/testeChatPro', propostaController.testeChatPro)
 
+router.post('/webHookChamada', propostaController.webHookChamada)
+
 module.exports = router

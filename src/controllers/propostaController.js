@@ -5,6 +5,7 @@ const moment = require('moment')
 const businessDays = require('moment-business-days')
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
+const twilio = require('twilio');
 const client = require('twilio')(accountSid, authToken);
 const TwilioNumber = process.env.TWILIO_NUMBER
 
@@ -2018,6 +2019,25 @@ module.exports = {
             return res.json({
                 msg: 'ok'
             })
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    webHookChamada: async (req, res) => {
+        try {
+
+            const voiceResponse = new twilio.twiml.VoiceResponse()
+
+            // Gravar a chamada
+            voiceResponse.record({ maxLength: 60 });
+
+            res.set('Content-Type', 'text/xml');
+            res.send(voiceResponse.toString());
 
         } catch (error) {
             console.log(error);
