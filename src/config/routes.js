@@ -62,10 +62,10 @@ router.get('/cancelarPropostasEmMassa', propostaController.cancelarPropostasEmMa
 
 router.get('/testeio', propostaController.testeIo)
 
-router.get('/testeWebHoook', propostaController.testeWebHook)
 router.post('/testeWebHoook', propostaController.testeWebHook)
 
 
 router.get('/teste', propostaController.testeMensagem)
+router.get('/testeChatPro', propostaController.testeChatPro)
 
 module.exports = router

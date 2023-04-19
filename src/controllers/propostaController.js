@@ -8,8 +8,9 @@ const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = require('twilio')(accountSid, authToken);
 const TwilioNumber = process.env.TWILIO_NUMBER
 
-const sdk = require('api')('@chatpro/v1.0#4ah7bol7vzy529');
+const { default: axios } = require('axios')
 
+const instance_id = 'chatpro-4ffa7298e3'
 
 const { io } = require('../../index')
 
@@ -1964,6 +1965,58 @@ module.exports = {
 
             console.log(req.body);
 
+            const body = req.body; // Corpo da requisição
+
+            // Verificar se o corpo da requisição é um array
+            if (Array.isArray(body)) {
+                // Atualizações de estados de mensagens
+                // Processar as atualizações de estados de mensagens do WhatsApp
+                // que estão contidas no array
+                console.log('Atualizações de estados de mensagens:', body);
+                // Faça o processamento necessário para atualizações de estados de mensagens
+            } else {
+                // Mensagem recebida
+                // Processar a mensagem recebida do WhatsApp
+                // que está contida no objeto
+                console.log('Mensagem recebida:');
+                // Faça o processamento necessário para a mensagem recebida
+                const mensagemRecebida = body.Body.Text
+                const fromMe = body.Body.Info.FromMe
+                const idMensagem = body.Body.Info.Id
+                const idSender = body.Body.Info.SenderJid
+
+                console.log(mensagemRecebida, fromMe, idMensagem, idSender);
+
+            }
+
+            return res.json({
+                msg: 'ok'
+            })
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    testeChatPro: async (req, res) => {
+        try {
+
+            const result = await axios.post(`https://v5.chatpro.com.br/${instance_id}/api/v1/send_message`, {
+                number: '15674092338',
+                message: 'Bom dia'
+            }, {
+                headers: {
+                    accept: 'application/json',
+                    'content-type': 'application/json',
+                    Authorization: '9e7c65d0199750874f189e4909cadbb2'
+                }
+            })
+
+            console.log(result.data);
+
             return res.json({
                 msg: 'ok'
             })
@@ -1975,6 +2028,7 @@ module.exports = {
             })
         }
     }
+
 }
 
 
