@@ -1982,9 +1982,115 @@ module.exports = {
                 const mensagemRecebida = body.Body.Text
                 const fromMe = body.Body.Info.FromMe
                 const idMensagem = body.Body.Info.Id
-                const idSender = body.Body.Info.SenderJid
+                const celularCompleto = body.Body.Info.SenderJid?.replace(/\D+/g, '')
 
-                console.log(mensagemRecebida, fromMe, idMensagem, idSender);
+                console.log(mensagemRecebida, fromMe, idMensagem, celularCompleto);
+
+                const proposta = await PropostaEntrevista.findOne({
+                    celularCompleto,
+                    status: { $ne: 'Cancelado', $ne: 'Concluído' }
+                })
+
+
+                //Não foi achado a proposta em nossa base de acordo com o número de celular
+                if (!proposta) {
+                    return res.json({
+                        msg: 'Não existe em nossa base'
+                    })
+                }
+
+                //Verifica se a mensagem foram nós mesmos que mandamos
+                if (fromMe) {
+                    return res.json({
+                        msg: 'From me'
+                    })
+                }
+
+
+                //Atualiza no banco que a mensagem não foi visualizada
+                await PropostaEntrevista.findByIdAndUpdate({
+                    _id: proposta._id
+                }, {
+                    visualizado: true
+                })
+
+                //Verifica se foi um número que o usuário digitou
+                if (/^\d+$/.test(mensagemRecebida)) {
+
+                    const horarioMap1 = {
+                        1: {
+                            descricao: 'Das 13:00 às 15:00',
+                            dia: proposta.opcaoDia1
+                        },
+                        2: {
+                            descricao: 'Das 15:00 às 17:00',
+                            dia: proposta.opcaoDia1
+                        },
+                        3: {
+                            descricao: 'Das 17:00 às 19:00',
+                            dia: proposta.opcaoDia1
+                        },
+                        4: {
+                            descricao: 'Das 09:00 às 11:00',
+                            dia: proposta.opcaoDia2
+                        },
+                        5: {
+                            descricao: 'Das 11:00 às 13:00',
+                            dia: proposta.opcaoDia2
+                        },
+                        6: {
+                            descricao: 'Das 13:00 às 15:00',
+                            dia: proposta.opcaoDia2
+                        },
+                        7: {
+                            descricao: 'Das 15:00 às 17:00',
+                            dia: proposta.opcaoDia2
+                        },
+                        8: {
+                            descricao: 'Das 17:00 às 19:00',
+                            dia: proposta.opcaoDia2
+                        }
+                    };
+
+                    if (proposta.modelo === '1' && horarioMap[Number(mensagemRecebida)]) {
+                        const horario = horarioMap1[Number(mensagemRecebida)];
+                        console.log(horario.descricao, horario.dia);
+                        await PropostaEntrevista.updateMany({
+                            cpfTitular: proposta.cpfTitular
+                        }, {
+                            janelaHorario: `${horario.descricao} ${horario.dia}`,
+                            situacao: 'Janela escolhida',
+                            atendimentoHumanizado: false,
+                            horarioRespondido: moment().format('YYYY-MM-DD HH:mm')
+                        });
+
+                        return res.json(mensagemRecebida);
+                    }
+
+
+                    
+                    //Verifica a janela em que foi mandada
+
+                    //verifica se é um número valido referente as janelas
+
+                    //atualiza no banco a situacao como janela escolhida e responde com a janela escolhida
+
+                    return res.json({
+                        msg: 'escolheu corretamente'
+                    })
+
+
+                } else {       //Caso não seja...
+
+                    //Verifica se ja foi mandado alguma resposta antes
+
+                    //Caso ja tenha resposta errada -> mandar para o atendimento humanizado
+                    //Caso não -> Responder com resposta de correção e atualizar no banco que ja foi mandado
+
+                    return res.json({
+                        msg: 'escolheu icorretamente'
+                    })
+                }
 
             }
 
@@ -2030,11 +2136,11 @@ module.exports = {
 
     webHookChamada: async (req, res) => {
         try {
-            
+
 
             const voiceResponse = new twilio.twiml.VoiceResponse()
 
-            voiceResponse.say({voice: 'alice'}, 'hello world!')
+            voiceResponse.say({ voice: 'alice' }, 'hello world!')
 
             // Gravar a chamada
             voiceResponse.record();
