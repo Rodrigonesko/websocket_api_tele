@@ -8,6 +8,9 @@ const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = require('twilio')(accountSid, authToken);
 const TwilioNumber = process.env.TWILIO_NUMBER
 
+const sdk = require('api')('@chatpro/v1.0#4ah7bol7vzy529');
+
+
 const { io } = require('../../index')
 
 
@@ -2042,8 +2045,8 @@ function calcularIdade(data) {
 function modeloMensagem1(nome, data1, data2) {
 
     let mensagem = `Prezado Sr.(a) ${nome},
-    Somos da equipe de adesão da operadora de saúde Amil e para concluírmos a contratação do Plano de Saúde do Sr.(a), e dos seus dependentes (caso tenha) e precisamos confirmar alguns dados para que a contratação seja concluída.
-    Por gentileza escolha o *NÚMERO* referente a janela de horários para entrarmos em contato com o Sr.(a)
+    Somos da equipe de elegibilidade da operadora de saúde Amil e para concluirmos a contratação do Plano de Saúde do Sr.(a), e dos seus dependentes (caso tenha) e precisamos confirmar alguns dados para que a contratação seja concluída.
+    Por gentileza, escolha o *NÚMERO* referente a janela de horários para entrarmos em contato com o Sr.(a)
     *${data1}*
     1. Das 13:00 às 15:00
     2. Das 15:00 às 17:00
@@ -2064,8 +2067,8 @@ function modeloMensagem1(nome, data1, data2) {
 function modeloMensagem2(nome, data1, data2) {
 
     let mensagem = `Prezado Sr.(a) ${nome},
-    Somos da equipe de adesão da operadora de saúde Amil e para concluírmos a contratação do Plano de Saúde do Sr.(a), e dos seus dependentes (caso tenha) e precisamos confirmar alguns dados para que a contratação seja concluída.
-    Por gentileza escolha o *NÚMERO* referente a janela de horários para entrarmos em contato com o Sr.(a)
+    Somos da equipe de elegibilidade da operadora de saúde Amil e para concluirmos a contratação do Plano de Saúde do Sr.(a), e dos seus dependentes (caso tenha) e precisamos confirmar alguns dados para que a contratação seja co0ncluída.
+    Por gentileza, escolha o *NÚMERO* referente a janela de horários para entrarmos em contato com o Sr.(a)
     *${data1}*
     1. Das 09:00 às 11:00
     2. Das 11:00 às 13:00
