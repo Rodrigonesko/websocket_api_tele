@@ -34,24 +34,24 @@ async function lembreteMensagem() {
 
             console.log(whatsapp, item.dataEntrevista, agora, item.nome);
 
-            // await PropostaEntrevista.updateOne({
-            //     _id: item._id
-            // }, {
-            //     lembrete: true
-            // })
+            await PropostaEntrevista.updateOne({
+                _id: item._id
+            }, {
+                lembrete: true
+            })
 
-            // await Chat.create({
-            //     de: TwilioNumber,
-            //     para: whatsapp,
-            //     mensagem,
-            //     horario: moment().format('YYYY-MM-DD HH:mm')
-            // })
+            await Chat.create({
+                de: TwilioNumber,
+                para: whatsapp,
+                mensagem,
+                horario: moment().format('YYYY-MM-DD HH:mm')
+            })
 
-            // await client.messages.create({
-            //     from: TwilioNumber,
-            //     to: whatsapp,
-            //     body: mensagem
-            // })
+            await client.messages.create({
+                from: TwilioNumber,
+                to: whatsapp,
+                body: mensagem
+            })
         }
     }
 }
