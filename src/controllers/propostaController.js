@@ -9,7 +9,9 @@ const twilio = require('twilio');
 const client = require('twilio')(accountSid, authToken);
 const TwilioNumber = process.env.TWILIO_NUMBER
 const instance_id = 'chatpro-4ffa7298e3'
-const chatProUrl = `https://v5.chatpro.com.br/${instance_id}/api/v1/`
+const chatProUrl = `https://v5.chatpro.com.br/${instance_id}/api/v1`
+const tokenChatPro = process.env.TOKEN_CHATPRO
+
 
 const whatsappNumber = '5541997971794'
 
@@ -1915,57 +1917,6 @@ module.exports = {
         }
     },
 
-    lembreteMensagem: async (req, res) => {
-        try {
-
-            const find = await PropostaEntrevista.find({
-                agendado: 'agendado',
-                $or: [
-                    { status: '' },
-                    { status: undefined }
-                ]
-            })
-
-            console.log(find.length);
-
-            for (const item of find) {
-                const dataEntrevista = new Date(item.dataEntrevista)
-                const agora = new Date()
-
-                const findWhatsapp = await PropostaEntrevista.findOne({
-                    cpfTitular: item.cpfTitular,
-                    tipoAssociado: 'Titular'
-                })
-
-                const whatsapp = findWhatsapp.whatsapp
-
-                console.log(whatsapp);
-
-                if (verificarTempoEntreDatas(dataEntrevista, agora) && !item.lembrete) {
-
-                    client.messages.create({
-                        to: 'whatsapp:+5541997971794',
-                        from: TwilioNumber,
-                        body: ``
-                    })
-
-                }
-
-                console.log(verificarTempoEntreDatas(dataEntrevista, agora));
-            }
-
-            return res.json({
-                msg: 'ok'
-            })
-
-        } catch (error) {
-            console.log(error);
-            return res.status(500).json({
-                msg: 'Internal Server Error'
-            })
-        }
-    },
-
     testeWebHook: async (req, res) => {
         try {
 
@@ -2000,10 +1951,9 @@ module.exports = {
                 console.log(mensagemRecebida, fromMe, idMensagem, celularCompleto);
 
                 const proposta = await PropostaEntrevista.findOne({
-                    celularCompleto,
+                    whatsapp: `whatsapp:+${celularCompleto}`,
                     status: { $ne: 'Cancelado', $ne: 'Concluído' }
                 })
-
 
                 //Não foi achado a proposta em nossa base de acordo com o número de celular
                 if (!proposta) {
@@ -2018,7 +1968,6 @@ module.exports = {
                         msg: 'From me'
                     })
                 }
-
 
                 //Atualiza no banco que a mensagem não foi visualizada
                 await PropostaEntrevista.findByIdAndUpdate({
@@ -2155,22 +2104,59 @@ module.exports = {
 
                         const msg = `Não entendemos sua resposta, por favor digite somente o *número* referente a janela de horário que o Sr.(a) prefere.`
 
-                        await Chat.create({
-                            de: whatsappNumber,
-                            para: celularCompleto,
-                            mensagem: mensagemRecebida,
-                            horario: moment().format('YYYY-MM-DD HH:mm')
+                        await axios.post(`${chatProUrl}/send_message`, {
+                            number: celularCompleto,
+                            message: msg
+                        }, {
+                            headers: {
+                                accept: 'application/json',
+                                'content-type': 'application/json',
+                                Authorization: tokenChatPro
+                            }
                         })
 
-                        await axios.post(``)
+                        await Chat.create({
+                            de: `whatsapp:+${whatsappNumber}`,
+                            para: `whatsapp:+${celularCompleto}`,
+                            mensagem: msg,
+                            horario: moment().format('YYYY-MM-DD HH:mm')
+                        })
 
                     }
 
                     //Verifica se ja foi mandado alguma resposta antes
 
+                    if (proposta.perguntaAtendimentoHumanizado) {
 
-                    //Caso ja tenha resposta errada -> mandar para o atendimento humanizado
-                    //Caso não -> Responder com resposta de correção e atualizar no banco que ja foi mandado
+                        await PropostaEntrevista.updateMany({
+                            cpfTitular: proposta.cpfTitular
+                        }, {
+                            atendimentoHumanizado: true
+                        })
+
+                        const msg = 'Um dos nossos atendentes irá entar em contato.'
+
+                        await axios.post(`${chatProUrl}/send_message`, {
+                            number: celularCompleto,
+                            message: msg
+                        }, {
+                            headers: {
+                                accept: 'application/json',
+                                'content-type': 'application/json',
+                                Authorization: tokenChatPro
+                            }
+                        })
+
+                        await Chat.create({
+                            de: `whatsapp:+${whatsappNumber}`,
+                            para: `whatsapp:+${celularCompleto}`,
+                            mensagem: msg,
+                            horario: moment().format('YYYY-MM-DD HH:mm')
+                        })
+
+                        return res.json(msg)
+
+                    }
 
                     return res.json({
                         msg: 'escolheu icorretamente'
@@ -2238,16 +2224,16 @@ module.exports = {
                 return res.json({ msg: 'Ja foi enviado' })
             }
 
-            const celularCompleto = `55${proposta.ddd}${proposta.celular}`
+            const celularCompleto = proposta.celularCompleto
 
-            const result = await axios.post(`https://v5.chatpro.com.br/${instance_id}/api/v1/send_message`, {
+            const result = await axios.post(`${chatProUrl}/send_message`, {
                 number: celularCompleto,
                 message: mensagem
             }, {
                 headers: {
                     accept: 'application/json',
                     'content-type': 'application/json',
-                    Authorization: '9e7c65d0199750874f189e4909cadbb2'
+                    Authorization: tokenChatPro
                 }
             })
 
@@ -2273,13 +2259,64 @@ module.exports = {
             })
 
             await Chat.create({
-                de: TwilioNumber,
+                de: `whatsapp:+${whatsappNumber}`,
                 para: `whatsapp:+${celularCompleto}`,
                 mensagem,
                 horario: moment().format('YYYY-MM-DD HH:mm')
             })
 
             return res.json({ msg: 'Enviada' })
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    reenviarChatPro: async (req, res) => {
+        try {
+
+            const { proposta, horarios, dia } = req.body
+
+            console.log(proposta.nome);
+
+            if (proposta.tipoAssociado.match(/[a-zA-Z]+/g).join('') !== 'Titular') {
+                return res.json({ msg: 'Dependente' })
+            }
+
+            let msg = `Horários disponíveis para o dia ${dia}:\n`
+            horarios.forEach(e => {
+                msg += `${e} - `
+            })
+            msg += `\nQual o melhor horário?\nCumpre informar que essa entrevista de complementação é necessária para Adesão ao Plano de Saúde, este que permanecerá paralisado o processo até a realização desta entrevista, informar por gentileza qual o melhor horário.`;
+
+            await axios.post(`${chatProUrl}/send_message`, {
+                number: proposta.numeroCompleto,
+                message: msg
+            }, {
+                headers: {
+                    Authorization: tokenChatPro,
+                    accept: 'application/json',
+                    'content-type': 'application/json',
+                }
+            })
+
+            await PropostaEntrevista.updateMany({
+                cpfTitular: proposta.cpfTitular
+            }, {
+                perguntaAtendimentoHumanizado: true
+            })
+
+            await Chat.create({
+                de: `whatsapp:+${whatsappNumber}`,
+                para: proposta.whatsapp,
+                horario: moment().format('YYYY-MM-DD HH:mm:ss'),
+                mensagem: msg
+            })
+
+            return res.json(msg)
 
         } catch (error) {
             console.log(error);
