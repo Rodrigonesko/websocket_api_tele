@@ -65,6 +65,7 @@ const propostaScheema = mongoose.Schema({
     ddd: String,
     celular: String,
     whatsapp: String,
+    celularCompleto: String,
     modelo: String,
     janelaHorario: String,
     perguntaAtendimentoHumanizado: Boolean,
@@ -77,7 +78,8 @@ const propostaScheema = mongoose.Schema({
     horarioRespondido: String,
     responsavelConversa: String,
     visualizado: Boolean,
-    lembrete: Boolean
+    lembrete: Boolean,
+
 }, {
     timestamps: true
 })

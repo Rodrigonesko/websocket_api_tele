@@ -133,7 +133,7 @@ module.exports = {
                     console.log(numero);
                 }
 
-
+                const celularCompleto = `55${ddd}${numero}`
                 let whatsapp = `whatsapp:+55${ddd}${numero}`
                 whatsapp = whatsapp.replace(/\s/g, '')
 
@@ -216,7 +216,8 @@ module.exports = {
                     cpfTitular,
                     ddd,
                     celular: numero,
-                    whatsapp
+                    whatsapp,
+                    celularCompleto
                 }
 
                 const existeProposta = await PropostaEntrevista.findOne({
@@ -785,7 +786,7 @@ module.exports = {
                 return res.json({ msg: 'Sem whats' })
             }
 
-            const update = await PropostaEntrevista.updateMany({
+            const update = await PropostaEntrevista.updateMany({ 
                 cpfTitular: proposta.cpfTitular
             }, {
                 situacao: 'Enviada',
@@ -2068,7 +2069,7 @@ module.exports = {
                     }
 
 
-                    
+
                     //Verifica a janela em que foi mandada
 
                     //verifica se é um número valido referente as janelas
@@ -2097,6 +2098,104 @@ module.exports = {
             return res.json({
                 msg: 'ok'
             })
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    enviarMensagemChatPro: async (req, res) => {
+        try {
+
+            const { proposta, modeloEscolhido, data1, data2 } = req.body
+
+            let mensagem
+            let opcaoDia1 = data1
+            let opcaoDia2 = data2
+            let modelo
+
+            if (modeloEscolhido === 'Modelo 1') {
+                mensagem = modeloMensagem1(proposta.nome, data1, data2).mensagem
+                modelo = '1'
+            }
+
+            if (modeloEscolhido === 'Modelo 2') {
+                mensagem = modeloMensagem2(proposta.nome, data1, data2).mensagem
+                modelo = '2'
+            }
+
+            if (proposta.tipoAssociado === 'Dependente') {
+                return res.json({ msg: 'Dependente' })
+            }
+
+            if (!proposta.cpfTitular) {
+                return res.json({ msg: 'sem cpfTitular' })
+            }
+
+            if (proposta.situacao !== 'A enviar') {
+                return res.json({ msg: 'Não ajustado' })
+            }
+
+            let whatsapp = proposta.whatsapp
+
+            console.log(whatsapp);
+
+            const verificar = await PropostaEntrevista.findOne({
+                _id: proposta._id,
+                situacao: 'Enviado',
+                naoEnviar: true
+            })
+
+            if (verificar) {
+                console.log('ja foi enviado');
+                return res.json({ msg: 'Ja foi enviado' })
+            }
+
+            const celularCompleto = `55${proposta.ddd}${proposta.celular}`
+
+            const result = await axios.post(`https://v5.chatpro.com.br/${instance_id}/api/v1/send_message`, {
+                number: celularCompleto,
+                message: mensagem
+            }, {
+                headers: {
+                    accept: 'application/json',
+                    'content-type': 'application/json',
+                    Authorization: '9e7c65d0199750874f189e4909cadbb2'
+                }
+            })
+
+            if (!result.data.status) {
+                const update = await PropostaEntrevista.updateMany({
+                    cpfTitular: proposta.cpfTitular
+                }, {
+                    situacao: 'Sem whatsapp'
+                })
+                return res.json({ msg: 'Sem whats' })
+            }
+
+            await PropostaEntrevista.updateMany({
+                cpfTitular: proposta.cpfTitular
+            }, {
+                situacao: 'Enviada',
+                horarioEnviado: moment().format('YYYY-MM-DD HH:mm'),
+                opcaoDia1,
+                opcaoDia2,
+                modelo,
+                contato1: moment().format('YYYY-MM-DD HH:mm'),
+                responsavelContato1: 'Bot Whatsapp',
+            })
+
+            await Chat.create({
+                de: TwilioNumber,
+                para: `whatsapp:+${celularCompleto}`,
+                mensagem,
+                horario: moment().format('YYYY-MM-DD HH:mm')
+            })
+
+            return res.json({ msg: 'Enviada' })
 
         } catch (error) {
             console.log(error);
