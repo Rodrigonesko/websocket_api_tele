@@ -8,10 +8,14 @@ const authToken = process.env.TWILIO_AUTH_TOKEN;
 const twilio = require('twilio');
 const client = require('twilio')(accountSid, authToken);
 const TwilioNumber = process.env.TWILIO_NUMBER
+const instance_id = 'chatpro-4ffa7298e3'
+const chatProUrl = `https://v5.chatpro.com.br/${instance_id}/api/v1/`
+
+const whatsappNumber = '5541997971794'
 
 const { default: axios } = require('axios')
 
-const instance_id = 'chatpro-4ffa7298e3'
+
 
 const { io } = require('../../index')
 
@@ -786,7 +790,7 @@ module.exports = {
                 return res.json({ msg: 'Sem whats' })
             }
 
-            const update = await PropostaEntrevista.updateMany({ 
+            const update = await PropostaEntrevista.updateMany({
                 cpfTitular: proposta.cpfTitular
             }, {
                 situacao: 'Enviada',
@@ -1983,7 +1987,15 @@ module.exports = {
                 const mensagemRecebida = body.Body.Text
                 const fromMe = body.Body.Info.FromMe
                 const idMensagem = body.Body.Info.Id
-                const celularCompleto = body.Body.Info.SenderJid?.replace(/\D+/g, '')
+                let celularCompleto = body.Body.Info.SenderJid?.replace(/\D+/g, '')
+
+                if (celularCompleto.length === 12) {
+
+                    let slice1 = celularCompleto.slice(0, 4)
+                    let slice2 = celularCompleto.slice(4)
+
+                    celularCompleto = `${slice1}9${slice2}`
+                }
 
                 console.log(mensagemRecebida, fromMe, idMensagem, celularCompleto);
 
@@ -2053,7 +2065,9 @@ module.exports = {
                         }
                     };
 
-                    if (proposta.modelo === '1' && horarioMap[Number(mensagemRecebida)]) {
+                    //Verifica a janela em que foi mandada
+
+                    if (proposta.modelo === '1' && horarioMap1[Number(mensagemRecebida)]) {
                         const horario = horarioMap1[Number(mensagemRecebida)];
                         console.log(horario.descricao, horario.dia);
                         await PropostaEntrevista.updateMany({
@@ -2067,14 +2081,55 @@ module.exports = {
 
                         return res.json(mensagemRecebida);
                     }
-
-
-
                     //Verifica a janela em que foi mandada
+                    if (proposta.modelo === '2') {
+                        switch (Number(mensagemRecebida)) {
+                            case 1:
+                                console.log(`Das 09:00 às 11:00`, proposta.opcaoDia1);
+                                await atualizarProposta('Das 09:00 às 11:00', proposta.opcaoDia1, proposta.cpfTitular);
+                                break;
+                            case 2:
+                                console.log(`Das 11:00 às 13:00`, proposta.opcaoDia1);
+                                await atualizarProposta('Das 11:00 às 13:00', proposta.opcaoDia1, proposta.cpfTitular);
+                                break;
+                            case 3:
+                                console.log(`Das 13:00 às 15:00`, proposta.opcaoDia1);
+                                await atualizarProposta('Das 13:00 às 15:00', proposta.opcaoDia1, proposta.cpfTitular);
+                                break;
+                            case 4:
+                                console.log(`Das 15:00 às 17:00`, proposta.opcaoDia1);
+                                await atualizarProposta('Das 15:00 às 17:00', proposta.opcaoDia1, proposta.cpfTitular);
+                                break;
+                            case 5:
+                                console.log(`Das 17:00 às 19:00`, proposta.opcaoDia1);
+                                await atualizarProposta('Das 17:00 às 19:00', proposta.opcaoDia1, proposta.cpfTitular);
+                                break;
+                            case 6:
+                                console.log(`Das 09:00 às 11:00`, proposta.opcaoDia2);
+                                await atualizarProposta('Das 09:00 às 11:00', proposta.opcaoDia2, proposta.cpfTitular);
+                                break;
+                            case 7:
+                                console.log(`Das 11:00 às 13:00`, proposta.opcaoDia2);
+                                await atualizarProposta('Das 11:00 às 13:00', proposta.opcaoDia2, proposta.cpfTitular);
+                                break;
+                            case 8:
+                                console.log(`Das 13:00 às 15:00`, proposta.opcaoDia2);
+                                await atualizarProposta('Das 13:00 às 15:00', proposta.opcaoDia2, proposta.cpfTitular);
+                                break;
+                            case 9:
+                                console.log(`Das 15:00 às 17:00`, proposta.opcaoDia2);
+                                await atualizarProposta('Das 15:00 às 17:00', proposta.opcaoDia2, proposta.cpfTitular);
+                                break;
+                            case 10:
+                                console.log(`Das 17:00 às 19:00`, proposta.opcaoDia2);
+                                await atualizarProposta('Das 17:00 às 19:00', proposta.opcaoDia2, proposta.cpfTitular);
+                                break;
+                            default:
+                                break;
+                        }
 
-                    //verifica se é um número valido referente as janelas
-
-                    //atualiza no banco a situacao como janela escolhida e responde com a janela escolhida
+                        return res.json(mensagemRecebida);
+                    }
 
                     return res.json({
                         msg: 'escolheu corretamente'
@@ -2083,7 +2138,36 @@ module.exports = {
 
                 } else {       //Caso não seja...
 
+                    //Verifica se ja esta no atendimento humanizado
+                    if (proposta.atendimentoHumanizado) {
+                        return res.json(mensagemRecebida)
+                    }
+
+                    //Verifica se ja foi enviado a mensagem de correção
+
+                    if (!proposta.perguntaAtendimentoHumanizado) {
+
+                        await PropostaEntrevista.updateMany({
+                            cpfTitular: proposta.cpfTitular
+                        }, {
+                            perguntaAtendimentoHumanizado: true
+                        })
+
+                        const msg = `Não entendemos sua resposta, por favor digite somente o *número* referente a janela de horário que o Sr.(a) prefere.`
+
+                        await Chat.create({
+                            de: whatsappNumber,
+                            para: celularCompleto,
+                            mensagem: mensagemRecebida,
+                            horario: moment().format('YYYY-MM-DD HH:mm')
+                        })
+
+                        await axios.post(``)
+
+                    }
+
                     //Verifica se ja foi mandado alguma resposta antes
+
 
                     //Caso ja tenha resposta errada -> mandar para o atendimento humanizado
                     //Caso não -> Responder com resposta de correção e atualizar no banco que ja foi mandado
@@ -2379,3 +2463,14 @@ function verificarTempoEntreDatas(date1, date2) {
     console.log(diferencaEmMilissegundos);
     return diferencaEmMilissegundos >= (dezMinutosEmMilissegundos - 300000) && diferencaEmMilissegundos <= (dezMinutosEmMilissegundos + 300000);
 }
+
+async function atualizarProposta(horario, opcaoDia, cpfTitular) {
+    await PropostaEntrevista.updateMany({
+        cpfTitular
+    }, {
+        janelaHorario: `${horario} ${opcaoDia}`,
+        situacao: 'Janela escolhida',
+        atendimentoHumanizado: false,
+        horarioRespondido: moment().format('YYYY-MM-DD HH:mm')
+    });
+};

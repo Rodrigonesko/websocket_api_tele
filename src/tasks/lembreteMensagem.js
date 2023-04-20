@@ -18,8 +18,8 @@ async function lembreteMensagem() {
     })
 
     for (const item of find) {
-        const dataEntrevista = new Date(item.dataEntrevista)
-        const agora = new Date()
+        const dataEntrevista = item.dataEntrevista
+        const agora = moment().format('YYYY-MM-DD HH:mm:ss')
 
         const findWhatsapp = await PropostaEntrevista.findOne({
             cpf: item.cpfTitular,
@@ -32,42 +32,44 @@ async function lembreteMensagem() {
 
             const mensagem = `Sr (a) ${item.nome}, a equipe médica está finalizando um atendimento e, na sequência, entrará em contato contigo conforme o agendamento feito anteriormente. Informamos que vamos ligar dos números 11 42404975 ou 11 42403554, pedimos tirar do spam para evitar bloqueio da ligação. Essa entrevista dura em média de 8 a 10 minutos, orientamos que esteja em ambiente silencioso e sem interferências para evitar ruídos que possam interferir nas respostas, bem como na qualidade da ligação. Agradecemos desde já.`
 
-            console.log(whatsapp, dataEntrevista, agora);
+            console.log(whatsapp, item.dataEntrevista, agora, item.nome);
 
-            await PropostaEntrevista.updateOne({
-                _id: item._id
-            }, {
-                lembrete: true
-            })
+            // await PropostaEntrevista.updateOne({
+            //     _id: item._id
+            // }, {
+            //     lembrete: true
+            // })
 
-            await Chat.create({
-                de: TwilioNumber,
-                para: whatsapp,
-                mensagem,
-                horario: moment().format('YYYY-MM-DD HH:mm')
-            })
+            // await Chat.create({
+            //     de: TwilioNumber,
+            //     para: whatsapp,
+            //     mensagem,
+            //     horario: moment().format('YYYY-MM-DD HH:mm')
+            // })
 
-            await client.messages.create({
-                from: TwilioNumber,
-                to: whatsapp,
-                body: mensagem
-            })
+            // await client.messages.create({
+            //     from: TwilioNumber,
+            //     to: whatsapp,
+            //     body: mensagem
+            // })
         }
     }
 }
 
 // Função para verificar se o tempo entre duas datas é de aproximadamente 10 minutos
 function verificarTempoEntreDatas(date1, date2) {
-    // Calcula a diferença em milissegundos entre as duas datas
-    const diferencaEmMilissegundos = date2 - date1;
+    // Converte as datas para objetos Moment
+    const momentDate1 = moment(date1);
+    const momentDate2 = moment(date2);
 
-    const diferencaEmMinutos = diferencaEmMilissegundos / (1000 * 60);
+    // Calcula a diferença em minutos entre as duas datas
+    const diferencaEmMinutos = momentDate2.diff(momentDate1, 'minutes');
 
     if (diferencaEmMinutos < 0) {
-        return false
+        return false;
     }
 
-    return diferencaEmMinutos < 10
+    return diferencaEmMinutos < 10;
 }
 
 
