@@ -1953,7 +1953,7 @@ module.exports = {
                 await Chat.create({
                     de: `whatsapp:+${celularCompleto}`,
                     para: `whatsapp:+${whatsappNumber}`,
-                    mensagem: msg,
+                    mensagem: mensagemRecebida,
                     horario: moment().format('YYYY-MM-DD HH:mm')
                 })
 
