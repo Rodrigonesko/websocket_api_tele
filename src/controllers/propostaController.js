@@ -8,7 +8,7 @@ const authToken = process.env.TWILIO_AUTH_TOKEN;
 const twilio = require('twilio');
 const client = require('twilio')(accountSid, authToken);
 const TwilioNumber = process.env.TWILIO_NUMBER
-const instance_id = 'chatpro-4ffa7298e3'
+const instance_id = process.env.INSTANCE_ID_CHATPRO
 const chatProUrl = `https://v5.chatpro.com.br/${instance_id}/api/v1`
 const tokenChatPro = process.env.TOKEN_CHATPRO
 
@@ -2330,13 +2330,13 @@ module.exports = {
         try {
 
             const result = await axios.post(`https://v5.chatpro.com.br/${instance_id}/api/v1/send_message`, {
-                number: '15674092338',
+                number: '5541997971794',
                 message: 'Bom dia'
             }, {
                 headers: {
                     accept: 'application/json',
                     'content-type': 'application/json',
-                    Authorization: '9e7c65d0199750874f189e4909cadbb2'
+                    Authorization: tokenChatPro
                 }
             })
 
