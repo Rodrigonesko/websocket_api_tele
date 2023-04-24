@@ -1917,7 +1917,7 @@ module.exports = {
         }
     },
 
-    testeWebHook: async (req, res) => {
+    webhook: async (req, res) => {
         try {
 
             const body = req.body; // Corpo da requisição

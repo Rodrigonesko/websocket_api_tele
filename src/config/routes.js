@@ -69,4 +69,9 @@ router.get('/testeChatPro', propostaController.testeChatPro)
 
 router.post('/webHookChamada', propostaController.webHookChamada)
 
+//ChatPro
+
+router.put('/enviarMensagemChatPro', auth, propostaController.enviarMensagemChatPro)
+router.post('/webhookChatPro', propostaController.webhook)
+
 module.exports = router
