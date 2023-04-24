@@ -13,7 +13,7 @@ const chatProUrl = `https://v5.chatpro.com.br/${instance_id}/api/v1`
 const tokenChatPro = process.env.TOKEN_CHATPRO
 
 
-const whatsappNumber = '5541997971794'
+const whatsappNumber = '5511963021294'
 
 const { default: axios } = require('axios')
 
@@ -1949,6 +1949,13 @@ module.exports = {
                 }
 
                 console.log(mensagemRecebida, fromMe, idMensagem, celularCompleto);
+
+                await Chat.create({
+                    de: `whatsapp:+${celularCompleto}`,
+                    para: `whatsapp:+${whatsappNumber}`,
+                    mensagem: msg,
+                    horario: moment().format('YYYY-MM-DD HH:mm')
+                })
 
                 const proposta = await PropostaEntrevista.findOne({
                     whatsapp: `whatsapp:+${celularCompleto}`,
