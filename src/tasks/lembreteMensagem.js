@@ -3,6 +3,13 @@ const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = require('twilio')(accountSid, authToken);
 const TwilioNumber = process.env.TWILIO_NUMBER
 const moment = require('moment')
+const whatsappNumber = '5511963021294'
+
+const instance_id = process.env.INSTANCE_ID_CHATPRO
+const chatProUrl = `https://v5.chatpro.com.br/${instance_id}/api/v1`
+const tokenChatPro = process.env.TOKEN_CHATPRO
+
+const { default: axios } = require('axios')
 
 const PropostaEntrevista = require('../models/PropostaEntrevista')
 const Chat = require('../models/Chat')
@@ -25,7 +32,7 @@ async function lembreteMensagem() {
             cpf: item.cpfTitular,
         })
 
-        const whatsapp = findWhatsapp?.whatsapp
+        const whatsapp = findWhatsapp?.whatsapp?.replace(/\D+/g, '')
 
 
         if (verificarTempoEntreDatas(agora, dataEntrevista) && !item.lembrete) {
@@ -41,10 +48,22 @@ async function lembreteMensagem() {
             })
 
             await Chat.create({
-                de: TwilioNumber,
-                para: whatsapp,
+                de: `whatsapp:+${whatsappNumber}`,
+                para: `whatsapp:+${whatsapp}`,
                 mensagem,
                 horario: moment().format('YYYY-MM-DD HH:mm')
+            })
+
+
+            await axios.post(`${chatProUrl}/send_message`, {
+                number: whatsapp,
+                message: mensagem
+            }, {
+                headers: {
+                    accept: 'application/json',
+                    'content-type': 'application/json',
+                    Authorization: tokenChatPro
+                }
             })
 
             await client.messages.create({

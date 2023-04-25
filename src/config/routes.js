@@ -48,6 +48,7 @@ router.get('/naoRealizadas', auth, propostaController.naoRealizadas)
 router.put('/voltarAjuste', auth, propostaController.voltarAjuste)
 router.put('/mandarAtendimentoHumanizado', auth, propostaController.mandarAtendimentoHumanizado)
 router.post('/sendMessage', auth, propostaController.mandarMensagem)
+router.post('/sendMessageTwilio', auth, propostaController.mandarMensagemTwilio)
 router.put('/encerrarAtendimento', auth, propostaController.encerrarAtendimentoJanela)
 router.put('/encerrarHumanizado', auth, propostaController.encerrarHumanizado)
 router.put('/assumirConversa', auth, propostaController.assumirAtendimento)
@@ -59,19 +60,15 @@ router.post('/receiveMessage', propostaController.mensagemRecebida)
 router.post('/migrarBanco', propostaController.migrarBanco)
 router.get('/cancelarPropostasEmMassa', propostaController.cancelarPropostasEmMassa)
 
-router.get('/testeio', propostaController.testeIo)
-
-//router.post('/testeWebHoook', propostaController.testeWebHook)
-
 
 router.get('/teste', propostaController.testeMensagem)
 router.get('/testeChatPro', propostaController.testeChatPro)
-
-router.post('/webHookChamada', propostaController.webHookChamada)
 
 //ChatPro
 
 router.put('/enviarMensagemChatPro', auth, propostaController.enviarMensagemChatPro)
 router.post('/webhookChatPro', propostaController.webhook)
+
+router.get('/twilioNumber', propostaController.addTwilioNumber)
 
 module.exports = router
