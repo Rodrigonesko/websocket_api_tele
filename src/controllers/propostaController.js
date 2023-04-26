@@ -1796,15 +1796,21 @@ module.exports = {
                 return res.json(msg)
             }
 
-            await axios.post(`${chatProUrl}/send_message`, {
-                number: result.celularCompleto,
-                message: msg
-            }, {
-                headers: {
-                    Authorization: tokenChatPro,
-                    accept: 'application/json',
-                    'content-type': 'application/json',
-                }
+            // await axios.post(`${chatProUrl}/send_message`, {
+            //     number: result.celularCompleto,
+            //     message: msg
+            // }, {
+            //     headers: {
+            //         Authorization: tokenChatPro,
+            //         accept: 'application/json',
+            //         'content-type': 'application/json',
+            //     }
+            // })
+
+            await client.messages.create({
+                to: result.whatsapp,
+                from: TwilioNumber,
+                body: msg
             })
 
             await Chat.create({
