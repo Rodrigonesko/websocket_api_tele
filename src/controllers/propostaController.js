@@ -1607,17 +1607,6 @@ module.exports = {
                 to: whatsapp
             })
 
-            // await axios.post(`${chatProUrl}/send_message`, {
-            //     number: whatsapp.replace(/\D+/g, ''),
-            //     message: mensagem
-            // }, {
-            //     headers: {
-            //         Authorization: tokenChatPro,
-            //         accept: 'application/json',
-            //         'content-type': 'application/json',
-            //     }
-            // })
-
             await Chat.create({
                 de: TwilioNumber,
                 para: whatsapp,
@@ -1640,25 +1629,25 @@ module.exports = {
 
             const { whatsapp, mensagem } = req.body
 
-            // const result = await client.messages.create({
-            //     from: TwilioNumber,
-            //     body: mensagem,
-            //     to: whatsapp
-            // })
-
-            await axios.post(`${chatProUrl}/send_message`, {
-                number: whatsapp.replace(/\D+/g, ''),
-                message: mensagem
-            }, {
-                headers: {
-                    Authorization: tokenChatPro,
-                    accept: 'application/json',
-                    'content-type': 'application/json',
-                }
+            const result = await client.messages.create({
+                from: TwilioNumber,
+                body: mensagem,
+                to: whatsapp
             })
 
+            // await axios.post(`${chatProUrl}/send_message`, {
+            //     number: whatsapp.replace(/\D+/g, ''),
+            //     message: mensagem
+            // }, {
+            //     headers: {
+            //         Authorization: tokenChatPro,
+            //         accept: 'application/json',
+            //         'content-type': 'application/json',
+            //     }
+            // })
+
             await Chat.create({
-                de: `whatsapp:+${whatsappNumber}`,
+                de: TwilioNumber,
                 para: whatsapp,
                 mensagem,
                 horario: moment().format('YYYY-MM-DD HH:mm')
@@ -1780,22 +1769,22 @@ module.exports = {
                 msg += ` Caso os mesmos não estejam presentes no seu horário, o Sr (a) pode informar o contato deles durante a realização da sua entrevista para que possamos entrar em contato com os mesmos neste mesmo horário.`
                 console.log(msg);
 
-                // await client.messages.create({
-                //     to: result.whatsapp,
-                //     from: TwilioNumber,
-                //     body: msg
-                // })
-
-                await axios.post(`${chatProUrl}/send_message`, {
-                    number: result.celularCompleto,
-                    message: msg
-                }, {
-                    headers: {
-                        Authorization: tokenChatPro,
-                        accept: 'application/json',
-                        'content-type': 'application/json',
-                    }
+                await client.messages.create({
+                    to: result.whatsapp,
+                    from: TwilioNumber,
+                    body: msg
                 })
+
+                // await axios.post(`${chatProUrl}/send_message`, {
+                //     number: result.celularCompleto,
+                //     message: msg
+                // }, {
+                //     headers: {
+                //         Authorization: tokenChatPro,
+                //         accept: 'application/json',
+                //         'content-type': 'application/json',
+                //     }
+                // })
 
                 await Chat.create({
                     para: result.whatsapp,
@@ -1919,15 +1908,22 @@ module.exports = {
             })
             msg += `\nQual o melhor horário?\nCumpre informar que essa entrevista de complementação é necessária para Adesão ao Plano de Saúde, este que permanecerá paralisado o processo até a realização desta entrevista, informar por gentileza qual o melhor horário.`;
 
-            await axios.post(`${chatProUrl}/send_message`, {
-                number: proposta.numeroCompleto,
-                message: msg
-            }, {
-                headers: {
-                    Authorization: tokenChatPro,
-                    accept: 'application/json',
-                    'content-type': 'application/json',
-                }
+            // await axios.post(`${chatProUrl}/send_message`, {
+            //     number: proposta.numeroCompleto,
+            //     message: msg
+            // }, {
+            //     headers: {
+            //         Authorization: tokenChatPro,
+            //         accept: 'application/json',
+            //         'content-type': 'application/json',
+            //     }
+            // })
+
+
+            await client.messages.create({
+                to: result.whatsapp,
+                from: TwilioNumber,
+                body: msg
             })
 
             await PropostaEntrevista.updateMany({

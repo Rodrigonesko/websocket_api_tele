@@ -55,16 +55,16 @@ async function lembreteMensagem() {
             })
 
 
-            await axios.post(`${chatProUrl}/send_message`, {
-                number: whatsapp,
-                message: mensagem
-            }, {
-                headers: {
-                    accept: 'application/json',
-                    'content-type': 'application/json',
-                    Authorization: tokenChatPro
-                }
-            })
+            // await axios.post(`${chatProUrl}/send_message`, {
+            //     number: whatsapp,
+            //     message: mensagem
+            // }, {
+            //     headers: {
+            //         accept: 'application/json',
+            //         'content-type': 'application/json',
+            //         Authorization: tokenChatPro
+            //     }
+            // })
 
             await client.messages.create({
                 from: TwilioNumber,
