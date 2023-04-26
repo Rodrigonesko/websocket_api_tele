@@ -1914,6 +1914,8 @@ module.exports = {
             })
             msg += `\nQual o melhor horário?\nCumpre informar que essa entrevista de complementação é necessária para Adesão ao Plano de Saúde, este que permanecerá paralisado o processo até a realização desta entrevista, informar por gentileza qual o melhor horário.`;
 
+
+
             // await axios.post(`${chatProUrl}/send_message`, {
             //     number: proposta.numeroCompleto,
             //     message: msg
@@ -1927,7 +1929,7 @@ module.exports = {
 
 
             await client.messages.create({
-                to: result.whatsapp,
+                to: proposta.whatsapp,
                 from: TwilioNumber,
                 body: msg
             })
@@ -1939,7 +1941,7 @@ module.exports = {
             })
 
             await Chat.create({
-                de: `whatsapp:${whatsappNumber}`,
+                de: TwilioNumber,
                 para: proposta.whatsapp,
                 horario: moment().format('YYYY-MM-DD HH:mm:ss'),
                 mensagem: msg
