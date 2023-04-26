@@ -1202,12 +1202,12 @@ module.exports = {
     testeMensagem: async (req, res) => {
         try {
 
-            let mensagem = modeloMensagem2('RODRIGO ONESKO DIAS').mensagem
+            let mensagem = modeloMensagem2('RODRIGO ONESKO DIAS', '26/04/2023', '27/04/2023').mensagem
 
             console.log(mensagem);
 
             const result = await client.messages.create({
-                from: TwilioNumber,
+                from: 'whatsapp:+554140426114',
                 body: mensagem,
                 to: 'whatsapp:+554197971794'
             })
@@ -2521,7 +2521,7 @@ Atenção: o preenchimento dos horários é feito em tempo real. Caso o horário
 function modeloMensagem2(nome, data1, data2) {
 
     let mensagem = `Prezado Sr.(a) ${nome},
-Somos da equipe de elegibilidade da operadora de saúde Amil e para concluirmos a contratação do Plano de Saúde do Sr.(a), e dos seus dependentes (caso tenha) e precisamos confirmar alguns dados para que a contratação seja co0ncluída.
+Somos da equipe de elegibilidade da operadora de saúde Amil e para concluirmos a contratação do Plano de Saúde do Sr.(a), e dos seus dependentes (caso tenha) e precisamos confirmar alguns dados para que a contratação seja concluída.
 Por gentileza, escolha o *NÚMERO* referente a janela de horários para entrarmos em contato com o Sr.(a)
 *${data1}*
 1. Das 09:00 às 11:00
