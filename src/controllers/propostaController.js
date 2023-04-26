@@ -826,7 +826,7 @@ module.exports = {
 
             const result = await PropostaEntrevista.find({
                 situacao,
-                agendado: { $ne: 'Agendado' },
+                agendado: { $ne: 'agendado' },
                 atendimentoHumanizado: { $ne: true }
             })
 
