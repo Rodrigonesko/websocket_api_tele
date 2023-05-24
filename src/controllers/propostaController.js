@@ -1475,10 +1475,10 @@ module.exports = {
                 let parte6 = ''
                 if (item.titular.sexo === 'M') {
                     saudacao = `Prezado Sr. ${item.titular.nome}, `
-                    parte1 = `Somos da equipe de adesão da operadora de saúde Amil e para concluirmos a contratação do Plano de Saúde do Sr. e `
+                    parte1 = `Somos da equipe de elegibilidade da operadora de saúde Amil e para concluirmos a contratação do Plano de Saúde do Sr. e `
                 } else {
                     saudacao = `Prezada Sra. ${item.titular.nome}, `
-                    parte1 = `Somos da equipe de adesão da operadora de saúde Amil e para concluirmos a contratação do Plano de Saúde da Sra. e `
+                    parte1 = `Somos da equipe de elegibilidade da operadora de saúde Amil e para concluirmos a contratação do Plano de Saúde da Sra. e `
                 }
 
                 item.dependentes.forEach(dependete => {
