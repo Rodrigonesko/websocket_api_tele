@@ -2429,6 +2429,56 @@ module.exports = {
                 msg: 'Internal Server Error'
             })
         }
+    },
+
+    reenviarHorariosDisponiveis: async (req, res) => {
+        try {
+
+            const { whatsapps, horarios, data } = req.body
+
+            console.log(whatsapps, horarios);
+
+            'Horários disponíveis para o dia 24/05/2023 - 14:20 - 14:40 - 15:00 - 15:20 - 15:40 - 16:00 - 16:20 - 16:40 - Qual o melhor horário?'
+
+            let mensagem = `Visto que o preenchimento dos horários é feito em tempo real, esse horário já foi preenchido. Vou te passar os horários disponíveis atualizados:\nHorários disponíveis para o dia ${moment(data).format('DD/MM/YYYY')} - `
+
+            horarios.forEach(horario => {
+                mensagem += `${horario} - `
+            })
+
+            mensagem += 'Qual o melhor horário?'
+
+            for (const whatsapp of whatsapps) {
+
+                await client.messages.create({
+                    to: whatsapp,
+                    from: TwilioNumber,
+                    body: mensagem
+                })
+
+                await Chat.create({
+                    de: TwilioNumber,
+                    para: whatsapp,
+                    mensagem,
+                    horario: moment().format('YYYY-MM-DD HH:mm:ss')
+                })
+
+            }
+
+            console.log(mensagem);
+
+            return res.json({
+                msg: 'oii'
+            })
+
+
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
     }
 }
 
