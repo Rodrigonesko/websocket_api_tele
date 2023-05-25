@@ -2438,15 +2438,15 @@ module.exports = {
 
             console.log(whatsapps, horarios);
 
-            'Horários disponíveis para o dia 24/05/2023 - 14:20 - 14:40 - 15:00 - 15:20 - 15:40 - 16:00 - 16:20 - 16:40 - Qual o melhor horário?'
-
             let mensagem = `Visto que o preenchimento dos horários é feito em tempo real, esse horário já foi preenchido. Vou te passar os horários disponíveis atualizados:\nHorários disponíveis para o dia ${moment(data).format('DD/MM/YYYY')} - `
+
+            console.log(horarios);
 
             horarios.forEach(horario => {
                 mensagem += `${horario} - `
             })
 
-            mensagem += 'Qual o melhor horário?'
+            mensagem += '\nQual o melhor horário?'
 
             for (const whatsapp of whatsapps) {
 
@@ -2463,6 +2463,16 @@ module.exports = {
                     horario: moment().format('YYYY-MM-DD HH:mm:ss')
                 })
 
+                const { cpfTitular } = await PropostaEntrevista.findOne({
+                    whatsapp
+                })
+
+                await PropostaEntrevista.updateMany({
+                    cpfTitular
+                }, {
+                    perguntaAtendimentoHumanizado: true,
+                    atendimentoHumanizado: true
+                })
             }
 
             console.log(mensagem);
