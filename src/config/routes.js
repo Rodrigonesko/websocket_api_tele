@@ -55,6 +55,7 @@ router.put('/assumirConversa', auth, propostaController.assumirAtendimento)
 router.put('/visualizarMensagem', auth, propostaController.visualizarMensagem)
 router.put('/reenviarMensagens', propostaController.reenviarMensagens)
 router.put('/reenviarHorariosDisponiveis', propostaController.reenviarHorariosDisponiveis)
+router.put('/alterarDadosProposta', propostaController.alterarDadosProposta)
 
 router.post('/receiveMessage', propostaController.mensagemRecebida)
 

@@ -79,7 +79,8 @@ const propostaScheema = mongoose.Schema({
     responsavelConversa: String,
     visualizado: Boolean,
     lembrete: Boolean,
-    enviadoTwilio: Boolean
+    enviadoTwilio: Boolean,
+    reenviadoVigencia: Boolean
 }, {
     timestamps: true
 })

@@ -2489,6 +2489,30 @@ module.exports = {
                 msg: 'Internal Server Error'
             })
         }
+    },
+
+    alterarDadosProposta: async (req, res) => {
+        try {
+
+            const { dados } = req.body
+
+            await PropostaEntrevista.updateOne({
+                nome: dados.nomeAntigo,
+                proposta: dados.proposta
+            }, {
+                nome: dados.nome
+            })
+
+            return res.json({
+                msg: 'ok'
+            })
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
     }
 }
 
