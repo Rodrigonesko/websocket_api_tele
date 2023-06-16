@@ -2496,12 +2496,14 @@ module.exports = {
 
             const { dados } = req.body
 
-            await PropostaEntrevista.updateOne({
+            const result = await PropostaEntrevista.updateOne({
                 nome: dados.nomeAntigo,
                 proposta: dados.proposta
             }, {
                 nome: dados.nome
             })
+
+            console.log(result);
 
             return res.json({
                 msg: 'ok'
