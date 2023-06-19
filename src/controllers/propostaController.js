@@ -103,6 +103,8 @@ module.exports = {
 
                 const tipoContrato = item.TIPO_CONTRATO
 
+                const nomeOperadora = item.NOME_OPERADORA
+
                 vigencia = moment().businessAdd(2).format('YYYY-MM-DD')
 
                 const grupoCarencia = item.GRUPO_CARENCIA
@@ -219,7 +221,8 @@ module.exports = {
                     ddd,
                     celular: numero,
                     whatsapp,
-                    celularCompleto
+                    celularCompleto,
+                    nomeOperadora
                 }
 
                 const existeProposta = await PropostaEntrevista.findOne({

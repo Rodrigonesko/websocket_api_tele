@@ -80,7 +80,8 @@ const propostaScheema = mongoose.Schema({
     visualizado: Boolean,
     lembrete: Boolean,
     enviadoTwilio: Boolean,
-    reenviadoVigencia: Boolean
+    reenviadoVigencia: Boolean,
+    nomeOperadora: String
 }, {
     timestamps: true
 })
