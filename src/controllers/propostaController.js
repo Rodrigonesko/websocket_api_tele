@@ -941,7 +941,7 @@ module.exports = {
                         atendimentoHumanizado: true
                     })
 
-                    const msg = 'Um dos nossos atendentes irá entar em contato.'
+                    const msg = 'Um dos nossos atendentes irá entrar em contato.'
 
                     await client.messages.create({
                         from: TwilioNumber,
@@ -1340,38 +1340,6 @@ module.exports = {
         }
     },
 
-    migrarBanco: async (req, res) => {
-        try {
-
-            const { propostas } = req.body
-
-            console.log(propostas.length);
-
-            for (const item of propostas) {
-                const proposta = await PropostaEntrevista.findOneAndUpdate({
-                    nome: item.nome,
-                    proposta: item.proposta
-                }, {
-                    status: 'Cancelado',
-                    dataConclusao: moment().format('YYYY-MM-DD'),
-                    situacao: 'Cancelado',
-                    atendimentoHumanizado: false,
-                    contato1: item.contato1,
-                    responsavelContato1: item.responsavelContato1
-                })
-                console.log(proposta);
-            }
-
-            return res.json({ msg: 'ok' })
-
-        } catch (error) {
-            console.log(error);
-            return res.status(500).json({
-                msg: 'Internal Server Error'
-            })
-        }
-    },
-
     gerarMensagens: async (req, res) => {
         try {
 
@@ -1627,17 +1595,6 @@ module.exports = {
                 to: whatsapp
             })
 
-            // await axios.post(`${chatProUrl}/send_message`, {
-            //     number: whatsapp.replace(/\D+/g, ''),
-            //     message: mensagem
-            // }, {
-            //     headers: {
-            //         Authorization: tokenChatPro,
-            //         accept: 'application/json',
-            //         'content-type': 'application/json',
-            //     }
-            // })
-
             await Chat.create({
                 de: TwilioNumber,
                 para: whatsapp,
@@ -1667,51 +1624,6 @@ module.exports = {
             console.log(result.length);
 
             return res.json(result)
-
-        } catch (error) {
-            console.log(error);
-            return res.status(500).json({
-                msg: 'Internal Server Error'
-            })
-        }
-    },
-
-    cancelarPropostasEmMassa: async (req, res) => {
-        try {
-
-            const propostas = await PropostaEntrevista.find({
-                $or: [
-                    { vigencia: '2023-03-23' },
-                ]
-            })
-
-            let arr = []
-
-            console.log(propostas.length);
-
-            let count = 0
-
-            for (const e of propostas) {
-                if (e.contato1 && (e.status === undefined || e.status === '') && e.agendado !== 'agendado') {
-                    arr.push(e)
-                }
-            }
-
-            console.log(arr.length);
-
-            for (const item of arr) {
-                const proposta = await PropostaEntrevista.findOneAndUpdate({
-                    nome: item.nome,
-                    proposta: item.proposta
-                }, {
-                    status: 'Cancelado',
-                    dataConclusao: moment().format('YYYY-MM-DD'),
-                    situacao: 'Cancelado',
-                    atendimentoHumanizado: false,
-                })
-            }
-
-            return res.json(arr)
 
         } catch (error) {
             console.log(error);
@@ -1767,17 +1679,6 @@ module.exports = {
                     body: msg
                 })
 
-                // await axios.post(`${chatProUrl}/send_message`, {
-                //     number: result.celularCompleto,
-                //     message: msg
-                // }, {
-                //     headers: {
-                //         Authorization: tokenChatPro,
-                //         accept: 'application/json',
-                //         'content-type': 'application/json',
-                //     }
-                // })
-
                 await Chat.create({
                     para: result.whatsapp,
                     de: TwilioNumber,
@@ -1787,17 +1688,6 @@ module.exports = {
 
                 return res.json(msg)
             }
-
-            // await axios.post(`${chatProUrl}/send_message`, {
-            //     number: result.celularCompleto,
-            //     message: msg
-            // }, {
-            //     headers: {
-            //         Authorization: tokenChatPro,
-            //         accept: 'application/json',
-            //         'content-type': 'application/json',
-            //     }
-            // })
 
             await client.messages.create({
                 to: result.whatsapp,
@@ -1926,27 +1816,6 @@ module.exports = {
             })
 
             return res.json(msg)
-
-        } catch (error) {
-            console.log(error);
-            return res.status(500).json({
-                msg: 'Internal Server Error'
-            })
-        }
-    },
-
-    addTwilioNumber: async (req, res) => {
-        try {
-
-            await PropostaEntrevista.updateMany({
-                enviadoTwilio: undefined
-            }, {
-                enviadoTwilio: true
-            })
-
-            return res.json({
-                msg: 'atualizados'
-            })
 
         } catch (error) {
             console.log(error);

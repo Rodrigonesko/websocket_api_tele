@@ -60,11 +60,6 @@ router.get('/devolverPropostas', auth, propostaController.propostasParaDevolver)
 
 router.post('/receiveMessage', propostaController.mensagemRecebida)
 
-router.post('/migrarBanco', propostaController.migrarBanco)
-router.get('/cancelarPropostasEmMassa', propostaController.cancelarPropostasEmMassa)
-
 router.get('/teste', propostaController.testeMensagem)
-
-router.get('/twilioNumber', propostaController.addTwilioNumber)
 
 module.exports = router
