@@ -1,11 +1,9 @@
-const mongoose = require('mongoose')
 const PropostaEntrevista = require('../models/PropostaEntrevista')
 const Chat = require('../models/Chat')
 const moment = require('moment')
-const businessDays = require('moment-business-days')
+require('moment-business-days')
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
-const twilio = require('twilio');
 const client = require('twilio')(accountSid, authToken);
 const TwilioNumber = process.env.TWILIO_NUMBER
 const instance_id = process.env.INSTANCE_ID_CHATPRO
@@ -2508,6 +2506,32 @@ module.exports = {
             return res.json({
                 msg: 'ok'
             })
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    propostasParaDevolver: async (req, res) => {
+        try {
+
+            const result = await PropostaEntrevista.find({
+                $and: [
+                    { status: { $ne: 'Concluído' } },
+                    { status: { $ne: 'Cancelado' } },
+                    { reenviadoVigencia: true },
+                    { agendado: { $ne: 'agendado' } },
+                ]
+            })
+
+            const propostas = result.filter(proposta => {
+                return moment(proposta.vigencia) <= moment()
+            })
+
+            return res.json(propostas)
 
         } catch (error) {
             console.log(error);
