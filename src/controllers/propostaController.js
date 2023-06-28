@@ -412,7 +412,7 @@ module.exports = {
             const { _id, whatsapp } = req.body
 
             if (!_id || !whatsapp) {
-                return res.status(500).json({msg: 'Sem dados no corpo da requisição'})
+                return res.status(500).json({ msg: 'Sem dados no corpo da requisição' })
             }
 
             await PropostaEntrevista.updateOne({
@@ -869,7 +869,7 @@ module.exports = {
 
             io.emit('receivedMessage', { whatsapp: fixed })
 
-            const insertChat = await Chat.create({
+            await Chat.create({
                 de: fixed,
                 para: TwilioNumber,
                 mensagem,
@@ -924,7 +924,10 @@ module.exports = {
                 return res.json(msg)
             }
 
+            if (find.tipoAssociado.indexOf('Dependente') !== -1) {
 
+                return res.json({msg: 'Dependente'})
+            }
 
             if (find.situacao === 'Janela escolhida') {
                 return res.json({
