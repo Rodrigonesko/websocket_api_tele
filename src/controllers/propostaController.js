@@ -926,7 +926,7 @@ module.exports = {
 
             if (find.tipoAssociado.indexOf('Dependente') !== -1) {
 
-                return res.json({msg: 'Dependente'})
+                return res.json({ msg: 'Dependente' })
             }
 
             if (find.situacao === 'Janela escolhida') {
@@ -1600,6 +1600,8 @@ module.exports = {
                 to: whatsapp
             })
 
+            console.log(result);
+
             await Chat.create({
                 de: TwilioNumber,
                 para: whatsapp,
@@ -1627,6 +1629,14 @@ module.exports = {
                 body: mensagem,
                 to: whatsapp
             })
+
+            const verificarStatusMensagem = await client.messages(result.sid).fetch()
+
+            if (verificarStatusMensagem.status === 'failed' || verificarStatusMensagem.status === 'undelivered') {
+                return res.status(500).json({
+                    msg: 'Erro ao enviar'
+                })
+            }
 
             await Chat.create({
                 de: TwilioNumber,
