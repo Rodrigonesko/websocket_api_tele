@@ -25,6 +25,7 @@ router.put('/reagendar', auth, propostaController.reagendar)
 router.put('/cancelar', auth, propostaController.cancelar)
 router.delete('/delete/:id', auth, propostaController.delete)
 router.put('/alterarTelefone', auth, propostaController.alterarTelefone)
+router.put('/alterarWhatsapp', auth, propostaController.alterarWhatsapp)
 router.get('/naoAgendadas', auth, propostaController.naoAgendadas)
 router.get('/agendadas', auth, propostaController.agendadas)
 router.put('/alterarVigencia', auth, propostaController.alterarVigencia)
@@ -57,6 +58,7 @@ router.put('/reenviarMensagens', propostaController.reenviarMensagens)
 router.put('/reenviarHorariosDisponiveis', propostaController.reenviarHorariosDisponiveis)
 router.put('/alterarDadosProposta', propostaController.alterarDadosProposta)
 router.get('/devolverPropostas', auth, propostaController.propostasParaDevolver)
+
 
 router.post('/receiveMessage', propostaController.mensagemRecebida)
 

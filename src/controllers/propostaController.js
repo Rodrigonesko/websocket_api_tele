@@ -14,6 +14,8 @@ module.exports = {
         try {
             const { result } = req.body
 
+            console.log(result)
+
             let quantidade = 0
 
             const arrCpfTitulares = result.reduce((acc, item) => {
@@ -395,6 +397,34 @@ module.exports = {
             return res.status(200).json({
                 result
             })
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    alterarWhatsapp: async (req, res) => {
+        try {
+
+            const { _id, whatsapp } = req.body
+
+            if (!_id || !whatsapp) {
+                return res.status(500).json({msg: 'Sem dados no corpo da requisição'})
+            }
+
+            await PropostaEntrevista.updateOne({
+                _id
+            }, {
+                whatsapp
+            })
+
+            return res.json({
+                msg: 'ok'
+            })
+
 
         } catch (error) {
             console.log(error);
