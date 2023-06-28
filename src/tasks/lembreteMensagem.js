@@ -21,12 +21,17 @@ async function lembreteMensagem() {
         const dataEntrevista = item.dataEntrevista
         const agora = moment().format('YYYY-MM-DD HH:mm:ss')
 
-        const findWhatsapp = await PropostaEntrevista.findOne({
-            cpf: item.cpfTitular,
-        })
+        let whatsapp
 
-        const whatsapp = findWhatsapp?.whatsapp
+        if (item.whatsapp.length === 23) {
+            whatsapp = item.whatsapp
+        } else {
+            const findWhatsapp = await PropostaEntrevista.findOne({
+                cpf: item.cpfTitular,
+            })
 
+            whatsapp = findWhatsapp?.whatsapp
+        }
 
         if (verificarTempoEntreDatas(agora, dataEntrevista) && !item.lembrete) {
 
