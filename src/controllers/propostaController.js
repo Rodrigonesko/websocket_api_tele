@@ -564,6 +564,32 @@ module.exports = {
         }
     },
 
+    migrarRet: async (req, res) => {
+        try {
+
+            const { proposta, nome } = req.body
+
+            console.log(proposta, nome);
+
+            await PropostaEntrevista.updateOne({
+                proposta,
+                nome
+            }, {
+                retrocedido: 'Ret'
+            })
+
+            return res.json({
+                msg: 'ok'
+            })
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
     voltarEntrevista: async (req, res) => {
         try {
 
@@ -573,7 +599,8 @@ module.exports = {
                 nome,
                 proposta
             }, {
-                status: ''
+                status: '',
+                retrocedido: 'Ret'
             })
 
             res.json(result)
@@ -932,6 +959,12 @@ module.exports = {
             if (find.situacao === 'Janela escolhida') {
                 return res.json({
                     msg: 'janela ja escolhida'
+                })
+            }
+
+            if(find.agendado === 'agendado'){
+                return res.json({
+                    msg: 'Agendado'
                 })
             }
 

@@ -59,7 +59,7 @@ router.put('/reenviarHorariosDisponiveis', propostaController.reenviarHorariosDi
 router.put('/alterarDadosProposta', propostaController.alterarDadosProposta)
 router.get('/devolverPropostas', auth, propostaController.propostasParaDevolver)
 
-
+router.put('/migrarRet', propostaController.migrarRet)
 router.post('/receiveMessage', propostaController.mensagemRecebida)
 
 router.get('/teste', propostaController.testeMensagem)
