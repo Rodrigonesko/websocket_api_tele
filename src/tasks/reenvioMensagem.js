@@ -40,6 +40,8 @@ async function reenviarMensagens() {
 
     for (const proposta of find) {
 
+        const {wppSender} = proposta
+
         let vigencia = moment(proposta.vigencia)
 
         if (proposta.tipoContrato.toLowerCase().indexOf('pf') !== -1 && vigencia < moment()) {
@@ -57,13 +59,13 @@ async function reenviarMensagens() {
             })
 
             await client.messages.create({
-                from: TwilioNumber,
+                from: wppSender,
                 to: proposta.whatsapp,
                 body: msg
             })
 
             await Chat.create({
-                de: TwilioNumber,
+                de: wppSender,
                 para: proposta.whatsapp,
                 mensagem: msg,
                 horario: moment().format('YYYY-MM-DD HH:mm')

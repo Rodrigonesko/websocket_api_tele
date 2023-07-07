@@ -82,7 +82,8 @@ const propostaScheema = mongoose.Schema({
     enviadoTwilio: Boolean,
     reenviadoVigencia: Boolean,
     nomeOperadora: String,
-    retrocedido: String
+    retrocedido: String,
+    wppSender: String
 }, {
     timestamps: true
 })

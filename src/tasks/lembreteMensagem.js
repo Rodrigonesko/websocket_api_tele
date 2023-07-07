@@ -21,6 +21,8 @@ async function lembreteMensagem() {
         const dataEntrevista = item.dataEntrevista
         const agora = moment().format('YYYY-MM-DD HH:mm:ss')
 
+        const {wppSender} = item
+
         let whatsapp
 
         if (item.whatsapp.length === 23) {
@@ -46,14 +48,14 @@ async function lembreteMensagem() {
             })
 
             await Chat.create({
-                de: TwilioNumber,
+                de: wppSender,
                 para: whatsapp,
                 mensagem,
                 horario: moment().format('YYYY-MM-DD HH:mm')
             })
 
             await client.messages.create({
-                from: TwilioNumber,
+                from: wppSender,
                 to: whatsapp,
                 body: mensagem
             })

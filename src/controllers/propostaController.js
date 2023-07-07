@@ -6,6 +6,7 @@ const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = require('twilio')(accountSid, authToken);
 const TwilioNumber = process.env.TWILIO_NUMBER
+const TwilioNumberPme = process.env.TWILIO_NUMBER_PME
 const MessagingResponse = require('twilio').twiml.MessagingResponse;
 const VoiceResponse = require('twilio').twiml.VoiceResponse;
 
@@ -123,6 +124,12 @@ module.exports = {
                 const cid2 = item.CID_PI_ANT_2
                 const cid3 = item.CID_PI_ANT_3
 
+                let wppSender = TwilioNumber
+
+                if (tipoContrato.toLowerCase().indexOf('pme') !== -1) {
+                    wppSender = TwilioNumberPme
+                }
+
                 const observacao = item['OBSERVAÇÕES']
                 const ddd = item.NUM_DDD_CEL || item.NUM_DDD_TEL
                 let numero = item.NUM_CEL?.toString().replace(/\s/g, '') || item.NUM_TEL?.toString().replace(/\s/g, '')
@@ -218,7 +225,8 @@ module.exports = {
                     celular: numero,
                     whatsapp,
                     celularCompleto,
-                    nomeOperadora
+                    nomeOperadora,
+                    wppSender
                 }
 
                 const existeProposta = await PropostaEntrevista.findOne({
@@ -777,6 +785,8 @@ module.exports = {
             let opcaoDia2 = data2
             let modelo
 
+            const wppSender = proposta.wppSender
+
             if (modeloEscolhido === 'Modelo 1') {
                 mensagem = modeloMensagem1(proposta.nome, data1, data2).mensagem
                 modelo = '1'
@@ -815,7 +825,7 @@ module.exports = {
             }
 
             const result = await client.messages.create({
-                from: TwilioNumber,
+                from: wppSender,
                 body: mensagem,
                 to: whatsapp
             })
@@ -855,7 +865,7 @@ module.exports = {
             })
 
             const mensagemBanco = await Chat.create({
-                de: TwilioNumber,
+                de: wppSender,
                 para: whatsapp,
                 mensagem,
                 horario: moment().format('YYYY-MM-DD HH:mm')
@@ -930,6 +940,8 @@ module.exports = {
                 return res.json(msg)
             }
 
+            const wppSender = find.wppSender
+
             await PropostaEntrevista.findByIdAndUpdate({
                 _id: find._id
             }, {
@@ -939,13 +951,13 @@ module.exports = {
             if (find.status === 'Concluído') {
                 const msg = "Atendimento encerrado, a Amil agradece"
                 await client.messages.create({
-                    from: TwilioNumber,
+                    from: wppSender,
                     body: msg,
                     to: from
                 })
 
                 await Chat.create({
-                    de: TwilioNumber,
+                    de: wppSender,
                     para: fixed,
                     mensagem: msg,
                     horario: moment().format('YYYY-MM-DD HH:mm')
@@ -987,13 +999,13 @@ module.exports = {
 
                     const msg = `Não entendemos sua resposta, por favor digite somente o *número* referente a janela de horário que o Sr.(a) prefere.`
                     await client.messages.create({
-                        from: TwilioNumber,
+                        from: wppSender,
                         body: msg,
                         to: from
                     })
 
                     await Chat.create({
-                        de: TwilioNumber,
+                        de: wppSender,
                         para: fixed,
                         mensagem: msg,
                         horario: moment().format('YYYY-MM-DD HH:mm')
@@ -1013,13 +1025,13 @@ module.exports = {
                     const msg = 'Um dos nossos atendentes irá entrar em contato.'
 
                     await client.messages.create({
-                        from: TwilioNumber,
+                        from: wppSender,
                         body: msg,
                         to: from
                     })
 
                     await Chat.create({
-                        de: TwilioNumber,
+                        de: wppSender,
                         para: fixed,
                         mensagem: msg,
                         horario: moment().format('YYYY-MM-DD HH:mm')
@@ -1268,7 +1280,7 @@ module.exports = {
             console.log(mensagem);
 
             const result = await client.messages.create({
-                from: 'whatsapp:+554140426114',
+                from: TwilioNumberPme,
                 body: mensagem,
                 to: 'whatsapp:+554197971794'
             })
@@ -1660,8 +1672,14 @@ module.exports = {
 
             const { whatsapp, mensagem } = req.body
 
+            const find = await PropostaEntrevista.findOne({
+                whatsapp
+            })
+
+            const wppSender = find.wppSender
+
             const result = await client.messages.create({
-                from: TwilioNumber,
+                from: wppSender,
                 body: mensagem,
                 to: whatsapp
             })
@@ -1675,7 +1693,7 @@ module.exports = {
             }
 
             await Chat.create({
-                de: TwilioNumber,
+                de: wppSender,
                 para: whatsapp,
                 mensagem,
                 horario: moment().format('YYYY-MM-DD HH:mm')
@@ -1723,6 +1741,8 @@ module.exports = {
                 situacao: 'agendado'
             })
 
+            const wppSender = result.wppSender
+
             if (result.tipoAssociado === 'Dependente') {
                 return res.json(result)
             }
@@ -1754,13 +1774,13 @@ module.exports = {
 
                 await client.messages.create({
                     to: result.whatsapp,
-                    from: TwilioNumber,
+                    from: wppSender,
                     body: msg
                 })
 
                 await Chat.create({
                     para: result.whatsapp,
-                    de: TwilioNumber,
+                    de: wppSender,
                     horario: moment().format('YYYY-MM-DD HH:mm'),
                     mensagem: msg
                 })
@@ -1770,13 +1790,13 @@ module.exports = {
 
             await client.messages.create({
                 to: result.whatsapp,
-                from: TwilioNumber,
+                from: wppSender,
                 body: msg
             })
 
             await Chat.create({
                 para: result.whatsapp,
-                de: TwilioNumber,
+                de: wppSender,
                 horario: moment().format('YYYY-MM-DD HH:mm'),
                 mensagem: msg
             })
@@ -1863,7 +1883,7 @@ module.exports = {
 
             const { proposta, horarios, dia } = req.body
 
-            console.log(proposta.nome);
+            const wppSender = proposta.wppSender
 
             if (proposta.tipoAssociado.match(/[a-zA-Z]+/g).join('') !== 'Titular') {
                 return res.json({ msg: 'Dependente' })
@@ -1877,7 +1897,7 @@ module.exports = {
 
             await client.messages.create({
                 to: proposta.whatsapp,
-                from: TwilioNumber,
+                from: wppSender,
                 body: msg
             })
 
@@ -1888,7 +1908,7 @@ module.exports = {
             })
 
             await Chat.create({
-                de: TwilioNumber,
+                de: wppSender,
                 para: proposta.whatsapp,
                 horario: moment().format('YYYY-MM-DD HH:mm:ss'),
                 mensagem: msg
@@ -1923,14 +1943,20 @@ module.exports = {
 
             for (const whatsapp of whatsapps) {
 
+                const result = await PropostaEntrevista.findOne({
+                    whatsapp
+                })
+
+                const { wppSender } = result
+
                 await client.messages.create({
                     to: whatsapp,
-                    from: TwilioNumber,
+                    from: wppSender,
                     body: mensagem
                 })
 
                 await Chat.create({
-                    de: TwilioNumber,
+                    de: wppSender,
                     para: whatsapp,
                     mensagem,
                     horario: moment().format('YYYY-MM-DD HH:mm:ss')
@@ -2064,6 +2090,39 @@ module.exports = {
         // Render the response as XML in reply to the webhook request
         res.type('text/xml');
         res.send(twiml.toString());
+    },
+
+    colocandoWppSender: async (req, res) => {
+        try {
+
+            const propostas = await PropostaEntrevista.find()
+
+            for (const proposta of propostas) {
+
+                let wppSender = TwilioNumber
+
+                if (proposta.tipoContrato) {
+                    if (proposta.tipoContrato.toLowerCase().indexOf('pme') !== -1) {
+                        wppSender = TwilioNumberPme
+                    }
+                }
+
+                await PropostaEntrevista.updateOne({
+                    _id: proposta._id
+                }, {
+                    wppSender
+                })
+
+            }
+
+            return res.json(propostas.length)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
     }
 
 }
