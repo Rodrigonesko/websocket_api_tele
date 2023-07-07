@@ -2053,7 +2053,13 @@ module.exports = {
         const twiml = new VoiceResponse();
 
 
-        twiml.say('Hello world!');
+        // twiml.say('Hello world!');
+
+        // Use <Record> to record the caller's message
+        twiml.record();
+
+        // End the call with <Hangup>
+        twiml.hangup();
 
         // Render the response as XML in reply to the webhook request
         res.type('text/xml');
