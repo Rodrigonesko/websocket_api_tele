@@ -2052,12 +2052,12 @@ module.exports = {
     webHookCall: async (req, res) => {
         const twiml = new VoiceResponse();
 
-        
+
         twiml.say('Hello world!');
 
         // Render the response as XML in reply to the webhook request
-        response.type('text/xml');
-        response.send(twiml.toString());
+        res.type('text/xml');
+        res.send(twiml.toString());
     }
 
 }
