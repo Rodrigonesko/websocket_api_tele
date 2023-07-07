@@ -6,6 +6,8 @@ const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = require('twilio')(accountSid, authToken);
 const TwilioNumber = process.env.TWILIO_NUMBER
+const MessagingResponse = require('twilio').twiml.MessagingResponse;
+
 
 const { io } = require('../../index')
 
@@ -962,7 +964,7 @@ module.exports = {
                 })
             }
 
-            if(find.agendado === 'agendado'){
+            if (find.agendado === 'agendado') {
                 return res.json({
                     msg: 'Agendado'
                 })
@@ -2011,7 +2013,37 @@ module.exports = {
                 msg: 'Internal Server Error'
             })
         }
+    },
+
+
+    webHookMessage: async (req, res) => {
+        try {
+
+            const twiml = new MessagingResponse();
+
+            // Lógica para processar a mensagem recebida
+            const messageBody = req.body.Body;
+            const fromNumber = req.body.From;
+
+            // Lógica de resposta
+            twiml.message(`Você enviou a seguinte mensagem: ${messageBody}`);
+
+            await Chat.create({
+                mensagem: messageBody
+            })
+
+            // Gere a resposta do TwiML
+            res.type('text/xml');
+            res.send(twiml.toString());
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
     }
+
 }
 
 function ExcelDateToJSDate(serial) {
