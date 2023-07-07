@@ -2036,6 +2036,8 @@ module.exports = {
             res.type('text/xml');
             res.send(twiml.toString());
 
+            return res.json({msg: 'ok'})
+
         } catch (error) {
             console.log(error);
             return res.status(500).json({

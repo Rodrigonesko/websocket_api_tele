@@ -35,9 +35,9 @@ const reenviarMensagens = require('./src/tasks/reenvioMensagem')
 
 // reenviarMensagens()
 
-// setInterval(reenviarMensagens, 4000000)
+setInterval(reenviarMensagens, 4000000)
 
-// setInterval(lembreteMensagem, 300000)
+setInterval(lembreteMensagem, 300000)
 
 // lembreteMensagem()
 
