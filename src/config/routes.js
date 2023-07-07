@@ -65,5 +65,7 @@ router.post('/receiveMessage', propostaController.mensagemRecebida)
 router.get('/teste', propostaController.testeMensagem)
 
 router.post('/webHookMessage', propostaController.webHookMessage)
+router.post('/webHookCall', propostaController.webHookCall)
+
 
 module.exports = router

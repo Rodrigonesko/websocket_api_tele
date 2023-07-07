@@ -7,6 +7,7 @@ const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = require('twilio')(accountSid, authToken);
 const TwilioNumber = process.env.TWILIO_NUMBER
 const MessagingResponse = require('twilio').twiml.MessagingResponse;
+const VoiceResponse = require('twilio').twiml.VoiceResponse;
 
 
 const { io } = require('../../index')
@@ -2025,6 +2026,8 @@ module.exports = {
             const messageBody = req.body.Body;
             const fromNumber = req.body.From;
 
+            console.log(req);
+
             // Lógica de resposta
             twiml.message(`Você enviou a seguinte mensagem: ${messageBody}`);
 
@@ -2036,7 +2039,7 @@ module.exports = {
             res.type('text/xml');
             res.send(twiml.toString());
 
-            return res.json({msg: 'ok'})
+            return res.json({ msg: 'ok' })
 
         } catch (error) {
             console.log(error);
@@ -2044,6 +2047,23 @@ module.exports = {
                 msg: 'Internal Server Error'
             })
         }
+    },
+
+    webHookCall: async (req, res) => {
+        const twiml = new VoiceResponse();
+
+        // Lógica para a gravação da chamada
+        const record = twiml.record({
+            action: '/recording',
+            method: 'POST',
+            maxLength: 3600, // Tempo máximo de gravação em segundos
+            recordingStatusCallback: '/recordingStatus'
+        });
+        record.say('Por favor, deixe uma mensagem após o sinal.');
+
+        // Gere a resposta do TwiML
+        res.type('text/xml');
+        res.send(twiml.toString());
     }
 
 }
