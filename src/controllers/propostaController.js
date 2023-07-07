@@ -2052,18 +2052,12 @@ module.exports = {
     webHookCall: async (req, res) => {
         const twiml = new VoiceResponse();
 
-        // Lógica para a gravação da chamada
-        const record = twiml.record({
-            action: '/recording',
-            method: 'POST',
-            maxLength: 3600, // Tempo máximo de gravação em segundos
-            recordingStatusCallback: '/recordingStatus'
-        });
-        record.say('Por favor, deixe uma mensagem após o sinal.');
+        
+        twiml.say('Hello world!');
 
-        // Gere a resposta do TwiML
-        res.type('text/xml');
-        res.send(twiml.toString());
+        // Render the response as XML in reply to the webhook request
+        response.type('text/xml');
+        response.send(twiml.toString());
     }
 
 }
