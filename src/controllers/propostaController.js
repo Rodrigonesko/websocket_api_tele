@@ -179,6 +179,8 @@ module.exports = {
                     situacao = 'Corrigir'
                 }
 
+                console.log(wppSender);
+
                 const resultado = {
                     dataRecebimento: moment().format('YYYY-MM-DD'),
                     proposta,
