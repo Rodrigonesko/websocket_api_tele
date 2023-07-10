@@ -100,7 +100,7 @@ module.exports = {
 
                 const tipoContrato = item.TIPO_CONTRATO
 
-                const nomeOperadora = item.NOME_OPERADORA
+                const nomeOperadora = item.NOM_OPERADORA
 
                 vigencia = moment().businessAdd(2).format('YYYY-MM-DD')
 
