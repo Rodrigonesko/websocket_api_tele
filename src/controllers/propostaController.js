@@ -9,7 +9,8 @@ const TwilioNumber = process.env.TWILIO_NUMBER
 const TwilioNumberPme = process.env.TWILIO_NUMBER_PME
 const MessagingResponse = require('twilio').twiml.MessagingResponse;
 const VoiceResponse = require('twilio').twiml.VoiceResponse;
-
+const fs = require('fs')
+const xlsx = require('xlsx')
 
 const { io } = require('../../index')
 
@@ -2118,6 +2119,48 @@ module.exports = {
             }
 
             return res.json(propostas.length)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    migrarNomeOperadora: async (req, res) => {
+        try {
+
+            // let file = fs.readFileSync('src/controllers/total.xlsx')
+
+
+            // const workbook = xlsx.read(file, { type: 'array' })
+
+            // const firstSheetName = workbook.SheetNames[0]
+
+            // const worksheet = workbook.Sheets[firstSheetName]
+
+            // let result = xlsx.utils.sheet_to_json(worksheet)
+
+            // for (const item of result) {
+
+            //     await PropostaEntrevista.updateMany({
+            //         proposta: item.NUM_PROPOSTA
+            //     }, {
+            //         nomeOperadora: item.NOM_OPERADORA
+            //     })
+
+            // }
+
+            const propostas = await PropostaEntrevista.find()
+
+            for (const item of propostas) {
+                
+            }
+
+            return res.json({
+                msg: 'ok'
+            })
 
         } catch (error) {
             console.log(error);

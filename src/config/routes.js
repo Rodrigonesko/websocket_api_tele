@@ -17,7 +17,7 @@ router.post('/logout', publicController.logout)
 router.get('/user', auth, userController.index)
 
 router.post('/upload', auth, propostaController.upload)
-router.get('/show',  propostaController.show)
+router.get('/show', propostaController.show)
 router.get('/naoRealizadas', auth, propostaController.buscarPropostasNaoRealizadas)
 router.get('/proposta/:id', auth, propostaController.mostrarPropostaPorId)
 router.put('/agendar', auth, propostaController.agendar)
@@ -67,5 +67,6 @@ router.get('/teste', propostaController.testeMensagem)
 router.post('/webHookMessage', propostaController.webHookMessage)
 router.post('/webHookCall', propostaController.webHookCall)
 router.get('/colocandoWppSender', propostaController.colocandoWppSender)
+router.get('/nomeOperadora', propostaController.migrarNomeOperadora)
 
 module.exports = router

@@ -31,7 +31,7 @@ async function reenviarMensagens() {
             { agendado: { $ne: 'agendado' } },
             { status: { $ne: 'Concluído' } },
             { status: { $ne: 'Cancelado' } },
-            { tipoAssociado: { $regex: 'Titular.' } },
+            { tipoAssociado: { $regex: 'Titular' } },
             { reenviadoVigencia: { $ne: true } }
         ]
     }).sort('vigencia')
@@ -49,6 +49,8 @@ async function reenviarMensagens() {
             console.log(vigencia < moment(), vigencia.format('DD/MM/YYYY'), moment().format('DD/MM/YYYY'));
             console.log('enviou para ' + proposta.proposta, proposta.situacao);
             vigencia = vigencia.businessAdd(5).format('YYYY-MM-DD')
+
+            console.log(proposta.proposta);
 
             await PropostaEntrevista.updateMany({
                 cpfTitular: proposta.cpfTitular
