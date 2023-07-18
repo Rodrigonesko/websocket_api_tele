@@ -256,7 +256,7 @@ module.exports = {
     show: async (req, res) => {
         try {
             const propostas = await PropostaEntrevista.find()
-            
+
             return res.status(200).json({
                 propostas
             })
@@ -687,7 +687,8 @@ module.exports = {
                 houveDivergencia,
                 divergencia,
                 cids,
-                dataConclusao: moment().format('YYYY-MM-DD')
+                dataConclusao: moment().format('YYYY-MM-DD'),
+                enfermeiro: req.user
             })
 
             return res.json(updateProposta)
@@ -2156,10 +2157,49 @@ module.exports = {
             const propostas = await PropostaEntrevista.find()
 
             for (const item of propostas) {
-                
+
             }
 
             return res.json({
+                msg: 'ok'
+            })
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    ajustarEnfermeiro: async (req, res) => {
+        try {
+
+            const { propostas } = req.body
+
+            const result = await PropostaEntrevista.find({
+                $or: [
+                    { status: 'Concluído' },
+                    { status: 'Concluido' }
+                ]
+                , enfermeiro: undefined
+            })
+
+            for (const item of result) {
+                const proposta = propostas.find(proposta => proposta.proposta === item.proposta && proposta.nome === item.nome)
+                console.log(proposta?.responsavel);
+            }
+
+            // for (const item of propostas) {
+            //     await PropostaEntrevista.updateOne({
+            //         proposta: item.proposta,
+            //         nome: item.nome
+            //     }, {
+            //         enfermeiro: item.responsavel
+            //     })
+            // }
+
+            res.json({
                 msg: 'ok'
             })
 
