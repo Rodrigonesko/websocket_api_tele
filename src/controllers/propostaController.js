@@ -1825,7 +1825,8 @@ module.exports = {
                 _id: id
             }, {
                 situacao: 'Agendado',
-                atendimentoHumanizado: false
+                atendimentoHumanizado: false,
+                perguntaAtendimentoHumanizado: true
             })
 
             return res.json(result)
@@ -2177,27 +2178,26 @@ module.exports = {
 
             const { propostas } = req.body
 
-            const result = await PropostaEntrevista.find({
-                $or: [
-                    { status: 'Concluído' },
-                    { status: 'Concluido' }
-                ]
-                , enfermeiro: undefined
-            })
-
-            for (const item of result) {
-                const proposta = propostas.find(proposta => proposta.proposta === item.proposta && proposta.nome === item.nome)
-                console.log(proposta?.responsavel);
-            }
-
-            // for (const item of propostas) {
+            // for (const item of result) {
+            //     const proposta = propostas.find(proposta => proposta.proposta === item.proposta && proposta.nome === item.nome)
             //     await PropostaEntrevista.updateOne({
-            //         proposta: item.proposta,
-            //         nome: item.nome
+            //         proposta: proposta?.proposta,
+            //         nome: proposta?.nome
             //     }, {
-            //         enfermeiro: item.responsavel
+            //         enfermeiro: proposta?.responsavel
             //     })
+            //     console.log(proposta?.responsavel, proposta?.proposta, proposta?.nome);
             // }
+
+            for (const item of propostas) {
+                console.log(item.dataEntrevista);
+                await PropostaEntrevista.updateOne({
+                    proposta: item.proposta,
+                    nome: item.nome
+                }, {
+                    enfermeiro: item.responsavel
+                })
+            }
 
             res.json({
                 msg: 'ok'
