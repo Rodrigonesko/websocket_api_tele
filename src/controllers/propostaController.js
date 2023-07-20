@@ -1975,13 +1975,9 @@ module.exports = {
                 })
             }
 
-            console.log(mensagem);
-
             return res.json({
                 msg: 'oii'
             })
-
-
 
         } catch (error) {
             console.log(error);
@@ -2197,6 +2193,67 @@ module.exports = {
             res.json({
                 msg: 'ok'
             })
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    rendimentoMensal: async (req, res) => {
+        try {
+
+            const { analista, mes } = req.params
+
+            const dataAjustadaContato = moment(mes).format('MM/YYYY')
+
+            const find = await PropostaEntrevista.find({
+                dataConclusao: { $regex: mes },
+                enfermeiro: analista
+            })
+
+            const primeiroContato = await PropostaEntrevista.find({
+                contato1: { $regex: dataAjustadaContato },
+                responsavelContato1: analista
+            }).count()
+
+            const segundoContato = await PropostaEntrevista.find({
+                contato2: { $regex: dataAjustadaContato },
+                responsavelContato2: analista
+            }).count()
+
+            const terceiroContato = await PropostaEntrevista.find({
+                contato3: { $regex: dataAjustadaContato },
+                responsavelContato3: analista
+            }).count()
+
+            let agendadas = 0
+            let naoAgendadas = 0
+
+            for (const item of find) {
+                if (item.agendado === 'agendado') {
+                    agendadas++;
+                } else {
+                    naoAgendadas++;
+                }
+            }
+
+            console.log(agendadas,
+                naoAgendadas,
+                primeiroContato,
+                segundoContato,
+                terceiroContato);
+
+            return res.json({
+                agendadas,
+                naoAgendadas,
+                primeiroContato,
+                segundoContato,
+                terceiroContato
+            })
+
 
         } catch (error) {
             console.log(error);
