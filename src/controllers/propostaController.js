@@ -971,11 +971,6 @@ module.exports = {
                 return res.json(msg)
             }
 
-            if (find.tipoAssociado.indexOf('Dependente') !== -1) {
-
-                return res.json({ msg: 'Dependente' })
-            }
-
             if (find.situacao === 'Janela escolhida') {
                 return res.json({
                     msg: 'janela ja escolhida'
