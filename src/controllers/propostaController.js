@@ -272,10 +272,11 @@ module.exports = {
     buscarPropostasNaoRealizadas: async (req, res) => {
         try {
 
-            const result = await PropostaEntrevista.find()
-
-            const propostas = result.filter(e => {
-                return e.status != 'Concluído' && e.status != 'Cancelado'
+            const propostas = await PropostaEntrevista.find({
+                $and: [
+                    { status: { $ne: "Concluído" } },
+                    { status: { $ne: 'Cancelado' } }
+                ]
             })
 
             return res.status(200).json({
