@@ -9,8 +9,6 @@ const TwilioNumber = process.env.TWILIO_NUMBER
 const TwilioNumberPme = process.env.TWILIO_NUMBER_PME
 const MessagingResponse = require('twilio').twiml.MessagingResponse;
 const VoiceResponse = require('twilio').twiml.VoiceResponse;
-const fs = require('fs')
-const xlsx = require('xlsx')
 
 const { io } = require('../../index')
 
