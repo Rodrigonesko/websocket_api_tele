@@ -2357,6 +2357,25 @@ module.exports = {
                 msg: 'Internal Server Error'
             })
         }
+    },
+
+    producaoMensal: async (req, res) => {
+        try {
+
+            const { mes } = req.params
+
+            const find = await PropostaEntrevista.find({
+                dataConclusao: { $regex: mes }
+            })
+
+            return res.json(find)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
     }
 
 }
