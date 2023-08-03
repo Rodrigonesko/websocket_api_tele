@@ -2365,7 +2365,11 @@ module.exports = {
             const { mes } = req.params
 
             const find = await PropostaEntrevista.find({
-                dataConclusao: { $regex: mes }
+                dataConclusao: { $regex: mes },
+                $or: [
+                    {status: 'Concluído'},
+                    {status: 'Cancelado'}
+                ]
             })
 
             return res.json(find)
