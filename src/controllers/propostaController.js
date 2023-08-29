@@ -1970,12 +1970,13 @@ module.exports = {
                     cpfTitular
                 }, {
                     perguntaAtendimentoHumanizado: true,
-                    atendimentoHumanizado: true
+                    atendimentoHumanizado: true,
+                    situacao: 'Atendimento humanizado'
                 })
             }
 
             return res.json({
-                msg: 'oii'
+                msg: 'ok'
             })
 
         } catch (error) {
@@ -1997,8 +1998,6 @@ module.exports = {
             }, {
                 nome: dados.nome
             })
-
-            console.log(result);
 
             return res.json({
                 msg: 'ok'
@@ -2112,48 +2111,6 @@ module.exports = {
             }
 
             return res.json(propostas.length)
-
-        } catch (error) {
-            console.log(error);
-            return res.status(500).json({
-                msg: 'Internal Server Error'
-            })
-        }
-    },
-
-    migrarNomeOperadora: async (req, res) => {
-        try {
-
-            // let file = fs.readFileSync('src/controllers/total.xlsx')
-
-
-            // const workbook = xlsx.read(file, { type: 'array' })
-
-            // const firstSheetName = workbook.SheetNames[0]
-
-            // const worksheet = workbook.Sheets[firstSheetName]
-
-            // let result = xlsx.utils.sheet_to_json(worksheet)
-
-            // for (const item of result) {
-
-            //     await PropostaEntrevista.updateMany({
-            //         proposta: item.NUM_PROPOSTA
-            //     }, {
-            //         nomeOperadora: item.NOM_OPERADORA
-            //     })
-
-            // }
-
-            const propostas = await PropostaEntrevista.find()
-
-            for (const item of propostas) {
-
-            }
-
-            return res.json({
-                msg: 'ok'
-            })
 
         } catch (error) {
             console.log(error);
@@ -2367,12 +2324,31 @@ module.exports = {
             const find = await PropostaEntrevista.find({
                 dataConclusao: { $regex: mes },
                 $or: [
-                    {status: 'Concluído'},
-                    {status: 'Cancelado'}
+                    { status: 'Concluído' },
+                    { status: 'Cancelado' }
                 ]
             })
 
             return res.json(find)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    ajustarResponsavel: async (req, res) => {
+        try {
+
+            const { dados } = req.body
+
+            console.log(dados);
+
+            return res.json({
+                msg: 'ok'
+            })
 
         } catch (error) {
             console.log(error);
