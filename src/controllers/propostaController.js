@@ -7,6 +7,7 @@ const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = require('twilio')(accountSid, authToken);
 const TwilioNumber = process.env.TWILIO_NUMBER
 const TwilioNumberPme = process.env.TWILIO_NUMBER_PME
+const TwilioNumberSP = process.env.TWILIO_NUMBER_SP
 const MessagingResponse = require('twilio').twiml.MessagingResponse;
 const VoiceResponse = require('twilio').twiml.VoiceResponse;
 
@@ -127,6 +128,10 @@ module.exports = {
 
                 if (tipoContrato.toLowerCase().indexOf('pme') !== -1) {
                     wppSender = TwilioNumberPme
+                }
+
+                if (ddd === '11') {
+                    wppSender = TwilioNumberSP
                 }
 
                 const observacao = item['OBSERVAÇÕES']
@@ -1904,7 +1909,9 @@ module.exports = {
             await PropostaEntrevista.updateMany({
                 cpfTitular: proposta.cpfTitular
             }, {
-                perguntaAtendimentoHumanizado: true
+                perguntaAtendimentoHumanizado: true,
+                atendimentoHumanizado: true,
+                situacao: 'Atendimento humanizado'
             })
 
             await Chat.create({
