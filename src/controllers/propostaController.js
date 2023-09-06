@@ -135,9 +135,9 @@ module.exports = {
                 let numero = item.NUM_CEL?.toString().replace(/\s/g, '') || item.NUM_TEL?.toString().replace(/\s/g, '')
                 const telefone = `(${ddd}) ${numero}`
 
-                // if (ddd === '11') {
-                //     wppSender = TwilioNumberSP
-                // }
+                if (ddd === '11') {
+                    wppSender = TwilioNumberSP
+                }
 
                 if (numero?.length !== 9 && numero !== undefined) {
                     numero = `9${numero}`
@@ -263,6 +263,28 @@ module.exports = {
             return res.status(200).json({
                 propostas
             })
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                error: "Internal server error."
+            })
+        }
+    },
+
+    buscarDadosEntreDatas: async (req, res) => {
+        try {
+
+            const { startDate, endDate } = req.query
+
+            const result = await PropostaEntrevista.find({
+                dataRecebimento: {
+                    $gte: startDate || '2022-09-01',
+                    $lte: endDate || moment().format('YYYY-MM-DD')
+                }
+            })
+
+            return res.json(result)
 
         } catch (error) {
             console.log(error);

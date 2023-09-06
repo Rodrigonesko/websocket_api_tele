@@ -18,6 +18,7 @@ router.get('/user', auth, userController.index)
 
 router.post('/upload', auth, propostaController.upload)
 router.get('/show', propostaController.show)
+router.get('/dadosEntreDatas', propostaController.buscarDadosEntreDatas)
 router.get('/naoRealizadas', auth, propostaController.buscarPropostasNaoRealizadas)
 router.get('/proposta/:id', auth, propostaController.mostrarPropostaPorId)
 router.put('/agendar', auth, propostaController.agendar)
