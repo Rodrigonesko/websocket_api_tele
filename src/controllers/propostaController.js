@@ -135,7 +135,7 @@ module.exports = {
                 let numero = item.NUM_CEL?.toString().replace(/\s/g, '') || item.NUM_TEL?.toString().replace(/\s/g, '')
                 const telefone = `(${ddd}) ${numero}`
 
-                if (ddd === '11') {
+                if (ddd == '11') {
                     wppSender = TwilioNumberSP
                 }
 
@@ -1048,7 +1048,7 @@ module.exports = {
                         atendimentoHumanizado: true
                     })
 
-                    const msg = 'Um dos nossos atendentes irá entrar em contato.'
+                    const msg = 'Um dos nossos atendentes irá entrar em contato para realizar o agendamento.'
 
                     await client.messages.create({
                         from: wppSender,
@@ -1932,8 +1932,6 @@ module.exports = {
                 cpfTitular: proposta.cpfTitular
             }, {
                 perguntaAtendimentoHumanizado: true,
-                atendimentoHumanizado: true,
-                situacao: 'Atendimento humanizado'
             })
 
             await Chat.create({

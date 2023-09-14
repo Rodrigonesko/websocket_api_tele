@@ -41,7 +41,6 @@ setInterval(lembreteMensagem, 300000)
 
 lembreteMensagem()
 
-
 const routes = require('./src/config/routes')
 
 app.use(express.json({ limit: '100mb' }))
