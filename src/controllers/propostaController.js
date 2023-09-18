@@ -275,14 +275,25 @@ module.exports = {
     buscarDadosEntreDatas: async (req, res) => {
         try {
 
-            const { startDate, endDate } = req.query
+            const { startDate, endDate, tipoRelatorio } = req.query
 
-            const result = await PropostaEntrevista.find({
-                dataRecebimento: {
-                    $gte: startDate || '2022-09-01',
-                    $lte: endDate || moment().format('YYYY-MM-DD')
-                }
-            })
+            let result
+
+            if (tipoRelatorio === 'Data Conclusão') {
+                result = await PropostaEntrevista.find({
+                    dataConclusao: {
+                        $gte: startDate || '2022-09-01',
+                        $lte: endDate || moment().format('YYYY-MM-DD')
+                    }
+                })
+            } else {
+                result = await PropostaEntrevista.find({
+                    dataRecebimento: {
+                        $gte: startDate || '2022-09-01',
+                        $lte: endDate || moment().format('YYYY-MM-DD')
+                    }
+                })
+            }
 
             return res.json(result)
 
