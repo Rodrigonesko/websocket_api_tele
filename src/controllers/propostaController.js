@@ -130,18 +130,17 @@ module.exports = {
                     wppSender = TwilioNumberPme
                 }
 
+                if (tipoContrato.toLowerCase().indexOf('pme') !== -1 && ddd == '11' ) {
+                    wppSender = TwilioNumberSP
+                }
+
                 const observacao = item['OBSERVAÇÕES']
                 const ddd = item.NUM_DDD_CEL || item.NUM_DDD_TEL
                 let numero = item.NUM_CEL?.toString().replace(/\s/g, '') || item.NUM_TEL?.toString().replace(/\s/g, '')
                 const telefone = `(${ddd}) ${numero}`
 
-                if (ddd == '11') {
-                    wppSender = TwilioNumberSP
-                }
-
                 if (numero?.length !== 9 && numero !== undefined) {
                     numero = `9${numero}`
-                    console.log(numero);
                 }
 
                 const celularCompleto = `55${ddd}${numero}`
