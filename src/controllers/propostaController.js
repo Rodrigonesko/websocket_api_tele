@@ -522,7 +522,7 @@ module.exports = {
                     { agendado: { $ne: 'agendado' } },
                     { status: { $nin: ['Concluído', 'Cancelado'] } }
                 ]
-            }).sort('vigencia').limit(500)
+            }).sort('vigencia')
 
             return res.status(200).json({
                 propostas,
