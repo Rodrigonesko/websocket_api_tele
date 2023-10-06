@@ -135,7 +135,7 @@ module.exports = {
                 let numero = item.NUM_CEL?.toString().replace(/\s/g, '') || item.NUM_TEL?.toString().replace(/\s/g, '')
                 const telefone = `(${ddd}) ${numero}`
 
-                if (ddd == '11' ) {
+                if (ddd == '11') {
                     wppSender = TwilioNumberSP
                 }
 
@@ -277,6 +277,7 @@ module.exports = {
 
             const { startDate, endDate, tipoRelatorio } = req.query
 
+            console.log(startDate, endDate, tipoRelatorio);
             let result
 
             if (tipoRelatorio === 'Data Conclusão') {
@@ -294,6 +295,8 @@ module.exports = {
                     }
                 })
             }
+
+            console.log(result.length);
 
             return res.json(result)
 
@@ -440,11 +443,15 @@ module.exports = {
 
             const { id, telefone } = req.body
 
+            console.log(id, telefone);
+
             const result = await PropostaEntrevista.findOneAndUpdate({
                 _id: id
             }, {
                 telefone: telefone
             })
+
+            console.log(result);
 
             return res.status(200).json({
                 result
@@ -513,10 +520,9 @@ module.exports = {
             const propostas = await PropostaEntrevista.find({
                 $and: [
                     { agendado: { $ne: 'agendado' } },
-                    { status: { $ne: 'Concluído' } },
-                    { status: { $ne: 'Cancelado' } }
+                    { status: { $nin: ['Concluído', 'Cancelado'] } }
                 ]
-            }).sort('vigencia')
+            }).sort('vigencia').limit(500)
 
             return res.status(200).json({
                 propostas,
@@ -2408,6 +2414,32 @@ module.exports = {
 
             return res.json(result.length)
 
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    reindexando: async (req, res) => {
+        try {
+            async function reindexDocuments() {
+                const documentos = await PropostaEntrevista.find({}); // Recupere todos os documentos existentes
+                for (const documento of documentos) {
+                    await documento.save(); // Salve cada documento para atualizar os índices
+                }
+            }
+
+            reindexDocuments()
+                .then(() => {
+                    console.log('Índices reindexados com sucesso para documentos existentes.');
+                    process.exit(0);
+                })
+                .catch((error) => {
+                    console.error('Erro ao reindexar índices:', error);
+                    process.exit(1);
+                });
         } catch (error) {
             console.log(error);
             return res.status(500).json({

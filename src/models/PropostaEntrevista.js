@@ -88,4 +88,6 @@ const propostaScheema = new mongoose.Schema({
     timestamps: true
 })
 
+propostaScheema.index({ agendado: 1, status: 1 })
+
 module.exports = mongoose.model('PropostaEntrevista', propostaScheema)

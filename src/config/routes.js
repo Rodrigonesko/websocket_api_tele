@@ -73,4 +73,7 @@ router.post('/webHookCall', propostaController.webHookCall)
 router.get('/colocandoWppSender', propostaController.colocandoWppSender)
 router.post('/ajustarEnfermeiro', propostaController.ajustarEnfermeiro)
 
+router.get('/reindexando', propostaController.reindexando)
+
+
 module.exports = router
