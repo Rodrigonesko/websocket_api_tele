@@ -474,10 +474,17 @@ module.exports = {
                 return res.status(500).json({ msg: 'Sem dados no corpo da requisição' })
             }
 
+            const find = await PropostaEntrevista.findOne({
+                _id
+            })
+
             await PropostaEntrevista.updateOne({
                 _id
             }, {
-                whatsapp
+                whatsapp,
+                $push: {
+                    whatsappsAnteriores: find.whatsapp
+                }
             })
 
             return res.json({
@@ -516,6 +523,8 @@ module.exports = {
 
     naoAgendadas: async (req, res) => {
         try {
+
+            console.log('chaamou');
 
             const propostas = await PropostaEntrevista.find({
                 $and: [
