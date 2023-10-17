@@ -84,7 +84,7 @@ const propostaScheema = new mongoose.Schema({
     nomeOperadora: String,
     retrocedido: String,
     wppSender: String,
-    whatsappsAnteriores: String
+    whatsappsAnteriores: []
 }, {
     timestamps: true
 })
