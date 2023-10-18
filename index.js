@@ -33,13 +33,13 @@ module.exports = {
 const lembreteMensagem = require('./src/tasks/lembreteMensagem')
 const reenviarMensagens = require('./src/tasks/reenvioMensagem')
 
-  // reenviarMensagens()
+reenviarMensagens()
 
-  // setInterval(reenviarMensagens, 4000000)
+setInterval(reenviarMensagens, 4000000)
 
-  // setInterval(lembreteMensagem, 300000)
+setInterval(lembreteMensagem, 300000)
 
-  // lembreteMensagem()
+lembreteMensagem()
 
 const routes = require('./src/config/routes')
 
