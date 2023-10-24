@@ -2496,25 +2496,13 @@ module.exports = {
     hookStatusMessage: async (req, res) => {
         try {
 
-            // Verifique o cabeçalho "Content-Type"
-            const contentType = req.get('content-type');
+            const { SmsSid, SmsStatus } = req.body
 
-            console.log(req.body);
-
-            if (contentType === 'application/x-www-form-urlencoded') {
-                console.log('content x-www');
-                // A requisição tem um corpo codificado como formulário HTML.
-                // Você pode acessar os dados com req.body
-            } else if (contentType === 'application/json') {
-                // A requisição tem um corpo JSON.
-                console.log('content json');
-                // Você pode acessar os dados com req.body
-            } else {
-                console.log(contentType);
-                // Outro tipo de Content-Type, trate conforme necessário.
-            }
-
-            // Resto do seu código de webhook aqui
+            await Chat.updateOne({
+                sid: SmsSid
+            }, {
+                status: SmsStatus
+            })
 
             return res.json(req.body)
 
