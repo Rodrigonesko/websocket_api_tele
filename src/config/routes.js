@@ -38,7 +38,7 @@ router.put('/concluir', auth, propostaController.concluir)
 router.get('/naoEnviadas', auth, propostaController.naoEnviadas)
 router.get('/ajustar', auth, propostaController.propostasAAjustar)
 router.put('/ajustar', auth, propostaController.ajustarCpf)
-router.put('/enviarMensagem', auth, propostaController.enviarMensagem)
+router.put('/enviarMensagem', propostaController.enviarMensagem)
 router.get('/situacao/:situacao', auth, propostaController.situacao)
 router.get('/janelasEscolhidas', auth, propostaController.janelasEscolhidas)
 router.get('/erroMensagem', auth, propostaController.problemaEnviar)
@@ -74,6 +74,8 @@ router.get('/colocandoWppSender', propostaController.colocandoWppSender)
 router.post('/ajustarEnfermeiro', propostaController.ajustarEnfermeiro)
 
 router.get('/reindexando', propostaController.reindexando)
+router.get('/dadosProposta/:proposta/:nome', propostaController.verificadorDadosProposta)
 
+router.post('/hookStatusMessage', propostaController.hookStatusMessage)
 
 module.exports = router

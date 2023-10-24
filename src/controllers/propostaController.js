@@ -862,24 +862,23 @@ module.exports = {
                 return res.json({ msg: 'sem cpfTitular' })
             }
 
-            if (proposta.situacao !== 'A enviar') {
-                return res.json({ msg: 'Não ajustado' })
-            }
+            // if (proposta.situacao !== 'A enviar') {
+            //     return res.json({ msg: 'Não ajustado' })
+            // }
 
             let whatsapp = proposta.whatsapp
 
-            console.log(whatsapp);
 
-            const verificar = await PropostaEntrevista.findOne({
-                _id: proposta._id,
-                situacao: 'Enviado',
-                naoEnviar: true
-            })
+            // const verificar = await PropostaEntrevista.findOne({
+            //     _id: proposta._id,
+            //     situacao: 'Enviado',
+            //     naoEnviar: true
+            // })
 
-            if (verificar) {
-                console.log('ja foi enviado');
-                return res.json({ msg: 'Ja foi enviado' })
-            }
+            // if (verificar) {
+            //     console.log('ja foi enviado');
+            //     return res.json({ msg: 'Ja foi enviado' })
+            // }
 
             const result = await client.messages.create({
                 from: wppSender,
@@ -917,15 +916,15 @@ module.exports = {
                 opcaoDia1,
                 opcaoDia2,
                 modelo,
-                contato1: moment().format('YYYY-MM-DD HH:mm'),
-                responsavelContato1: 'Bot Whatsapp',
             })
 
             const mensagemBanco = await Chat.create({
                 de: wppSender,
                 para: whatsapp,
                 mensagem,
-                horario: moment().format('YYYY-MM-DD HH:mm')
+                horario: moment().format('YYYY-MM-DD HH:mm'),
+                stattus: verificarStatusMensagem.status,
+                sid: verificarStatusMensagem.sid
             })
 
             return res.json({ msg: 'Enviada' })
@@ -981,7 +980,7 @@ module.exports = {
             if (!find) {
                 //mandar mensagem para atendimento humanizado
                 const msg = "Seu número não consta em nossa base de contatos"
-                await client.messages.create({
+                const messageTwilio = await client.messages.create({
                     from: TwilioNumber,
                     body: msg,
                     to: from
@@ -991,7 +990,9 @@ module.exports = {
                     de: TwilioNumber,
                     para: fixed,
                     mensagem: msg,
-                    horario: moment().format('YYYY-MM-DD HH:mm')
+                    horario: moment().format('YYYY-MM-DD HH:mm'),
+                    status: messageTwilio.status,
+                    sid: messageTwilio.sid
                 })
 
                 return res.json(msg)
@@ -1007,7 +1008,7 @@ module.exports = {
 
             if (find.status === 'Concluído') {
                 const msg = "Atendimento encerrado, a Amil agradece"
-                await client.messages.create({
+                const messageTwilio = await client.messages.create({
                     from: wppSender,
                     body: msg,
                     to: from
@@ -1017,7 +1018,9 @@ module.exports = {
                     de: wppSender,
                     para: fixed,
                     mensagem: msg,
-                    horario: moment().format('YYYY-MM-DD HH:mm')
+                    horario: moment().format('YYYY-MM-DD HH:mm'),
+                    status: messageTwilio.status,
+                    sid: messageTwilio.sid
                 })
 
                 return res.json(msg)
@@ -1050,7 +1053,7 @@ module.exports = {
                     })
 
                     const msg = `Não entendemos sua resposta, por favor digite somente o *número* referente a janela de horário que o Sr.(a) prefere.`
-                    await client.messages.create({
+                    const messageTwilio = await client.messages.create({
                         from: wppSender,
                         body: msg,
                         to: from
@@ -1060,7 +1063,9 @@ module.exports = {
                         de: wppSender,
                         para: fixed,
                         mensagem: msg,
-                        horario: moment().format('YYYY-MM-DD HH:mm')
+                        horario: moment().format('YYYY-MM-DD HH:mm'),
+                        status: messageTwilio.status,
+                        sid: messageTwilio.sid
                     })
 
                     return res.json(msg)
@@ -1076,7 +1081,7 @@ module.exports = {
 
                     const msg = 'Um dos nossos atendentes irá entrar em contato para realizar o agendamento.'
 
-                    await client.messages.create({
+                    const messageTwilio = await client.messages.create({
                         from: wppSender,
                         body: msg,
                         to: from
@@ -1086,7 +1091,9 @@ module.exports = {
                         de: wppSender,
                         para: fixed,
                         mensagem: msg,
-                        horario: moment().format('YYYY-MM-DD HH:mm')
+                        horario: moment().format('YYYY-MM-DD HH:mm'),
+                        status: messageTwilio.status,
+                        sid: messageTwilio.sid
                     })
 
                     return res.json(msg)
@@ -1706,7 +1713,9 @@ module.exports = {
                 de: TwilioNumber,
                 para: whatsapp,
                 mensagem,
-                horario: moment().format('YYYY-MM-DD HH:mm')
+                horario: moment().format('YYYY-MM-DD HH:mm'),
+                status: result.status,
+                sid: result.sid
             })
 
             return res.json({ msg: 'ok' })
@@ -1748,7 +1757,9 @@ module.exports = {
                 de: wppSender,
                 para: whatsapp,
                 mensagem,
-                horario: moment().format('YYYY-MM-DD HH:mm')
+                horario: moment().format('YYYY-MM-DD HH:mm'),
+                status: verificarStatusMensagem.status,
+                sid: verificarStatusMensagem.sid
             })
 
             return res.json({ msg: 'ok' })
@@ -1824,7 +1835,7 @@ module.exports = {
                 msg += ` Caso os mesmos não estejam presentes no seu horário, o Sr (a) pode informar o contato deles durante a realização da sua entrevista para que possamos entrar em contato com os mesmos neste mesmo horário.`
                 console.log(msg);
 
-                await client.messages.create({
+                const messageTwilio = await client.messages.create({
                     to: result.whatsapp,
                     from: wppSender,
                     body: msg
@@ -1834,13 +1845,15 @@ module.exports = {
                     para: result.whatsapp,
                     de: wppSender,
                     horario: moment().format('YYYY-MM-DD HH:mm'),
-                    mensagem: msg
+                    mensagem: msg,
+                    status: messageTwilio.status,
+                    sid: messageTwilio.sid
                 })
 
                 return res.json(msg)
             }
 
-            await client.messages.create({
+            const messageTwilio = await client.messages.create({
                 to: result.whatsapp,
                 from: wppSender,
                 body: msg
@@ -1850,7 +1863,9 @@ module.exports = {
                 para: result.whatsapp,
                 de: wppSender,
                 horario: moment().format('YYYY-MM-DD HH:mm'),
-                mensagem: msg
+                mensagem: msg,
+                status: messageTwilio.status,
+                sid: messageTwilio.sid
             })
             return res.json('Agendado')
 
@@ -1948,7 +1963,7 @@ module.exports = {
             })
             msg += `\nQual o melhor horário?\nCumpre informar que essa entrevista de complementação é necessária para Adesão ao Plano de Saúde, este que permanecerá paralisado o processo até a realização desta entrevista, informar por gentileza qual o melhor horário.`;
 
-            await client.messages.create({
+            const messageTwilio = await client.messages.create({
                 to: proposta.whatsapp,
                 from: wppSender,
                 body: msg
@@ -1964,7 +1979,9 @@ module.exports = {
                 de: wppSender,
                 para: proposta.whatsapp,
                 horario: moment().format('YYYY-MM-DD HH:mm:ss'),
-                mensagem: msg
+                mensagem: msg,
+                status: messageTwilio.status,
+                sid: messageTwilio.sid
             })
 
             return res.json(msg)
@@ -2002,7 +2019,7 @@ module.exports = {
 
                 const { wppSender } = result
 
-                await client.messages.create({
+                const messageTwilio = await client.messages.create({
                     to: whatsapp,
                     from: wppSender,
                     body: mensagem
@@ -2012,7 +2029,9 @@ module.exports = {
                     de: wppSender,
                     para: whatsapp,
                     mensagem,
-                    horario: moment().format('YYYY-MM-DD HH:mm:ss')
+                    horario: moment().format('YYYY-MM-DD HH:mm:ss'),
+                    status: messageTwilio.status,
+                    sid: messageTwilio.sid
                 })
 
                 const { cpfTitular } = await PropostaEntrevista.findOne({
@@ -2455,8 +2474,39 @@ module.exports = {
                 msg: 'Internal Server Error'
             })
         }
-    }
+    },
 
+    verificadorDadosProposta: async (req, res) => {
+        try {
+            const { proposta, nome } = req.params
+            const result = await PropostaEntrevista.findOne({
+                proposta,
+                nome
+            })
+            return res.json(result)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    hookStatusMessage: async (req, res) => {
+        try {
+
+            console.log(req.body);
+
+            return res.json(req.body)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    }
 }
 
 function ExcelDateToJSDate(serial) {
