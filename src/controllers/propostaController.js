@@ -2499,6 +2499,8 @@ module.exports = {
             // Verifique o cabeçalho "Content-Type"
             const contentType = req.get('content-type');
 
+            console.log(req.body);
+
             if (contentType === 'application/x-www-form-urlencoded') {
                 console.log('content x-www');
                 // A requisição tem um corpo codificado como formulário HTML.
