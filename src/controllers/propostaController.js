@@ -2496,7 +2496,10 @@ module.exports = {
     hookStatusMessage: async (req, res) => {
         try {
 
-            console.log(req.body);
+            const messageStatus = req.body.MessageStatus;
+            const messageSid = req.body.MessageSid;
+
+            console.log(messageSid, messageStatus);
 
             return res.json(req.body)
 
