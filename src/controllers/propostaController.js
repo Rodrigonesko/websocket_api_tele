@@ -2496,7 +2496,7 @@ module.exports = {
     hookStatusMessage: async (req, res) => {
         try {
 
-            console.log(req);
+            console.log(req.body);
 
             return res.json(req.body)
 
