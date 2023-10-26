@@ -862,23 +862,23 @@ module.exports = {
                 return res.json({ msg: 'sem cpfTitular' })
             }
 
-            // if (proposta.situacao !== 'A enviar') {
-            //     return res.json({ msg: 'Não ajustado' })
-            // }
+            if (proposta.situacao !== 'A enviar') {
+                return res.json({ msg: 'Não ajustado' })
+            }
 
             let whatsapp = proposta.whatsapp
 
 
-            // const verificar = await PropostaEntrevista.findOne({
-            //     _id: proposta._id,
-            //     situacao: 'Enviado',
-            //     naoEnviar: true
-            // })
+            const verificar = await PropostaEntrevista.findOne({
+                _id: proposta._id,
+                situacao: 'Enviado',
+                naoEnviar: true
+            })
 
-            // if (verificar) {
-            //     console.log('ja foi enviado');
-            //     return res.json({ msg: 'Ja foi enviado' })
-            // }
+            if (verificar) {
+                console.log('ja foi enviado');
+                return res.json({ msg: 'Ja foi enviado' })
+            }
 
             const result = await client.messages.create({
                 from: wppSender,
@@ -916,6 +916,8 @@ module.exports = {
                 opcaoDia1,
                 opcaoDia2,
                 modelo,
+                contato1: moment().format('YYYY-MM-DD HH:mm'),
+                responsavelContato1: 'Bot Whatsapp',
             })
 
             const mensagemBanco = await Chat.create({
@@ -923,7 +925,7 @@ module.exports = {
                 para: whatsapp,
                 mensagem,
                 horario: moment().format('YYYY-MM-DD HH:mm'),
-                stattus: verificarStatusMensagem.status,
+                status: verificarStatusMensagem.status,
                 sid: verificarStatusMensagem.sid
             })
 
