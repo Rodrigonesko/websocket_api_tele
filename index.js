@@ -3,6 +3,13 @@ const app = express();
 const cookieParser = require('cookie-parser')
 const http = require('http');
 const server = http.createServer(app);
+const bodyParser = require('body-parser');
+// const { Server } = require("socket.io");
+// const io = new Server(server, {
+//   cors: {
+//     origin: true
+//   }
+// });
 
 const io = require('socket.io')(server, {
   cors: {
@@ -36,7 +43,8 @@ const reenviarMensagens = require('./src/tasks/reenvioMensagem')
 // lembreteMensagem()
 
 const routes = require('./src/config/routes')
-
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json({limit: '100mb'}));
 app.use(express.json({ limit: '100mb' }))
 app.use(cookieParser())
 app.use(function (req, res, next) {
