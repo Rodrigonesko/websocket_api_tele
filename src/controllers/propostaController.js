@@ -478,6 +478,18 @@ module.exports = {
                 _id
             })
 
+            if (find.whatsappsAnteriores.includes(whatsapp)) {
+                await PropostaEntrevista.updateOne({
+                    _id
+                }, {
+                    whatsapp
+                })
+
+                return res.json({
+                    msg: 'ok'
+                })
+            }
+
             await PropostaEntrevista.updateOne({
                 _id
             }, {
@@ -486,7 +498,7 @@ module.exports = {
                     whatsappsAnteriores: find.whatsapp
                 }
             })
-
+        
             return res.json({
                 msg: 'ok'
             })
@@ -964,7 +976,7 @@ module.exports = {
 
             const { from, mensagem, fixed } = req.body
 
-            io.emit('receivedMessage', { whatsapp: fixed })
+            io.emit('receivedMessage', { whatsapp: fixed, mensagem })
 
             await Chat.create({
                 de: fixed,
@@ -1728,6 +1740,8 @@ module.exports = {
                 whatsapp
             })
 
+            console.log(find);
+
             const wppSender = find.wppSender
 
             const result = await client.messages.create({
@@ -1748,7 +1762,8 @@ module.exports = {
                 de: wppSender,
                 para: whatsapp,
                 mensagem,
-                horario: moment().format('YYYY-MM-DD HH:mm')
+                horario: moment().format('YYYY-MM-DD HH:mm'),
+                
             })
 
             return res.json({ msg: 'ok' })
@@ -2392,25 +2407,6 @@ module.exports = {
         }
     },
 
-    ajustarResponsavel: async (req, res) => {
-        try {
-
-            const { dados } = req.body
-
-            console.log(dados);
-
-            return res.json({
-                msg: 'ok'
-            })
-
-        } catch (error) {
-            console.log(error);
-            return res.status(500).json({
-                msg: 'Internal Server Error'
-            })
-        }
-    },
-
     producaoAgendamento: async (req, res) => {
         try {
 
@@ -2431,24 +2427,35 @@ module.exports = {
         }
     },
 
-    reindexando: async (req, res) => {
+    buscarPorPropostaENome: async (req, res) => {
         try {
-            async function reindexDocuments() {
-                const documentos = await PropostaEntrevista.find({}); // Recupere todos os documentos existentes
-                for (const documento of documentos) {
-                    await documento.save(); // Salve cada documento para atualizar os índices
-                }
-            }
 
-            reindexDocuments()
-                .then(() => {
-                    console.log('Índices reindexados com sucesso para documentos existentes.');
-                    process.exit(0);
-                })
-                .catch((error) => {
-                    console.error('Erro ao reindexar índices:', error);
-                    process.exit(1);
-                });
+            const { nome, proposta } = req.params
+
+            const result = await PropostaEntrevista.findOne({
+                nome,
+                proposta
+            })
+
+            return res.json(result)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    buscarPropostasPeloCpfTitular: async (req, res) => {
+        try {
+
+            const { cpfTitular } = req.params
+            const result = await PropostaEntrevista.find({
+                cpfTitular
+            })
+            return res.json(result)
+
         } catch (error) {
             console.log(error);
             return res.status(500).json({

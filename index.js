@@ -3,12 +3,6 @@ const app = express();
 const cookieParser = require('cookie-parser')
 const http = require('http');
 const server = http.createServer(app);
-// const { Server } = require("socket.io");
-// const io = new Server(server, {
-//   cors: {
-//     origin: true
-//   }
-// });
 
 const io = require('socket.io')(server, {
   cors: {
@@ -33,13 +27,13 @@ module.exports = {
 const lembreteMensagem = require('./src/tasks/lembreteMensagem')
 const reenviarMensagens = require('./src/tasks/reenvioMensagem')
 
-reenviarMensagens()
+// reenviarMensagens()
 
-setInterval(reenviarMensagens, 4000000)
+// setInterval(reenviarMensagens, 4000000)
 
-setInterval(lembreteMensagem, 300000)
+// setInterval(lembreteMensagem, 300000)
 
-lembreteMensagem()
+// lembreteMensagem()
 
 const routes = require('./src/config/routes')
 

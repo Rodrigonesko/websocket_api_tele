@@ -21,6 +21,7 @@ router.get('/show', propostaController.show)
 router.get('/dadosEntreDatas', propostaController.buscarDadosEntreDatas)
 router.get('/naoRealizadas', auth, propostaController.buscarPropostasNaoRealizadas)
 router.get('/proposta/:id', auth, propostaController.mostrarPropostaPorId)
+router.get('/buscaPorPropostaENome/:nome/:proposta', auth, propostaController.buscarPorPropostaENome)
 router.put('/agendar', auth, propostaController.agendar)
 router.put('/reagendar', auth, propostaController.reagendar)
 router.put('/cancelar', auth, propostaController.cancelar)
@@ -62,6 +63,7 @@ router.get('/devolverPropostas', auth, propostaController.propostasParaDevolver)
 router.get('/rendimentoMensal/:mes/:analista', auth, propostaController.rendimentoMensal)
 router.get('/producaoMensal/:mes', auth, propostaController.producaoMensal)
 router.get('/producaoAgendamento/:analista/:mes', auth, propostaController.producaoAgendamento)
+router.get('/cpfTitular/:cpfTitular', auth, propostaController.buscarPropostasPeloCpfTitular)
 
 router.put('/migrarRet', propostaController.migrarRet)
 router.post('/receiveMessage', propostaController.mensagemRecebida)
@@ -72,8 +74,6 @@ router.post('/webHookMessage', propostaController.webHookMessage)
 router.post('/webHookCall', propostaController.webHookCall)
 router.get('/colocandoWppSender', propostaController.colocandoWppSender)
 router.post('/ajustarEnfermeiro', propostaController.ajustarEnfermeiro)
-
-router.get('/reindexando', propostaController.reindexando)
 
 
 module.exports = router
