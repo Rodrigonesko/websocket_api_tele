@@ -1348,14 +1348,14 @@ module.exports = {
     testeMensagem: async (req, res) => {
         try {
 
-            let mensagem = modeloMensagem2('RODRIGO ONESKO DIAS', '26/04/2023', '27/04/2023').mensagem
+            let mensagem = modeloMensagem2('CLAUDIA RIETH', '20/11/2023', '21/11/2023').mensagem
 
             console.log(mensagem);
 
             const result = await client.messages.create({
                 from: TwilioNumberPme,
                 body: mensagem,
-                to: 'whatsapp:+554197971794'
+                to: 'whatsapp:+5541988379528'
             })
 
             console.log(result);
@@ -2598,18 +2598,19 @@ function modeloMensagem1(nome, data1, data2) {
     Somos da Área de Implantação da Amil e para concluirmos a contratação do Plano de Saúde do Sr.(a), e dos seus dependentes (caso tenha) precisamos confirmar alguns dados médicos.
     Por gentileza, escolha o *NÚMERO* referente a janela de horários para entrarmos em contato com o Sr.(a)
     *${data1}*
-    1. Das 13:00 às 15:00
-    2. Das 15:00 às 17:00
-    3. Das 17:00 às 19:00
+    1. Das 12:00 às 14:00
+    2. Das 14:00 às 16:00
+    3. Das 16:00 às 18:00
     *${data2}*
-    4. Das 09:00 às 11:00
-    5. Das 11:00 às 13:00
-    6. Das 13:00 às 15:00
-    7. Das 15:00 às 17:00
-    8. Das 17:00 às 19:00
+    4. Das 08:00 às 10:00
+    5. Das 10:00 às 12:00
+    6. Das 12:00 às 14:00
+    7. Das 14:00 às 16:00
+    8. Das 16:00 às 18:00
     Qual o melhor horário?
     Informamos que vamos ligar dos números 11 42404975 ou 42403554, pedimos tirar do spam para evitar bloqueio da ligação. Desde já agradecemos.
-    Atenção: o preenchimento dos horários é feito em tempo real. Caso o horário informado não esteja mais disponível, apresentarei uma nova opção.`
+    Atenção: o preenchimento dos horários é feito em tempo real. Caso o horário informado não esteja mais disponível, apresentarei uma nova opção.
+    Lembrando que em caso de menor de idade a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação.`
 
     return { data1, data2, mensagem }
 }
@@ -2620,20 +2621,21 @@ function modeloMensagem2(nome, data1, data2) {
     Somos da Área de Implantação da Amil e para concluirmos a contratação do Plano de Saúde do Sr.(a), e dos seus dependentes (caso tenha) precisamos confirmar alguns dados médicos.
     Por gentileza, escolha o *NÚMERO* referente a janela de horários para entrarmos em contato com o Sr.(a)
     *${data1}*
-    1. Das 09:00 às 11:00
-    2. Das 11:00 às 13:00
-    3. Das 13:00 às 15:00
-    4. Das 15:00 às 17:00
-    5. Das 17:00 às 19:00
+    1. Das 08:00 às 10:00
+    2. Das 10:00 às 12:00
+    3. Das 12:00 às 14:00
+    4. Das 14:00 às 16:00
+    5. Das 16:00 às 18:00
     *${data2}*
-    6. Das 09:00 às 11:00
-    7. Das 11:00 às 13:00
-    8. Das 13:00 às 15:00
-    9. Das 15:00 às 17:00
-    10. Das 17:00 às 19:00
+    6. Das 08:00 às 10:00
+    7. Das 10:00 às 12:00
+    8. Das 12:00 às 14:00
+    9. Das 14:00 às 16:00
+    10. Das 16:00 às 18:00
     Qual o melhor horário?
     Informamos que vamos ligar dos números 11 42404975 ou 42403554, pedimos tirar do spam para evitar bloqueio da ligação. Desde já agradecemos.
-    Atenção: o preenchimento dos horários é feito em tempo real. Caso o horário informado não esteja mais disponível, apresentarei uma nova opção.`
+    Atenção: o preenchimento dos horários é feito em tempo real. Caso o horário informado não esteja mais disponível, apresentarei uma nova opção.
+    Lembrando que em caso de menor de idade a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação.`
 
     return { data1, data2, mensagem }
 }
