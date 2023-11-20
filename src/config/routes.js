@@ -4,6 +4,7 @@ const router = express.Router()
 const publicController = require('../controllers/publicController')
 const userController = require('../controllers/UserController')
 const propostaController = require('../controllers/propostaController')
+const comentarioController = require('../controllers/comentariosController')
 const auth = require('../middlewares/auth')
 const verifyToken = require('../middlewares/verifyToken')
 
@@ -77,5 +78,10 @@ router.post('/ajustarEnfermeiro', propostaController.ajustarEnfermeiro)
 router.get('/dadosProposta/:proposta/:nome', propostaController.verificadorDadosProposta)
 
 router.post('/hookStatusMessage', propostaController.hookStatusMessage)
+
+// Rotas para os comentarios
+router.post('/comentario', auth, comentarioController.create)
+router.get('/comentario/:cpf', auth, comentarioController.getComentarioPorCpf)
+router.delete('/comentario/:id', auth, comentarioController.delete)
 
 module.exports = router

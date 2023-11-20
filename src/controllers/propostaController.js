@@ -498,7 +498,7 @@ module.exports = {
                     whatsappsAnteriores: find.whatsapp
                 }
             })
-        
+
             return res.json({
                 msg: 'ok'
             })
@@ -2510,6 +2510,11 @@ module.exports = {
                 sid: SmsSid
             }, {
                 status: SmsStatus
+            })
+
+            io.emit('statusMessage', {
+                SmsSid,
+                SmsStatus
             })
 
             return res.json(req.body)
