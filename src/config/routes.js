@@ -66,15 +66,12 @@ router.get('/producaoMensal/:mes', auth, propostaController.producaoMensal)
 router.get('/producaoAgendamento/:analista/:mes', auth, propostaController.producaoAgendamento)
 router.get('/cpfTitular/:cpfTitular', auth, propostaController.buscarPropostasPeloCpfTitular)
 
-router.put('/migrarRet', propostaController.migrarRet)
 router.post('/receiveMessage', propostaController.mensagemRecebida)
 
 router.get('/teste', propostaController.testeMensagem)
 
 router.post('/webHookMessage', propostaController.webHookMessage)
 router.post('/webHookCall', propostaController.webHookCall)
-router.get('/colocandoWppSender', propostaController.colocandoWppSender)
-router.post('/ajustarEnfermeiro', propostaController.ajustarEnfermeiro)
 router.get('/dadosProposta/:proposta/:nome', propostaController.verificadorDadosProposta)
 
 router.post('/hookStatusMessage', propostaController.hookStatusMessage)

@@ -6,6 +6,7 @@ const propostaScheema = new mongoose.Schema({
     administradora: String,
     divergencia: String,
     status: String,
+    newStatus: String,
     situacao: String,
     horario: String,
     vigencia: String,
@@ -87,7 +88,8 @@ const propostaScheema = new mongoose.Schema({
     nomeOperadora: String,
     retrocedido: String,
     wppSender: String,
-    whatsappsAnteriores: []
+    whatsappsAnteriores: [],
+    canal: String,
 }, {
     timestamps: true
 })

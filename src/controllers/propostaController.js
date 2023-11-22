@@ -10,6 +10,10 @@ const TwilioNumberPme = process.env.TWILIO_NUMBER_PME
 const TwilioNumberSP = process.env.TWILIO_NUMBER_SP
 const MessagingResponse = require('twilio').twiml.MessagingResponse;
 const VoiceResponse = require('twilio').twiml.VoiceResponse;
+const { modeloMensagem1, modeloMensagem2 } = require('../utils/functions')
+const { calcularIdade } = require('../utils/functions')
+const { ExcelDateToJSDate } = require('../utils/functions')
+const { calcularDiasUteis } = require('../utils/functions')
 
 const { io } = require('../../index')
 
@@ -64,7 +68,7 @@ module.exports = {
 
             for (const item of arrCpfTitulares) {
 
-                const proposta = item.NUM_PROPOSTA
+                const proposta = item?.NUM_PROPOSTA?.replace(/\D/g, '');
 
                 let vigencia = ExcelDateToJSDate(item.DT_VENDA)
                 vigencia.setDate(vigencia.getDate() + 1)
@@ -232,7 +236,8 @@ module.exports = {
                     whatsapp,
                     celularCompleto,
                     nomeOperadora,
-                    wppSender
+                    wppSender,
+                    newStatus: 'Agendar',
                 }
 
                 const existeProposta = await PropostaEntrevista.findOne({
@@ -352,7 +357,7 @@ module.exports = {
     agendar: async (req, res) => {
         try {
 
-            const { id, dataEHora, responsavel, quemAgendou } = req.body
+            const { id, dataEHora, responsavel, quemAgendou, canal } = req.body
 
             const updateTele = await PropostaEntrevista.findByIdAndUpdate({
                 _id: id
@@ -361,6 +366,8 @@ module.exports = {
                 agendado: 'agendado',
                 enfermeiro: responsavel,
                 quemAgendou: quemAgendou,
+                newStatus: 'Agendado',
+                canal
             })
 
             return res.json(updateTele)
@@ -384,7 +391,8 @@ module.exports = {
                 dataEntrevista: '',
                 agendado: '',
                 enfermeiro: '',
-                lembrete: false
+                lembrete: false,
+                newStatus: 'Agendar'
             })
 
             return res.json(reagendar)
@@ -406,7 +414,8 @@ module.exports = {
                 _id: id
             }, {
                 status: 'Cancelado',
-                dataConclusao: moment().format('YYYY-MM-DD')
+                dataConclusao: moment().format('YYYY-MM-DD'),
+                newStatus: 'Cancelado'
             })
 
             return res.json(proposta)
@@ -643,32 +652,6 @@ module.exports = {
         }
     },
 
-    migrarRet: async (req, res) => {
-        try {
-
-            const { proposta, nome } = req.body
-
-            console.log(proposta, nome);
-
-            await PropostaEntrevista.updateOne({
-                proposta,
-                nome
-            }, {
-                retrocedido: 'Ret'
-            })
-
-            return res.json({
-                msg: 'ok'
-            })
-
-        } catch (error) {
-            console.log(error);
-            return res.status(500).json({
-                msg: 'Internal Server Error'
-            })
-        }
-    },
-
     voltarEntrevista: async (req, res) => {
         try {
 
@@ -679,7 +662,8 @@ module.exports = {
                 proposta
             }, {
                 status: '',
-                retrocedido: 'Ret'
+                retrocedido: 'Ret',
+                newStatus: 'Agendar'
             })
 
             res.json(result)
@@ -752,7 +736,8 @@ module.exports = {
                 divergencia,
                 cids,
                 dataConclusao: moment().format('YYYY-MM-DD'),
-                enfermeiro: req.user
+                enfermeiro: req.user,
+                newStatus: 'Concluído'
             })
 
             return res.json(updateProposta)
@@ -905,8 +890,10 @@ module.exports = {
                 const update = await PropostaEntrevista.updateMany({
                     cpfTitular: proposta.cpfTitular
                 }, {
-                    situacao: 'Problemas ao Enviar'
+                    situacao: 'Problemas ao Enviar',
+                    newStatus: 'Problemas ao Enviar'
                 })
+
                 return res.json({ msg: 'Problemas ao Enviar' })
             }
 
@@ -915,7 +902,8 @@ module.exports = {
                 const update = await PropostaEntrevista.updateMany({
                     cpfTitular: proposta.cpfTitular
                 }, {
-                    situacao: 'Sem whatsapp'
+                    situacao: 'Sem whatsapp',
+                    newStatus: 'Sem whatsapp'
                 })
                 return res.json({ msg: 'Sem whats' })
             }
@@ -1213,6 +1201,12 @@ module.exports = {
                         break
                 }
 
+                await PropostaEntrevista.updateMany({
+                    cpfTitular: find.cpfTitular
+                }, {
+                    newStatus: 'Janela escolhida'
+                })
+
                 return res.json(mensagem)
             }
 
@@ -1332,10 +1326,17 @@ module.exports = {
                         break
                 }
 
+                await PropostaEntrevista.updateMany({
+                    cpfTitular: find.cpfTitular
+                }, {
+                    newStatus: 'Janela escolhida'
+                })
+
+
                 return res.json(mensagem)
             }
 
-            return res.json({ msg: 'oi' })
+            return res.json({ msg: 'ok' })
 
         } catch (error) {
             console.log(error);
@@ -1348,7 +1349,7 @@ module.exports = {
     testeMensagem: async (req, res) => {
         try {
 
-            let mensagem = modeloMensagem2('CLAUDIA RIETH', '20/11/2023', '21/11/2023').mensagem
+            let mensagem = modeloMensagem1('RODRIGO ONESKO DIAS', '26/04/2023', '27/04/2023').mensagem
 
             console.log(mensagem);
 
@@ -2175,77 +2176,6 @@ module.exports = {
         res.send(twiml.toString());
     },
 
-    colocandoWppSender: async (req, res) => {
-        try {
-
-            const propostas = await PropostaEntrevista.find()
-
-            for (const proposta of propostas) {
-
-                let wppSender = TwilioNumber
-
-                if (proposta.tipoContrato) {
-                    if (proposta.tipoContrato.toLowerCase().indexOf('pme') !== -1) {
-                        wppSender = TwilioNumberPme
-                    }
-                }
-
-                await PropostaEntrevista.updateOne({
-                    _id: proposta._id
-                }, {
-                    wppSender
-                })
-
-            }
-
-            return res.json(propostas.length)
-
-        } catch (error) {
-            console.log(error);
-            return res.status(500).json({
-                msg: 'Internal Server Error'
-            })
-        }
-    },
-
-    ajustarEnfermeiro: async (req, res) => {
-        try {
-
-            const { propostas } = req.body
-
-            // for (const item of result) {
-            //     const proposta = propostas.find(proposta => proposta.proposta === item.proposta && proposta.nome === item.nome)
-            //     await PropostaEntrevista.updateOne({
-            //         proposta: proposta?.proposta,
-            //         nome: proposta?.nome
-            //     }, {
-            //         enfermeiro: proposta?.responsavel
-            //     })
-            //     console.log(proposta?.responsavel, proposta?.proposta, proposta?.nome);
-            // }
-
-            for (const item of propostas) {
-                console.log(item.dataEntrevista);
-                await PropostaEntrevista.updateOne({
-                    proposta: item.proposta,
-                    nome: item.nome
-                }, {
-                    enfermeiro: item.responsavel
-                })
-            }
-
-            res.json({
-                msg: 'ok'
-            })
-
-        } catch (error) {
-            console.log(error);
-            return res.status(500).json({
-                msg: 'Internal Server Error'
-            })
-        }
-    },
-
     rendimentoMensal: async (req, res) => {
         try {
 
@@ -2528,118 +2458,6 @@ module.exports = {
     }
 }
 
-function ExcelDateToJSDate(serial) {
-    var utc_days = Math.floor(serial - 25569);
-    var utc_value = utc_days * 86400;
-    var date_info = new Date(utc_value * 1000);
-
-    var fractional_day = serial - Math.floor(serial) + 0.0000001;
-
-    var total_seconds = Math.floor(86400 * fractional_day);
-
-    var seconds = total_seconds % 60;
-
-    total_seconds -= seconds;
-
-    var hours = Math.floor(total_seconds / (60 * 60));
-    var minutes = Math.floor(total_seconds / 60) % 60;
-
-    return new Date(date_info.getFullYear(), date_info.getMonth(), date_info.getDate(), hours, minutes, seconds);
-}
-
-function calcularIdade(data) {
-    var now = new Date();
-    var today = new Date(now.getYear(), now.getMonth(), now.getDate());
-
-    var yearNow = now.getYear();
-    var monthNow = now.getMonth();
-    var dateNow = now.getDate();
-    var dob = new Date(data.substring(6, 10),
-        data.substring(3, 5) - 1,
-        data.substring(0, 2)
-    );
-
-    var yearDob = dob.getYear();
-    var monthDob = dob.getMonth();
-    var dateDob = dob.getDate();
-    var age = {};
-    yearAge = yearNow - yearDob;
-
-    if (monthNow >= monthDob)
-        var monthAge = monthNow - monthDob;
-    else {
-        yearAge--;
-        var monthAge = 12 + monthNow - monthDob;
-    }
-
-    if (dateNow >= dateDob)
-        var dateAge = dateNow - dateDob;
-    else {
-        monthAge--;
-        var dateAge = 31 + dateNow - dateDob;
-
-        if (monthAge < 0) {
-            monthAge = 11;
-            yearAge--;
-        }
-    }
-
-    age = {
-        years: yearAge,
-        months: monthAge,
-        days: dateAge
-    };
-    return age.years;
-}
-
-function modeloMensagem1(nome, data1, data2) {
-
-    let mensagem = `Prezado Sr.(a) ${nome},
-    Somos da Área de Implantação da Amil e para concluirmos a contratação do Plano de Saúde do Sr.(a), e dos seus dependentes (caso tenha) precisamos confirmar alguns dados médicos.
-    Por gentileza, escolha o *NÚMERO* referente a janela de horários para entrarmos em contato com o Sr.(a)
-    *${data1}*
-    1. Das 12:00 às 14:00
-    2. Das 14:00 às 16:00
-    3. Das 16:00 às 18:00
-    *${data2}*
-    4. Das 08:00 às 10:00
-    5. Das 10:00 às 12:00
-    6. Das 12:00 às 14:00
-    7. Das 14:00 às 16:00
-    8. Das 16:00 às 18:00
-    Qual o melhor horário?
-    Informamos que vamos ligar dos números 11 42404975 ou 42403554, pedimos tirar do spam para evitar bloqueio da ligação. Desde já agradecemos.
-    Atenção: o preenchimento dos horários é feito em tempo real. Caso o horário informado não esteja mais disponível, apresentarei uma nova opção.
-    Lembrando que em caso de menor de idade a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação.`
-
-    return { data1, data2, mensagem }
-}
-
-function modeloMensagem2(nome, data1, data2) {
-
-    let mensagem = `Prezado Sr.(a) ${nome},
-    Somos da Área de Implantação da Amil e para concluirmos a contratação do Plano de Saúde do Sr.(a), e dos seus dependentes (caso tenha) precisamos confirmar alguns dados médicos.
-    Por gentileza, escolha o *NÚMERO* referente a janela de horários para entrarmos em contato com o Sr.(a)
-    *${data1}*
-    1. Das 08:00 às 10:00
-    2. Das 10:00 às 12:00
-    3. Das 12:00 às 14:00
-    4. Das 14:00 às 16:00
-    5. Das 16:00 às 18:00
-    *${data2}*
-    6. Das 08:00 às 10:00
-    7. Das 10:00 às 12:00
-    8. Das 12:00 às 14:00
-    9. Das 14:00 às 16:00
-    10. Das 16:00 às 18:00
-    Qual o melhor horário?
-    Informamos que vamos ligar dos números 11 42404975 ou 42403554, pedimos tirar do spam para evitar bloqueio da ligação. Desde já agradecemos.
-    Atenção: o preenchimento dos horários é feito em tempo real. Caso o horário informado não esteja mais disponível, apresentarei uma nova opção.
-    Lembrando que em caso de menor de idade a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação.`
-
-    return { data1, data2, mensagem }
-}
-
 const feriados = [
     moment('2022-01-01'),
     moment('2022-04-21'),
@@ -2664,16 +2482,3 @@ const feriados = [
     moment('2023-12-25')
 ];
 
-function calcularDiasUteis(dataInicio, dataFim, feriados) {
-    let diasUteis = 0;
-    let dataAtual = moment(dataInicio);
-
-    while (dataAtual.isSameOrBefore(dataFim, 'day')) {
-        if (dataAtual.isBusinessDay() && !feriados.some(feriado => feriado.isSame(dataAtual, 'day'))) {
-            diasUteis++;
-        }
-        dataAtual.add(1, 'day');
-    }
-
-    return diasUteis - 1;
-}
