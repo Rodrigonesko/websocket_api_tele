@@ -68,7 +68,16 @@ module.exports = {
 
             for (const item of arrCpfTitulares) {
 
-                const proposta = item?.NUM_PROPOSTA?.replace(/\D/g, '');
+
+                let proposta = item.NUM_PROPOSTA
+
+                //verifica se a proposta é um número
+
+                if (typeof (proposta) !== 'number') {
+                    proposta = proposta.replace(/\D/g, '')
+                }
+                
+                // const proposta = item?.NUM_PROPOSTA?.replace(/\D/g, '');
 
                 let vigencia = ExcelDateToJSDate(item.DT_VENDA)
                 vigencia.setDate(vigencia.getDate() + 1)
