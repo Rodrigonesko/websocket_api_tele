@@ -76,7 +76,7 @@ module.exports = {
                 if (typeof (proposta) !== 'number') {
                     proposta = proposta.replace(/\D/g, '')
                 }
-                
+
                 // const proposta = item?.NUM_PROPOSTA?.replace(/\D/g, '');
 
                 let vigencia = ExcelDateToJSDate(item.DT_VENDA)
@@ -583,6 +583,27 @@ module.exports = {
 
             const proposta = await PropostaEntrevista.findByIdAndUpdate({
                 _id: id
+            }, {
+                vigencia
+            })
+
+            return res.json(proposta)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    alterarVigenciaPorCpfTitular: async (req, res) => {
+        try {
+
+            const { cpfTitular, vigencia } = req.body
+
+            const proposta = await PropostaEntrevista.updateMany({
+                cpfTitular
             }, {
                 vigencia
             })
