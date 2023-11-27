@@ -553,9 +553,6 @@ module.exports = {
 
     naoAgendadas: async (req, res) => {
         try {
-
-            console.log('chaamou');
-
             const propostas = await PropostaEntrevista.find({
                 $and: [
                     { agendado: { $ne: 'agendado' } },
@@ -709,7 +706,7 @@ module.exports = {
     tentativaContato: async (req, res) => {
         try {
 
-            const { tentativa, id } = req.body
+            const { tentativa, id, tipo } = req.body
 
             switch (tentativa) {
                 case 'tentativa 1':
@@ -717,7 +714,8 @@ module.exports = {
                         _id: id
                     }, {
                         responsavelContato1: req.user,
-                        contato1: moment().format('DD/MM/YYYY HH:mm:ss')
+                        contato1: moment().format('DD/MM/YYYY HH:mm:ss'),
+                        tipoContato1: tipo
                     })
                     break;
                 case 'tentativa 2':
@@ -725,7 +723,8 @@ module.exports = {
                         _id: id
                     }, {
                         responsavelContato2: req.user,
-                        contato2: moment().format('DD/MM/YYYY HH:mm:ss')
+                        contato2: moment().format('DD/MM/YYYY HH:mm:ss'),
+                        tipoContato2: tipo
                     })
                     break;
                 case 'tentativa 3':
@@ -733,7 +732,8 @@ module.exports = {
                         _id: id
                     }, {
                         responsavelContato3: req.user,
-                        contato3: moment().format('DD/MM/YYYY HH:mm:ss')
+                        contato3: moment().format('DD/MM/YYYY HH:mm:ss'),
+                        tipoContato3: tipo
                     })
                     break;
                 default:
@@ -2522,8 +2522,6 @@ module.exports = {
 
             let skip = (page - 1) * limit
 
-            let result = []
-
             // Se todas as propriedades do objeto forem true
             if (Object.values(status).every(e => e === true) && Object.values(tipoContrato).every(e => e === true) && Object.values(vigencia).every(e => e === true) && Object.values(altoRisco).every(e => e === true)) {
 
@@ -2532,150 +2530,100 @@ module.exports = {
                 const result = await PropostaEntrevista.find({
                     $and: [
                         { status: { $ne: "Concluído" } },
-                        { status: { $ne: 'Cancelado' } }
+                        { status: { $ne: 'Cancelado' } },
+
                     ]
                 }).skip(skip).limit(limit)
-                return res.json(result)
+                const total = await PropostaEntrevista.find({
+                    $and: [
+                        { status: { $ne: "Concluído" } },
+                        { status: { $ne: 'Cancelado' } },
+
+                    ]
+                }).countDocuments()
+                return res.json({ result, total })
             }
 
+            let filter = {
+                $and: [
+                    { status: { $ne: "Concluído" } },
+                    { status: { $ne: 'Cancelado' } },
+                ]
+            };
+
+            let filterConditions = []
+
             if (status.agendar) {
-                const find = await PropostaEntrevista.find({
-                    newStatus: 'Agendar'
-                }).skip(skip).limit(limit)
-                result = [...result, ...find]
+                // filterConditions.push({ newStatus: 'Agendar' })
+                filterConditions.push({ agendado: { $ne: 'agendado' } })
             }
 
             if (status.humanizado) {
-                const find = await PropostaEntrevista.find({
-                    atendimentoHumanizado: true,
-                    newStatus: { $ne: 'Concluído' },
-                    newStatus: { $ne: 'Cancelado' },
-                    newStatus: { $ne: undefined }
-                }).skip(skip).limit(limit)
-                result = [...result, ...find]
+                filterConditions.push({ atendimentoHumanizado: true })
             }
 
             if (status.janelas) {
-                const find = await PropostaEntrevista.find({
-                    situacao: 'Janela escolhida',
-                    newStatus: { $ne: 'Concluído' },
-                    newStatus: { $ne: 'Cancelado' },
-                    newStatus: { $ne: undefined }
-                }).skip(skip).limit(limit)
-                result = [...result, ...find]
+                filterConditions.push({ newStatus: 'Janela escolhida' })
             }
 
             if (status.ajustar) {
-                const find = await PropostaEntrevista.find({
-                    situacao: 'Ajustar',
-                    newStatus: { $ne: 'Concluído' },
-                    newStatus: { $ne: 'Cancelado' },
-                    newStatus: { $ne: undefined }
-                }).skip(skip).limit(limit)
-                result = [...result, ...find]
+                filterConditions.push({ situacao: 'ajustar' })
             }
 
             if (status.semWhats) {
-                const find = await PropostaEntrevista.find({
-                    newStatus: 'Sem whatsapp',
-                    newStatus: { $ne: 'Concluído' },
-                    newStatus: { $ne: 'Cancelado' },
-                    newStatus: { $ne: undefined }
-                }).skip(skip).limit(limit)
-                result = [...result, ...find]
+                filterConditions.push({ newStatus: 'Sem WhatsApp' })
+                filterConditions.push({ newStatus: 'Problemas ao Enviar' })
             }
 
             if (status.agendado) {
-                const find = await PropostaEntrevista.find({
-                    newStatus: 'Agendado',
-                    newStatus: { $ne: 'Concluído' },
-                    newStatus: { $ne: 'Cancelado' },
-                    newStatus: { $ne: undefined }
-                }).skip(skip).limit(limit)
-                result = [...result, ...find]
+                filterConditions.push({ newStatus: 'Agendado' })
             }
 
             if (tipoContrato.pme) {
-                const find = await PropostaEntrevista.find({
-                    tipoContrato: 'PME',
-                    newStatus: { $ne: 'Concluído' },
-                    newStatus: { $ne: 'Cancelado' },
-                    newStatus: { $ne: undefined }
-                }).skip(skip).limit(limit)
-                result = [...result, ...find]
+                filterConditions.push({ tipoContrato: { $regex: 'pme', $options: 'i' } })
             }
 
             if (tipoContrato.pf) {
-                const find = await PropostaEntrevista.find({
-                    tipoContrato: 'PF',
-                    newStatus: { $ne: 'Concluído' },
-                    newStatus: { $ne: 'Cancelado' },
-                    newStatus: { $ne: undefined }
-                }).skip(skip).limit(limit)
-                result = [...result, ...find]
+                filterConditions.push({ tipoContrato: { $regex: 'pf', $options: 'i' } })
             }
 
             if (tipoContrato.adesao) {
-                const find = await PropostaEntrevista.find({
-                    tipoContrato: 'Adesão',
-                    newStatus: { $ne: 'Concluído' },
-                    newStatus: { $ne: 'Cancelado' },
-                    newStatus: { $ne: undefined }
-                }).skip(skip).limit(limit)
-                result = [...result, ...find]
+                filterConditions.push({ tipoContrato: { $regex: 'adesão', $options: 'i' } })
             }
 
             if (vigencia.noPrazo) {
-                const find = await PropostaEntrevista.find({
-                    vigencia: { $gte: moment().format('YYYY-MM-DD') },
-                    newStatus: { $ne: 'Concluído' },
-                    newStatus: { $ne: 'Cancelado' },
-                    newStatus: { $ne: undefined }
-                }).skip(skip).limit(limit)
-                result = [...result, ...find]
+                filterConditions.push({ vigencia: { $gte: moment().format('YYYY-MM-DD') } })
             }
 
             if (vigencia.foraDoPrazo) {
-                const find = await PropostaEntrevista.find({
-                    vigencia: { $lt: moment().format('YYYY-MM-DD') },
-                    newStatus: { $ne: 'Concluído' },
-                    newStatus: { $ne: 'Cancelado' },
-                    newStatus: { $ne: undefined }
-                }).skip(skip).limit(limit)
-                result = [...result, ...find]
+                filterConditions.push({ vigencia: { $lt: moment().format('YYYY-MM-DD') } })
             }
 
             if (altoRisco.baixo) {
-                const find = await PropostaEntrevista.find({
-                    risco: 'Baixo',
-                    newStatus: { $ne: 'Concluído' },
-                    newStatus: { $ne: 'Cancelado' },
-                    newStatus: { $ne: undefined }
-                }).skip(skip).limit(limit)
-                result = [...result, ...find]
+                filterConditions.push({ riscoBeneficiario: 'Baixo' })
             }
 
             if (altoRisco.medio) {
-                const find = await PropostaEntrevista.find({
-                    risco: 'Médio',
-                    newStatus: { $ne: 'Concluído' },
-                    newStatus: { $ne: 'Cancelado' },
-                    newStatus: { $ne: undefined }
-                }).skip(skip).limit(limit)
-                result = [...result, ...find]
+                filterConditions.push({ riscoBeneficiario: 'Médio' })
             }
 
             if (altoRisco.alto) {
-                const find = await PropostaEntrevista.find({
-                    risco: 'Alto',
-                    newStatus: { $ne: 'Concluído' },
-                    newStatus: { $ne: 'Cancelado' },
-                    newStatus: { $ne: undefined }
-                }).skip(skip).limit(limit)
-                result = [...result, ...find]
+                filterConditions.push({ riscoBeneficiario: 'Alto' })
             }
 
-            return res.json(result)
+            filterConditions.push({ status: { $ne: 'Concluído' } })
+            filterConditions.push({ status: { $ne: 'Cancelado' } })
+
+            if (filterConditions.length > 0) {
+                filter.$and = filterConditions
+            }
+
+            const result = await PropostaEntrevista.find(filter).skip(skip).limit(limit).sort('vigencia')
+            const total = await PropostaEntrevista.find(filter).countDocuments()
+
+            console.log(total);
+
+            return res.json({ result, total })
 
         } catch (error) {
             console.log(error);
