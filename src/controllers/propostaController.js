@@ -2485,6 +2485,204 @@ module.exports = {
                 msg: 'Internal Server Error'
             })
         }
+    },
+
+    filterPropostas: async (req, res) => {
+        try {
+
+            /*
+                  const [status, setStatus] = useState({
+        agendar: true,
+        humanizado: true,
+        janelas: true,
+        ajustar: true,
+        semWhats: true,
+        agendado: true,
+    });
+
+    const [tipoContrato, setTipoContrato] = useState({
+        pme: true,
+        pf: true,
+        adesao: true,
+    });
+
+    const [vigencia, setVigencia] = useState({
+        noPrazo: true,
+        foraDoPrazo: true,
+    });
+
+    const [altoRisco, setAltoRisco] = useState({
+        baixo: true,
+        medio: true,
+        alto: true,
+    });
+            */
+
+            const { status, tipoContrato, vigencia, altoRisco, page = 1, limit = 100 } = req.body
+
+            let skip = (page - 1) * limit
+
+            let result = []
+
+            // Se todas as propriedades do objeto forem true
+            if (Object.values(status).every(e => e === true) && Object.values(tipoContrato).every(e => e === true) && Object.values(vigencia).every(e => e === true) && Object.values(altoRisco).every(e => e === true)) {
+
+                console.log('entrou aqui');
+
+                const result = await PropostaEntrevista.find({
+                    $and: [
+                        { status: { $ne: "Concluído" } },
+                        { status: { $ne: 'Cancelado' } }
+                    ]
+                }).skip(skip).limit(limit)
+                return res.json(result)
+            }
+
+            if (status.agendar) {
+                const find = await PropostaEntrevista.find({
+                    newStatus: 'Agendar'
+                }).skip(skip).limit(limit)
+                result = [...result, ...find]
+            }
+
+            if (status.humanizado) {
+                const find = await PropostaEntrevista.find({
+                    atendimentoHumanizado: true,
+                    newStatus: { $ne: 'Concluído' },
+                    newStatus: { $ne: 'Cancelado' },
+                    newStatus: { $ne: undefined }
+                }).skip(skip).limit(limit)
+                result = [...result, ...find]
+            }
+
+            if (status.janelas) {
+                const find = await PropostaEntrevista.find({
+                    situacao: 'Janela escolhida',
+                    newStatus: { $ne: 'Concluído' },
+                    newStatus: { $ne: 'Cancelado' },
+                    newStatus: { $ne: undefined }
+                }).skip(skip).limit(limit)
+                result = [...result, ...find]
+            }
+
+            if (status.ajustar) {
+                const find = await PropostaEntrevista.find({
+                    situacao: 'Ajustar',
+                    newStatus: { $ne: 'Concluído' },
+                    newStatus: { $ne: 'Cancelado' },
+                    newStatus: { $ne: undefined }
+                }).skip(skip).limit(limit)
+                result = [...result, ...find]
+            }
+
+            if (status.semWhats) {
+                const find = await PropostaEntrevista.find({
+                    newStatus: 'Sem whatsapp',
+                    newStatus: { $ne: 'Concluído' },
+                    newStatus: { $ne: 'Cancelado' },
+                    newStatus: { $ne: undefined }
+                }).skip(skip).limit(limit)
+                result = [...result, ...find]
+            }
+
+            if (status.agendado) {
+                const find = await PropostaEntrevista.find({
+                    newStatus: 'Agendado',
+                    newStatus: { $ne: 'Concluído' },
+                    newStatus: { $ne: 'Cancelado' },
+                    newStatus: { $ne: undefined }
+                }).skip(skip).limit(limit)
+                result = [...result, ...find]
+            }
+
+            if (tipoContrato.pme) {
+                const find = await PropostaEntrevista.find({
+                    tipoContrato: 'PME',
+                    newStatus: { $ne: 'Concluído' },
+                    newStatus: { $ne: 'Cancelado' },
+                    newStatus: { $ne: undefined }
+                }).skip(skip).limit(limit)
+                result = [...result, ...find]
+            }
+
+            if (tipoContrato.pf) {
+                const find = await PropostaEntrevista.find({
+                    tipoContrato: 'PF',
+                    newStatus: { $ne: 'Concluído' },
+                    newStatus: { $ne: 'Cancelado' },
+                    newStatus: { $ne: undefined }
+                }).skip(skip).limit(limit)
+                result = [...result, ...find]
+            }
+
+            if (tipoContrato.adesao) {
+                const find = await PropostaEntrevista.find({
+                    tipoContrato: 'Adesão',
+                    newStatus: { $ne: 'Concluído' },
+                    newStatus: { $ne: 'Cancelado' },
+                    newStatus: { $ne: undefined }
+                }).skip(skip).limit(limit)
+                result = [...result, ...find]
+            }
+
+            if (vigencia.noPrazo) {
+                const find = await PropostaEntrevista.find({
+                    vigencia: { $gte: moment().format('YYYY-MM-DD') },
+                    newStatus: { $ne: 'Concluído' },
+                    newStatus: { $ne: 'Cancelado' },
+                    newStatus: { $ne: undefined }
+                }).skip(skip).limit(limit)
+                result = [...result, ...find]
+            }
+
+            if (vigencia.foraDoPrazo) {
+                const find = await PropostaEntrevista.find({
+                    vigencia: { $lt: moment().format('YYYY-MM-DD') },
+                    newStatus: { $ne: 'Concluído' },
+                    newStatus: { $ne: 'Cancelado' },
+                    newStatus: { $ne: undefined }
+                }).skip(skip).limit(limit)
+                result = [...result, ...find]
+            }
+
+            if (altoRisco.baixo) {
+                const find = await PropostaEntrevista.find({
+                    risco: 'Baixo',
+                    newStatus: { $ne: 'Concluído' },
+                    newStatus: { $ne: 'Cancelado' },
+                    newStatus: { $ne: undefined }
+                }).skip(skip).limit(limit)
+                result = [...result, ...find]
+            }
+
+            if (altoRisco.medio) {
+                const find = await PropostaEntrevista.find({
+                    risco: 'Médio',
+                    newStatus: { $ne: 'Concluído' },
+                    newStatus: { $ne: 'Cancelado' },
+                    newStatus: { $ne: undefined }
+                }).skip(skip).limit(limit)
+                result = [...result, ...find]
+            }
+
+            if (altoRisco.alto) {
+                const find = await PropostaEntrevista.find({
+                    risco: 'Alto',
+                    newStatus: { $ne: 'Concluído' },
+                    newStatus: { $ne: 'Cancelado' },
+                    newStatus: { $ne: undefined }
+                }).skip(skip).limit(limit)
+                result = [...result, ...find]
+            }
+
+            return res.json(result)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: "Internal Server Error"
+            })
+        }
     }
 }
 
