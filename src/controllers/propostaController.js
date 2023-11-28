@@ -2516,9 +2516,14 @@ module.exports = {
         medio: true,
         alto: true,
     });
+
+        const [idade, setIdade] = useState({
+        maior60: false,
+        menor60: false,
+    });
             */
 
-            const { status, tipoContrato, vigencia, altoRisco, page = 1, limit = 100 } = req.body
+            const { status, tipoContrato, vigencia, altoRisco, idade ,page = 1, limit = 100 } = req.body
 
             let skip = (page - 1) * limit
 
@@ -2600,7 +2605,7 @@ module.exports = {
             }
 
             if (altoRisco.baixo) {
-                filterConditions.push({ riscoBeneficiario: 'Baixo' })
+                filterConditions.push({ riscoBeneficiario: undefined })
             }
 
             if (altoRisco.medio) {
@@ -2609,6 +2614,14 @@ module.exports = {
 
             if (altoRisco.alto) {
                 filterConditions.push({ riscoBeneficiario: 'Alto' })
+            }
+
+            if (idade.maior60) {
+                filterConditions.push({ idade: { $gte: 60 } })
+            }
+
+            if (idade.menor60) {
+                filterConditions.push({ idade: { $lt: 60 } })
             }
 
             filterConditions.push({ status: { $ne: 'Concluído' } })
@@ -2631,8 +2644,207 @@ module.exports = {
                 msg: "Internal Server Error"
             })
         }
+    },
+
+    quantidadeNaoRealizadas: async (req, res) => {
+        try {
+
+            const agendar = await PropostaEntrevista.find({
+                $and: [
+                    { status: { $ne: "Concluído" } },
+                    { status: { $ne: 'Cancelado' } },
+                    { agendado: { $ne: 'agendado' } },
+                ]
+            }).countDocuments()
+
+            const humanizado = await PropostaEntrevista.find({
+                $and: [
+                    { status: { $ne: "Concluído" } },
+                    { status: { $ne: 'Cancelado' } },
+                    { atendimentoHumanizado: true },
+                ]
+            }).countDocuments()
+
+            const janelas = await PropostaEntrevista.find({
+                $and: [
+                    { status: { $ne: "Concluído" } },
+                    { status: { $ne: 'Cancelado' } },
+                    { newStatus: 'Janela escolhida' },
+                ]
+            }).countDocuments()
+
+            const ajustar = await PropostaEntrevista.find({
+                $and: [
+                    { status: { $ne: "Concluído" } },
+                    { status: { $ne: 'Cancelado' } },
+                    { situacao: 'ajustar' },
+                ]
+            }).countDocuments()
+
+            const semWhats = await PropostaEntrevista.find({
+                $and: [
+                    { status: { $ne: "Concluído" } },
+                    { status: { $ne: 'Cancelado' } },
+                    { newStatus: 'Sem WhatsApp' },
+                ]
+            }).countDocuments()
+
+            const agendado = await PropostaEntrevista.find({
+                $and: [
+                    { status: { $ne: "Concluído" } },
+                    { status: { $ne: 'Cancelado' } },
+                    { newStatus: 'Agendado' },
+                ]
+            }).countDocuments()
+
+            const pme = await PropostaEntrevista.find({
+                tipoContrato: { $regex: 'pme', $options: 'i' },
+                $and: [
+                    { status: { $ne: "Concluído" } },
+                    { status: { $ne: 'Cancelado' } }
+                ]
+            }).countDocuments()
+
+            const pf = await PropostaEntrevista.find({
+                tipoContrato: { $regex: 'pf', $options: 'i' },
+                $and: [
+                    { status: { $ne: "Concluído" } },
+                    { status: { $ne: 'Cancelado' } }
+                ]
+            }).countDocuments()
+
+            const adesao = await PropostaEntrevista.find({
+                tipoContrato: { $regex: 'adesão', $options: 'i' },
+                $and: [
+                    { status: { $ne: "Concluído" } },
+                    { status: { $ne: 'Cancelado' } }
+                ]
+            }).countDocuments()
+
+            const noPrazo = await PropostaEntrevista.find({
+                vigencia: { $gte: moment().format('YYYY-MM-DD') },
+                $and: [
+                    { status: { $ne: "Concluído" } },
+                    { status: { $ne: 'Cancelado' } }
+                ]
+            }).countDocuments()
+
+            const foraDoPrazo = await PropostaEntrevista.find({
+                vigencia: { $lt: moment().format('YYYY-MM-DD') },
+                $and: [
+                    { status: { $ne: "Concluído" } },
+                    { status: { $ne: 'Cancelado' } }
+                ]
+            }).countDocuments()
+
+            const baixo = await PropostaEntrevista.find({
+                riscoBeneficiario: undefined,
+                $and: [
+                    { status: { $ne: "Concluído" } },
+                    { status: { $ne: 'Cancelado' } }
+                ]
+            }).countDocuments()
+
+            const medio = await PropostaEntrevista.find({
+                riscoBeneficiario: 'Médio',
+                $and: [
+                    { status: { $ne: "Concluído" } },
+                    { status: { $ne: 'Cancelado' } }
+                ]
+            }).countDocuments()
+
+            const alto = await PropostaEntrevista.find({
+                riscoBeneficiario: 'Alto',
+                $and: [
+                    { status: { $ne: "Concluído" } },
+                    { status: { $ne: 'Cancelado' } }
+                ]
+            }).countDocuments()
+
+            const maior60 = await PropostaEntrevista.find({
+                idade: { $gte: 60 },
+                $and: [
+                    { status: { $ne: "Concluído" } },
+                    { status: { $ne: 'Cancelado' } }
+                ]
+            }).countDocuments()
+
+            const menor60 = await PropostaEntrevista.find({
+                idade: { $lt: 60 },
+                $and: [
+                    { status: { $ne: "Concluído" } },
+                    { status: { $ne: 'Cancelado' } }
+                ]
+            }).countDocuments()
+
+
+            return res.json({
+                agendar,
+                humanizado,
+                janelas,
+                ajustar,
+                semWhats,
+                agendado,
+                pme,
+                pf,
+                adesao,
+                noPrazo,
+                foraDoPrazo,
+                baixo,
+                medio,
+                alto,
+                maior60,
+                menor60
+            })
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: "Internal Server Error"
+            })
+        }
+    },
+
+    filterNaoRealizadas: async (req, res) => {
+        try {
+
+            const { pesquisa, page = 1, limit = 100 } = req.body
+
+            let skip = (page - 1) * limit
+
+            const result = await PropostaEntrevista.find({
+                $or: [
+                    { nome: { $regex: pesquisa, $options: 'i' } },
+                    { proposta: { $regex: pesquisa, $options: 'i' } }
+                ],
+                $and: [
+                    { status: { $ne: 'Concluído' } },
+                    { status: { $ne: 'Cancelado' } }
+                ]
+            }).skip(skip).limit(limit).sort('vigencia')
+
+            const total = await PropostaEntrevista.find({
+                $or: [
+                    { nome: { $regex: pesquisa, $options: 'i' } },
+                    { proposta: { $regex: pesquisa, $options: 'i' } }
+                ],
+                $and: [
+                    { status: { $ne: 'Concluído' } },
+                    { status: { $ne: 'Cancelado' } }
+                ]
+            }).countDocuments()
+
+            return res.json({ result, total })
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: "Internal Server Error"
+            })
+        }
     }
 }
+
 
 const feriados = [
     moment('2022-01-01'),

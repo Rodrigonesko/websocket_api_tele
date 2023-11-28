@@ -67,6 +67,8 @@ router.get('/producaoMensal/:mes', auth, propostaController.producaoMensal)
 router.get('/producaoAgendamento/:analista/:mes', auth, propostaController.producaoAgendamento)
 router.get('/cpfTitular/:cpfTitular', auth, propostaController.buscarPropostasPeloCpfTitular)
 router.post('/filterPropostas', auth, propostaController.filterPropostas)
+router.get('/totalPropostasNaoRealizadas', auth, propostaController.quantidadeNaoRealizadas)
+router.post('/filterPropostasNaoRealizadas', auth, propostaController.filterNaoRealizadas)
 
 router.post('/receiveMessage', propostaController.mensagemRecebida)
 
