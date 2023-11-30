@@ -1016,6 +1016,31 @@ module.exports = {
                 horario: moment().format('YYYY-MM-DD HH:mm')
             })
 
+            //Caso seja sabado, domingo, se passou das 17:30 ou é antes das 08:30 da manha retorna mensagem de fora do horario de atendimento
+
+            const diaDaSemana = moment().format('dddd')
+            const hora = moment().format('HH:mm')
+
+            if (diaDaSemana === 'Saturday' || diaDaSemana === 'Sunday' || hora > '19:00' || hora < '08:00') {
+                const msg = "Olá, nosso horário de atendimento é de segunda a sexta das 08:30 às 17:30"
+                const messageTwilio = await client.messages.create({
+                    from: TwilioNumber,
+                    body: msg,
+                    to: from
+                })
+
+                await Chat.create({
+                    de: TwilioNumber,
+                    para: fixed,
+                    mensagem: msg,
+                    horario: moment().format('YYYY-MM-DD HH:mm'),
+                    status: messageTwilio.status,
+                    sid: messageTwilio.sid
+                })
+
+                return res.json(msg)
+            }
+
             const find = await PropostaEntrevista.findOne({
                 whatsapp: fixed,
                 status: { $ne: 'Cancelado', $ne: 'Concluído' }
@@ -2584,11 +2609,11 @@ module.exports = {
             }
 
             if (status.ajustar) {
-                filterConditions.push({ situacao: 'ajustar' })
+                filterConditions.push({ situacao: 'Corrigir' })
             }
 
             if (status.semWhats) {
-                filterConditions.push({ newStatus: 'Sem whatsApp' })
+                filterConditions.push({ newStatus: 'Sem whatsapp' })
             }
 
             if (status.agendado) {
@@ -2688,7 +2713,7 @@ module.exports = {
                 $and: [
                     { status: { $ne: "Concluído" } },
                     { status: { $ne: 'Cancelado' } },
-                    { situacao: 'ajustar' },
+                    { situacao: 'Corrigir' },
                 ]
             }).countDocuments()
 
@@ -2696,7 +2721,7 @@ module.exports = {
                 $and: [
                     { status: { $ne: "Concluído" } },
                     { status: { $ne: 'Cancelado' } },
-                    { newStatus: 'Sem whatsApp' }
+                    { newStatus: 'Sem whatsapp' }
                 ]
             }).countDocuments()
 
