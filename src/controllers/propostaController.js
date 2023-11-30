@@ -913,7 +913,13 @@ module.exports = {
                 to: whatsapp
             })
 
-            const verificarStatusMensagem = await client.messages(result.sid).fetch()
+            //Preciso chamar essa funcao após 2 segundos para que o Twilio consiga verificar o status da mensagem
+
+            let verificarStatusMensagem
+
+            setTimeout(async () => {
+                verificarStatusMensagem = await client.messages(result.sid).fetch()
+            }, 2000)
 
             if (verificarStatusMensagem.status === 'undelivered') {
                 console.log('Problema ao enviar');
@@ -2523,7 +2529,7 @@ module.exports = {
     });
             */
 
-            const { status, tipoContrato, vigencia, altoRisco, idade ,page = 1, limit = 100 } = req.body
+            const { status, tipoContrato, vigencia, altoRisco, idade, page = 1, limit = 100 } = req.body
 
             let skip = (page - 1) * limit
 
