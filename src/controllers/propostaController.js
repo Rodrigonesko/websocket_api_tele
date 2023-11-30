@@ -2589,7 +2589,6 @@ module.exports = {
 
             if (status.semWhats) {
                 filterConditions.push({ newStatus: 'Sem whatsApp' })
-                filterConditions.push({ newStatus: 'Problemas ao Enviar' })
             }
 
             if (status.agendado) {
@@ -2697,8 +2696,7 @@ module.exports = {
                 $and: [
                     { status: { $ne: "Concluído" } },
                     { status: { $ne: 'Cancelado' } },
-                    { newStatus: 'Sem whatsApp' },
-                    { newStatus: 'Problemas ao Enviar' }
+                    { newStatus: 'Sem whatsApp' }
                 ]
             }).countDocuments()
 
