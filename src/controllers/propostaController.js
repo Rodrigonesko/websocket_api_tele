@@ -917,9 +917,15 @@ module.exports = {
 
             let verificarStatusMensagem
 
-            setTimeout(async () => {
-                verificarStatusMensagem = await client.messages(result.sid).fetch()
-            }, 2000)
+            verificarStatusMensagem = await client.messages(result.sid).fetch()
+
+            verificarStatusMensagem = await client.messages(result.sid).fetch()
+
+            verificarStatusMensagem = await client.messages(result.sid).fetch()
+
+            verificarStatusMensagem = await client.messages(result.sid).fetch()
+
+            verificarStatusMensagem = await client.messages(result.sid).fetch()
 
             if (verificarStatusMensagem.status === 'undelivered') {
                 console.log('Problema ao enviar');
