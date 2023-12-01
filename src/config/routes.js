@@ -69,6 +69,7 @@ router.get('/cpfTitular/:cpfTitular', propostaController.buscarPropostasPeloCpfT
 router.post('/filterPropostas', auth, propostaController.filterPropostas)
 router.get('/totalPropostasNaoRealizadas', auth, propostaController.quantidadeNaoRealizadas)
 router.post('/filterPropostasNaoRealizadas', auth, propostaController.filterNaoRealizadas)
+router.post('/filterPropostasAgendadas', auth, propostaController.filterAgendadas)
 
 router.post('/receiveMessage', propostaController.mensagemRecebida)
 

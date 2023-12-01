@@ -2891,6 +2891,59 @@ module.exports = {
                 msg: "Internal Server Error"
             })
         }
+    },
+
+    filterAgendadas: async (req, res) => {
+        try {
+
+            const { responsavel, page = 1, limit = 100 } = req.body
+
+            let skip = (page - 1) * limit
+
+            if (responsavel === 'Todos') {
+                const result = await PropostaEntrevista.find({
+                    agendado: 'agendado',
+                    $and: [
+                        { status: { $ne: 'Concluído' } },
+                        { status: { $ne: 'Cancelado' } }
+                    ]
+                }).skip(skip).limit(limit).sort('dataEntrevista')
+
+                const total = await PropostaEntrevista.find({
+                    agendado: 'agendado',
+                    $and: [
+                        { status: { $ne: 'Concluído' } },
+                        { status: { $ne: 'Cancelado' } }
+                    ]
+                }).countDocuments()
+
+                return res.json({ result, total })
+            }
+
+            const result = await PropostaEntrevista.find({
+                enfermeiro: responsavel,
+                $and: [
+                    { status: { $ne: 'Concluído' } },
+                    { status: { $ne: 'Cancelado' } }
+                ]
+            }).skip(skip).limit(limit).sort('dataEntrevista')
+
+            const total = await PropostaEntrevista.find({
+                enfermeiro: responsavel,
+                $and: [
+                    { status: { $ne: 'Concluído' } },
+                    { status: { $ne: 'Cancelado' } }
+                ]
+            }).countDocuments()
+
+            return res.json({ result, total })
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: "Internal Server Error"
+            })
+        }
     }
 }
 
