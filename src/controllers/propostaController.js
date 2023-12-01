@@ -1885,7 +1885,8 @@ module.exports = {
             const result = await PropostaEntrevista.findByIdAndUpdate({
                 _id: id
             }, {
-                situacao: 'agendado'
+                situacao: 'agendado',
+                newStatus: 'Agendado'
             })
 
             const wppSender = result.wppSender
@@ -2604,8 +2605,12 @@ module.exports = {
                 filterConditions.push({ atendimentoHumanizado: true })
             }
 
+            if (status.naoLidas) {
+                filterConditions.push({ visualizado: true })
+            }
+
             if (status.janelas) {
-                filterConditions.push({ situacao: 'Janela escolhida' })
+                filterConditions.push({ newStatus: 'Janela escolhida' })
             }
 
             if (status.ajustar) {
@@ -2705,11 +2710,19 @@ module.exports = {
                 ]
             }).countDocuments()
 
+            const naoLidas = await PropostaEntrevista.find({
+                $and: [
+                    { status: { $ne: "Concluído" } },
+                    { status: { $ne: 'Cancelado' } },
+                    { visualizado: true }
+                ]
+            }).countDocuments()
+
             const janelas = await PropostaEntrevista.find({
                 $and: [
                     { status: { $ne: "Concluído" } },
                     { status: { $ne: 'Cancelado' } },
-                    { situacao: 'Janela escolhida' },
+                    { newStatus: 'Janela escolhida' }
                 ]
             }).countDocuments()
 
