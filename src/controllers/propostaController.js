@@ -21,9 +21,6 @@ module.exports = {
     upload: async (req, res) => {
         try {
             const { result } = req.body
-
-            console.log(result)
-
             let quantidade = 0
 
             const arrCpfTitulares = result.reduce((acc, item) => {
@@ -195,9 +192,6 @@ module.exports = {
                 if (!cpfTitular) {
                     situacao = 'Corrigir'
                 }
-
-                console.log(wppSender);
-
                 const resultado = {
                     dataRecebimento: moment().format('YYYY-MM-DD'),
                     proposta,
@@ -290,8 +284,6 @@ module.exports = {
         try {
 
             const { startDate, endDate, tipoRelatorio } = req.query
-
-            console.log(startDate, endDate, tipoRelatorio);
             let result
 
             if (tipoRelatorio === 'Data Conclusão') {
@@ -309,9 +301,6 @@ module.exports = {
                     }
                 })
             }
-
-            console.log(result.length);
-
             return res.json(result)
 
         } catch (error) {
@@ -460,8 +449,6 @@ module.exports = {
         try {
 
             const { id, telefone } = req.body
-
-            console.log(id, telefone);
 
             const result = await PropostaEntrevista.findOneAndUpdate({
                 _id: id
@@ -1177,7 +1164,7 @@ module.exports = {
             if (find.modelo === '1') {
                 switch (Number(mensagem)) {
                     case 1:
-                        console.log(`Das 13:00 às 15:00`, find.opcaoDia1);
+                        
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
@@ -1188,7 +1175,7 @@ module.exports = {
                         })
                         break;
                     case 2:
-                        console.log(`Das 15:00 às 17:00`, find.opcaoDia1);
+                        
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
@@ -1199,7 +1186,7 @@ module.exports = {
                         })
                         break;
                     case 3:
-                        console.log(`Das 17:00 às 19:00`, find.opcaoDia1);
+                        
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
@@ -1210,7 +1197,7 @@ module.exports = {
                         })
                         break;
                     case 4:
-                        console.log(`Das 09:00 às 11:00`, find.opcaoDia2);
+                        
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
@@ -1221,7 +1208,7 @@ module.exports = {
                         })
                         break;
                     case 5:
-                        console.log(`Das 11:00 às 13:00`, find.opcaoDia2);
+                        
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
@@ -1232,7 +1219,7 @@ module.exports = {
                         })
                         break;
                     case 6:
-                        console.log(`Das 13:00 às 15:00`, find.opcaoDia2);
+                        
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
@@ -1243,7 +1230,7 @@ module.exports = {
                         })
                         break;
                     case 7:
-                        console.log(`Das 15:00 às 17:00`, find.opcaoDia2);
+                        
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
@@ -1254,7 +1241,7 @@ module.exports = {
                         })
                         break;
                     case 8:
-                        console.log(`Das 17:00 às 19:00`, find.opcaoDia2);
+                        
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
@@ -1280,7 +1267,7 @@ module.exports = {
             if (find.modelo === '2') {
                 switch (Number(mensagem)) {
                     case 1:
-                        console.log(`Das 09:00 às 11:00`, find.opcaoDia1);
+                        
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
@@ -1291,7 +1278,7 @@ module.exports = {
                         })
                         break;
                     case 2:
-                        console.log(`Das 11:00 às 13:00`, find.opcaoDia1);
+                        
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
@@ -1302,7 +1289,7 @@ module.exports = {
                         })
                         break;
                     case 3:
-                        console.log(`Das 13:00 às 15:00`, find.opcaoDia1);
+                        
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
@@ -1313,7 +1300,7 @@ module.exports = {
                         })
                         break;
                     case 4:
-                        console.log(`Das 15:00 às 17:00`, find.opcaoDia1);
+                        
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
@@ -1324,7 +1311,7 @@ module.exports = {
                         })
                         break;
                     case 5:
-                        console.log(`Das 17:00 às 19:00`, find.opcaoDia1);
+                        
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
@@ -1335,7 +1322,7 @@ module.exports = {
                         })
                         break;
                     case 6:
-                        console.log(`Das 09:00 às 11:00`, find.opcaoDia2);
+                        
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
@@ -1346,7 +1333,7 @@ module.exports = {
                         })
                         break;
                     case 7:
-                        console.log(`Das 11:00 às 13:00`, find.opcaoDia2);
+                        
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
@@ -1357,7 +1344,7 @@ module.exports = {
                         })
                         break;
                     case 8:
-                        console.log(`Das 13:00 às 15:00`, find.opcaoDia2);
+                        
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
@@ -1368,7 +1355,7 @@ module.exports = {
                         })
                         break;
                     case 9:
-                        console.log(`Das 15:00 às 17:00`, find.opcaoDia2);
+                        
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
@@ -1379,7 +1366,7 @@ module.exports = {
                         })
                         break;
                     case 10:
-                        console.log(`Das 17:00 às 19:00`, find.opcaoDia2);
+                        
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
@@ -1417,8 +1404,6 @@ module.exports = {
         try {
 
             let mensagem = modeloMensagem1('RODRIGO ONESKO DIAS', '26/04/2023', '27/04/2023').mensagem
-
-            console.log(mensagem);
 
             const result = await client.messages.create({
                 from: TwilioNumberPme,
@@ -1819,8 +1804,6 @@ module.exports = {
                 whatsapp
             })
 
-            console.log(find);
-
             const wppSender = find.wppSender
 
             const result = await client.messages.create({
@@ -1829,7 +1812,10 @@ module.exports = {
                 to: whatsapp
             })
 
-            const verificarStatusMensagem = await client.messages(result.sid).fetch()
+            let verificarStatusMensagem = await client.messages(result.sid).fetch()
+            verificarStatusMensagem = await client.messages(result.sid).fetch()
+            verificarStatusMensagem = await client.messages(result.sid).fetch()
+            verificarStatusMensagem = await client.messages(result.sid).fetch()
 
             if (verificarStatusMensagem.status === 'failed' || verificarStatusMensagem.status === 'undelivered') {
                 return res.status(500).json({
@@ -1847,27 +1833,6 @@ module.exports = {
             })
 
             return res.json({ msg: 'ok' })
-
-        } catch (error) {
-            console.log(error);
-            return res.status(500).json({
-                msg: 'Internal Server Error'
-            })
-        }
-    },
-
-    ajustar: async (req, res) => {
-        try {
-
-            const result = await PropostaEntrevista.updateMany({
-                cpfTitular: 'sem'
-            }, {
-                situacao: ''
-            })
-
-            console.log(result.length);
-
-            return res.json(result)
 
         } catch (error) {
             console.log(error);
@@ -1918,7 +1883,6 @@ module.exports = {
 
                 }
                 msg += ` Caso os mesmos não estejam presentes no seu horário, o Sr (a) pode informar o contato deles durante a realização da sua entrevista para que possamos entrar em contato com os mesmos neste mesmo horário.`
-                console.log(msg);
 
                 const messageTwilio = await client.messages.create({
                     to: result.whatsapp,
@@ -2084,11 +2048,8 @@ module.exports = {
 
             const { whatsapps, horarios, data } = req.body
 
-            console.log(whatsapps, horarios);
 
             let mensagem = `Visto que o preenchimento dos horários é feito em tempo real, esse horário já foi preenchido. Vou te passar os horários disponíveis atualizados:\nHorários disponíveis para o dia ${moment(data).format('DD/MM/YYYY')} - `
-
-            console.log(horarios);
 
             horarios.forEach(horario => {
                 mensagem += `${horario} - `
@@ -2503,6 +2464,8 @@ module.exports = {
         try {
 
             const { SmsSid, SmsStatus } = req.body
+
+            console.log(req.body);
 
             await Chat.updateOne({
                 sid: SmsSid
