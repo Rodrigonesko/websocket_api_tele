@@ -1164,7 +1164,7 @@ module.exports = {
             if (find.modelo === '1') {
                 switch (Number(mensagem)) {
                     case 1:
-                        
+
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
@@ -1175,7 +1175,7 @@ module.exports = {
                         })
                         break;
                     case 2:
-                        
+
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
@@ -1186,7 +1186,7 @@ module.exports = {
                         })
                         break;
                     case 3:
-                        
+
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
@@ -1197,7 +1197,7 @@ module.exports = {
                         })
                         break;
                     case 4:
-                        
+
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
@@ -1208,7 +1208,7 @@ module.exports = {
                         })
                         break;
                     case 5:
-                        
+
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
@@ -1219,7 +1219,7 @@ module.exports = {
                         })
                         break;
                     case 6:
-                        
+
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
@@ -1230,7 +1230,7 @@ module.exports = {
                         })
                         break;
                     case 7:
-                        
+
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
@@ -1241,7 +1241,7 @@ module.exports = {
                         })
                         break;
                     case 8:
-                        
+
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
@@ -1267,7 +1267,7 @@ module.exports = {
             if (find.modelo === '2') {
                 switch (Number(mensagem)) {
                     case 1:
-                        
+
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
@@ -1278,7 +1278,7 @@ module.exports = {
                         })
                         break;
                     case 2:
-                        
+
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
@@ -1289,7 +1289,7 @@ module.exports = {
                         })
                         break;
                     case 3:
-                        
+
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
@@ -1300,7 +1300,7 @@ module.exports = {
                         })
                         break;
                     case 4:
-                        
+
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
@@ -1311,7 +1311,7 @@ module.exports = {
                         })
                         break;
                     case 5:
-                        
+
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
@@ -1322,7 +1322,7 @@ module.exports = {
                         })
                         break;
                     case 6:
-                        
+
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
@@ -1333,7 +1333,7 @@ module.exports = {
                         })
                         break;
                     case 7:
-                        
+
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
@@ -1344,7 +1344,7 @@ module.exports = {
                         })
                         break;
                     case 8:
-                        
+
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
@@ -1355,7 +1355,7 @@ module.exports = {
                         })
                         break;
                     case 9:
-                        
+
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
@@ -1366,7 +1366,7 @@ module.exports = {
                         })
                         break;
                     case 10:
-                        
+
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
@@ -2465,13 +2465,15 @@ module.exports = {
 
             const { SmsSid, SmsStatus } = req.body
 
-            console.log(req.body);
-
-            await Chat.updateOne({
+            const update = await Chat.updateOne({
                 sid: SmsSid
             }, {
                 status: SmsStatus
             })
+
+            if (update.nModified === 0) {
+                return res.json({ msg: 'ok' })
+            }
 
             io.emit('statusMessage', {
                 SmsSid,
