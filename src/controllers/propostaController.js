@@ -2810,6 +2810,7 @@ module.exports = {
                 janelas,
                 ajustar,
                 semWhats,
+                naoLidas,
                 erroWhatsapp,
                 agendado,
                 pme,
