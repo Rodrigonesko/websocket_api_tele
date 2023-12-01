@@ -2616,6 +2616,10 @@ module.exports = {
                 filterConditions.push({ newStatus: 'Sem whatsapp' })
             }
 
+            if (status.erroWhatsapp) {
+                filterConditions.push({ newStatus: 'Problemas ao Enviar' })
+            }
+
             if (status.agendado) {
                 filterConditions.push({ newStatus: 'Agendado' })
             }
@@ -2725,6 +2729,14 @@ module.exports = {
                 ]
             }).countDocuments()
 
+            const erroWhatsapp = await PropostaEntrevista.find({
+                $and: [
+                    { status: { $ne: "Concluído" } },
+                    { status: { $ne: 'Cancelado' } },
+                    { newStatus: 'Problemas ao Enviar' }
+                ]
+            }).countDocuments()
+
             const agendado = await PropostaEntrevista.find({
                 $and: [
                     { status: { $ne: "Concluído" } },
@@ -2820,6 +2832,7 @@ module.exports = {
                 janelas,
                 ajustar,
                 semWhats,
+                erroWhatsapp,
                 agendado,
                 pme,
                 pf,
