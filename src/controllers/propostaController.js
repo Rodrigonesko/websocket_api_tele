@@ -2923,6 +2923,27 @@ module.exports = {
                 msg: "Internal Server Error"
             })
         }
+    },
+
+    changeWhatsappSender: async (req, res) => {
+        try {
+
+            const { whatsapp, wppSender } = req.body
+
+            const result = await PropostaEntrevista.updateMany({
+                whatsapp
+            }, {
+                wppSender
+            })
+
+            return res.json(result)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: "Internal Server Error"
+            })
+        }
     }
 }
 
