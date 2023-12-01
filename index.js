@@ -44,7 +44,7 @@ lembreteMensagem()
 
 const routes = require('./src/config/routes')
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json({ limit: '100mb' }));
+app.use(bodyParser.json({limit: '100mb'}));
 app.use(express.json({ limit: '100mb' }))
 app.use(cookieParser())
 app.use(function (req, res, next) {

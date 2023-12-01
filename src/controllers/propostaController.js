@@ -2616,6 +2616,10 @@ module.exports = {
                 filterConditions.push({ newStatus: 'Sem whatsapp' })
             }
 
+            if (status.erroWhatsapp) {
+                filterConditions.push({ newStatus: 'Problemas ao Enviar' })
+            }
+
             if (status.agendado) {
                 filterConditions.push({ newStatus: 'Agendado' })
             }
@@ -2725,6 +2729,14 @@ module.exports = {
                 ]
             }).countDocuments()
 
+            const erroWhatsapp = await PropostaEntrevista.find({
+                $and: [
+                    { status: { $ne: "Concluído" } },
+                    { status: { $ne: 'Cancelado' } },
+                    { newStatus: 'Problemas ao Enviar' }
+                ]
+            }).countDocuments()
+
             const agendado = await PropostaEntrevista.find({
                 $and: [
                     { status: { $ne: "Concluído" } },
@@ -2820,6 +2832,7 @@ module.exports = {
                 janelas,
                 ajustar,
                 semWhats,
+                erroWhatsapp,
                 agendado,
                 pme,
                 pf,
@@ -2864,6 +2877,59 @@ module.exports = {
                     { nome: { $regex: pesquisa, $options: 'i' } },
                     { proposta: { $regex: pesquisa, $options: 'i' } }
                 ],
+                $and: [
+                    { status: { $ne: 'Concluído' } },
+                    { status: { $ne: 'Cancelado' } }
+                ]
+            }).countDocuments()
+
+            return res.json({ result, total })
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: "Internal Server Error"
+            })
+        }
+    },
+
+    filterAgendadas: async (req, res) => {
+        try {
+
+            const { responsavel, page = 1, limit = 100 } = req.body
+
+            let skip = (page - 1) * limit
+
+            if (responsavel === 'Todos') {
+                const result = await PropostaEntrevista.find({
+                    agendado: 'agendado',
+                    $and: [
+                        { status: { $ne: 'Concluído' } },
+                        { status: { $ne: 'Cancelado' } }
+                    ]
+                }).skip(skip).limit(limit).sort('dataEntrevista')
+
+                const total = await PropostaEntrevista.find({
+                    agendado: 'agendado',
+                    $and: [
+                        { status: { $ne: 'Concluído' } },
+                        { status: { $ne: 'Cancelado' } }
+                    ]
+                }).countDocuments()
+
+                return res.json({ result, total })
+            }
+
+            const result = await PropostaEntrevista.find({
+                enfermeiro: responsavel,
+                $and: [
+                    { status: { $ne: 'Concluído' } },
+                    { status: { $ne: 'Cancelado' } }
+                ]
+            }).skip(skip).limit(limit).sort('dataEntrevista')
+
+            const total = await PropostaEntrevista.find({
+                enfermeiro: responsavel,
                 $and: [
                     { status: { $ne: 'Concluído' } },
                     { status: { $ne: 'Cancelado' } }
