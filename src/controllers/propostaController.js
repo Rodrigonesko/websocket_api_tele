@@ -2971,4 +2971,3 @@ const feriados = [
     moment('2023-11-15'),
     moment('2023-12-25')
 ];
-
