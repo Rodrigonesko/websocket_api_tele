@@ -2575,7 +2575,8 @@ module.exports = {
             }
 
             if (status.janelas) {
-                filterConditions.push({ newStatus: 'Janela escolhida' })
+                filterConditions.push({ situacao: 'Janela escolhida' })
+                filterConditions.push({ atendimentoHumanizado: false })
             }
 
             if (status.ajustar) {
@@ -2687,7 +2688,8 @@ module.exports = {
                 $and: [
                     { status: { $ne: "Concluído" } },
                     { status: { $ne: 'Cancelado' } },
-                    { newStatus: 'Janela escolhida' }
+                    { situacao: 'Janela escolhida' },
+                    { atendimentoHumanizado: false }
                 ]
             }).countDocuments()
 
