@@ -63,8 +63,14 @@ module.exports = {
 
             }, [])
 
+            let counter = 0;
+            const wppSenders = [TwilioNumber, TwilioNumberPme, TwilioNumberSP];
+
+
             for (const item of arrCpfTitulares) {
 
+                let wppSender = wppSenders[counter % wppSenders.length];
+                counter++;
 
                 let proposta = item.NUM_PROPOSTA
 
@@ -134,20 +140,20 @@ module.exports = {
                 const cid2 = item.CID_PI_ANT_2
                 const cid3 = item.CID_PI_ANT_3
 
-                let wppSender = TwilioNumber
+                // let wppSender = TwilioNumber
 
-                if (tipoContrato.toLowerCase().indexOf('pme') !== -1) {
-                    wppSender = TwilioNumberPme
-                }
+                // if (tipoContrato.toLowerCase().indexOf('pme') !== -1) {
+                //     wppSender = TwilioNumberPme
+                // }
 
                 const observacao = item['OBSERVAÇÕES']
                 const ddd = item.NUM_DDD_CEL || item.NUM_DDD_TEL
                 let numero = item.NUM_CEL?.toString().replace(/\s/g, '') || item.NUM_TEL?.toString().replace(/\s/g, '')
                 const telefone = `(${ddd}) ${numero}`
 
-                if (ddd == '11') {
-                    wppSender = TwilioNumberSP
-                }
+                // if (ddd == '11') {
+                //     wppSender = TwilioNumberSP
+                // }
 
                 if (numero?.length !== 9 && numero !== undefined) {
                     numero = `9${numero}`
@@ -994,7 +1000,6 @@ module.exports = {
 
             const { from, mensagem, fixed } = req.body
 
-            io.emit('receivedMessage', { whatsapp: fixed, mensagem })
 
             await Chat.create({
                 de: fixed,
@@ -1008,8 +1013,8 @@ module.exports = {
             const diaDaSemana = moment().format('dddd')
             const hora = moment().format('HH:mm')
 
-            if (diaDaSemana === 'Saturday' || diaDaSemana === 'Sunday' || hora > '19:00' || hora < '08:00') {
-                const msg = "Olá, nosso horário de atendimento é de segunda a sexta das 08:30 às 17:30"
+            if (diaDaSemana === 'Saturday' || diaDaSemana === 'Sunday' || hora > '17:30' || hora < '08:30') {
+                const msg = "Olá, nosso horário de atendimento é de segunda a sexta das 08:30 às 17:30, responderemos sua mensagem assim que possível. A amil agradece seu contato."
                 const messageTwilio = await client.messages.create({
                     from: TwilioNumber,
                     body: msg,
@@ -1033,6 +1038,7 @@ module.exports = {
                 status: { $ne: 'Cancelado', $ne: 'Concluído' }
             });
 
+
             if (!find) {
                 //mandar mensagem para atendimento humanizado
                 const msg = "Seu número não consta em nossa base de contatos"
@@ -1053,6 +1059,8 @@ module.exports = {
 
                 return res.json(msg)
             }
+
+            io.emit('receivedMessage', { whatsapp: fixed, mensagem, responsavel: find?.responsavelConversa, enfermeiro: find?.enfermeiro })
 
             const wppSender = find.wppSender
 
@@ -1151,6 +1159,7 @@ module.exports = {
                         status: messageTwilio.status,
                         sid: messageTwilio.sid
                     })
+
 
                     return res.json(msg)
 
