@@ -1060,7 +1060,7 @@ module.exports = {
                 return res.json(msg)
             }
 
-            io.emit('receivedMessage', { whatsapp: fixed, mensagem, responsavel: find?.responsavelConversa, enfermeiro: find?.enfermeiro })
+            io.emit('receivedMessage', { whatsapp: fixed, mensagem, responsavel: find?.responsavelConversa, enfermeiro: find?.enfermeiro, nome: find?.nome, proposta: find?.proposta })
 
             const wppSender = find.wppSender
 
