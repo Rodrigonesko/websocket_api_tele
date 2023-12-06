@@ -1499,7 +1499,7 @@ module.exports = {
                     { de: whatsapp },
                     { para: whatsapp }
                 ]
-            }).sort('horario')
+            }).sort('createdAt')
 
             return res.json(chat)
 
@@ -2548,7 +2548,6 @@ module.exports = {
                     $and: [
                         { status: { $ne: "Concluído" } },
                         { status: { $ne: 'Cancelado' } },
-
                     ]
                 }).skip(skip).limit(limit)
                 const total = await PropostaEntrevista.find({
@@ -2566,7 +2565,7 @@ module.exports = {
                     { status: { $ne: "Concluído" } },
                     { status: { $ne: 'Cancelado' } },
                 ]
-            };
+            }
 
             let filterConditions = []
 
@@ -2847,19 +2846,30 @@ module.exports = {
     filterNaoRealizadas: async (req, res) => {
         try {
 
-            const { pesquisa, page = 1, limit = 100 } = req.body
+            const { pesquisa, page = 1, limit = 100, filters } = req.body
 
             let skip = (page - 1) * limit
+
+            let filterConditions = [
+                { status: { $ne: "Concluído" } },
+                { status: { $ne: 'Cancelado' } },
+            ]
+
+            if (filters.status.agendar) {
+                // filterConditions.push({ newStatus: 'Agendar' })
+                filterConditions.push({ agendado: { $ne: 'agendado' } })
+            }
+
+            if (filters.status.agendado) {
+                filterConditions.push({ newStatus: 'Agendado' })
+            }
 
             const result = await PropostaEntrevista.find({
                 $or: [
                     { nome: { $regex: pesquisa, $options: 'i' } },
                     { proposta: { $regex: pesquisa, $options: 'i' } }
                 ],
-                $and: [
-                    { status: { $ne: 'Concluído' } },
-                    { status: { $ne: 'Cancelado' } }
-                ]
+                $and: filterConditions
             }).skip(skip).limit(limit).sort('vigencia')
 
             const total = await PropostaEntrevista.find({
@@ -2867,11 +2877,10 @@ module.exports = {
                     { nome: { $regex: pesquisa, $options: 'i' } },
                     { proposta: { $regex: pesquisa, $options: 'i' } }
                 ],
-                $and: [
-                    { status: { $ne: 'Concluído' } },
-                    { status: { $ne: 'Cancelado' } }
-                ]
+                $and: filterConditions
             }).countDocuments()
+
+
 
             return res.json({ result, total })
 
