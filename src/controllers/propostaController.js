@@ -1499,7 +1499,7 @@ module.exports = {
                     { de: whatsapp },
                     { para: whatsapp }
                 ]
-            }).sort('createdAt')
+            }).sort('horario')
 
             return res.json(chat)
 
@@ -1827,8 +1827,8 @@ module.exports = {
             verificarStatusMensagem = await client.messages(result.sid).fetch()
 
             if (verificarStatusMensagem.status === 'failed' || verificarStatusMensagem.status === 'undelivered') {
-                return res.status(500).json({
-                    msg: 'Erro ao enviar'
+                return res.status(403).json({
+                    msg: verificarStatusMensagem.status
                 })
             }
 
