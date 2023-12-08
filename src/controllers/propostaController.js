@@ -2500,6 +2500,8 @@ module.exports = {
 
             const { SmsSid, SmsStatus } = req.body
 
+            console.log(req.body);
+
             const update = await Chat.updateOne({
                 sid: SmsSid
             }, {
