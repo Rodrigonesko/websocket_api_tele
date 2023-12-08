@@ -47,7 +47,6 @@ module.exports = {
 
                 const itemExistenteAssociados = numPropostas.find((elem) => elem.proposta === item.NUM_PROPOSTA)
                 if (itemExistenteAssociados.numTitulares !== 1 && itemExistenteAssociados.numTitulares !== itemExistenteAssociados.numAssociados) {
-                    console.log('problema no numero de titulares', item.NUM_PROPOSTA, item.NOME_ASSOCIADO, itemExistenteAssociados.numTitulares);
                     acc.push({ ...item });
                     return acc;
                 }
@@ -109,7 +108,6 @@ module.exports = {
 
                     let cpf = ''
 
-                    console.log(item.NUM_CPF);
 
                     //Verificar se o item.NUM_CPF não é um número
 
@@ -173,7 +171,6 @@ module.exports = {
 
                     if (numero?.length !== 9 && numero !== undefined) {
                         numero = `9${numero}`
-                        console.log(numero);
                     }
 
                     const celularCompleto = `55${ddd}${numero}`
@@ -487,8 +484,6 @@ module.exports = {
             }, {
                 telefone: telefone
             })
-
-            console.log(result);
 
             return res.status(200).json({
                 result
@@ -2498,7 +2493,7 @@ module.exports = {
     hookStatusMessage: async (req, res) => {
         try {
 
-            const { SmsSid, SmsStatus } = req.body
+            const { SmsSid, SmsStatus, To, From } = req.body
 
             console.log(req.body);
 
@@ -2514,7 +2509,9 @@ module.exports = {
 
             io.emit('statusMessage', {
                 SmsSid,
-                SmsStatus
+                SmsStatus,
+                To,
+                From
             })
 
             return res.json(req.body)
