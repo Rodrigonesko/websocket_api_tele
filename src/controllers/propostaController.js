@@ -833,10 +833,11 @@ module.exports = {
             const { propostas } = req.body
 
             for (const item of propostas) {
+                let cpfClean = item.cpfTitular.replace(/[^0-9]/g, '');
                 await PropostaEntrevista.findByIdAndUpdate({
                     _id: item.id
                 }, {
-                    cpfTitular: item.cpfTitular,
+                    cpfTitular: cpfClean,
                     situacao: 'A enviar'
                 })
             }
@@ -1792,38 +1793,6 @@ module.exports = {
         }
     },
 
-
-    mandarMensagemTwilio: async (req, res) => {
-        try {
-
-            const { whatsapp, mensagem } = req.body
-
-            const result = await client.messages.create({
-                from: TwilioNumber,
-                body: mensagem,
-                to: whatsapp
-            })
-
-            console.log(result);
-
-            await Chat.create({
-                de: TwilioNumber,
-                para: whatsapp,
-                mensagem,
-                horario: moment().format('YYYY-MM-DD HH:mm'),
-                status: result.status,
-                sid: result.sid
-            })
-
-            return res.json({ msg: 'ok' })
-
-        } catch (error) {
-            console.log(error);
-            return res.status(500).json({
-                msg: 'Internal Server Error'
-            })
-        }
-    },
 
     mandarMensagem: async (req, res) => {
         try {
