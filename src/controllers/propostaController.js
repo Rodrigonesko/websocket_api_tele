@@ -30,16 +30,22 @@ module.exports = {
                     const proposta = e.NUM_PROPOSTA
                     const tipoAssociado = e.TIPO_ASSOCIADO
                     const itemExistente = numPropostas.find((elem) => elem.proposta === proposta)
+                    let cpf = ''
+                    if (typeof (e.NUM_CPF) !== 'number' && e.NUM_CPF !== undefined) {
+                        cpf = e.NUM_CPF.replace(/\D/g, '')
+                    } else {
+                        cpf = e.NUM_CPF
+                    }
                     if (itemExistente) {
                         if (tipoAssociado === 'Titular') {
                             itemExistente.numTitulares += 1
                             itemExistente.numAssociados += 1
-                            itemExistente.cpfTitular = e.NUM_CPF
+                            itemExistente.cpfTitular = cpf
                         } else {
                             itemExistente.numAssociados += 1
                         }
                     } else if (tipoAssociado === "Titular") {
-                        numPropostas.push({ proposta: proposta, numTitulares: 1, numAssociados: 1, cpfTitular: e.NUM_CPF })
+                        numPropostas.push({ proposta: proposta, numTitulares: 1, numAssociados: 1, cpfTitular: cpf })
                     } else {
                         numPropostas.push({ proposta: proposta, numAssociados: 1, numTitulares: 0 })
                     }
@@ -1840,6 +1846,8 @@ module.exports = {
             })
         }
     },
+
+
 
     encerrarAtendimentoJanela: async (req, res) => {
         try {
