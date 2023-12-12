@@ -1847,8 +1847,6 @@ module.exports = {
         }
     },
 
-
-
     encerrarAtendimentoJanela: async (req, res) => {
         try {
 
@@ -1863,16 +1861,17 @@ module.exports = {
 
             const wppSender = result.wppSender
 
-            if (result.tipoAssociado === 'Dependente') {
-                return res.json(result)
-            }
+            // if (result.tipoAssociado === 'Dependente') {
+            //     return res.json(result)
+            // }
 
             const dependentes = await PropostaEntrevista.find({
                 cpfTitular: result.cpfTitular
             })
 
 
-            let msg = 'Agendado'
+            let msg = `Agendado para o período da ${moment(result.dataEntrevista).format("DD/MM/YYYY HH:mm")},
+Lembrando que em caso de menor de idade a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação.`
 
             if (dependentes.length > 1) {
                 msg = `Agendado. Lembrando que a entrevista é para o Senhor(a) e os dependentes, `
@@ -2401,9 +2400,9 @@ module.exports = {
             const result = await PropostaEntrevista.find({
                 quemAgendou: analista,
                 dataEntrevista: { $regex: mes }
-            })
+            }).countDocuments()
 
-            return res.json(result.length)
+            return res.json(result)
 
         } catch (error) {
             console.log(error);
