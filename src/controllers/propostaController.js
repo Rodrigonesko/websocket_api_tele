@@ -1861,20 +1861,20 @@ module.exports = {
 
             const wppSender = result.wppSender
 
-            // if (result.tipoAssociado === 'Dependente') {
-            //     return res.json(result)
-            // }
+            if (result.tipoAssociado === 'Dependente') {
+                return res.json(result)
+            }
 
             const dependentes = await PropostaEntrevista.find({
                 cpfTitular: result.cpfTitular
             })
 
 
-            let msg = `Agendado para o período da ${moment(result.dataEntrevista).format("DD/MM/YYYY HH:mm")},
+            let msg = `Agendado para o dia ${moment(result.dataEntrevista).format("DD/MM/YYYY")} às ${moment(result.horarioEntrevista).format("HH:mm")},
 Lembrando que em caso de menor de idade a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação.`
 
             if (dependentes.length > 1) {
-                msg = `Agendado. Lembrando que a entrevista é para o Senhor(a) e os dependentes, `
+                msg = `Agendado para o dia ${moment(result.dataEntrevista).format("DD/MM/YYYY")} às ${moment(result.horarioEntrevista).format("HH:mm")}. Lembrando que a entrevista é para o Senhor(a) e os dependentes, `
                 let count = 0
                 for (const e of dependentes) {
                     count++
@@ -1882,13 +1882,14 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
                         continue
                     }
                     if (count === dependentes.length - 1) {
-                        msg += `Sr (a) ${e.nome}.`
+                        msg += `${e.nome}.`
                         continue
                     }
-                    msg += `Sr (a) ${e.nome}, `
+                    msg += `${e.nome}, `
 
                 }
-                msg += ` Caso os mesmos não estejam presentes no seu horário, o Sr (a) pode informar o contato deles durante a realização da sua entrevista para que possamos entrar em contato com os mesmos neste mesmo horário.`
+                msg += ` Pedimos confirmar se estarão presentes no mesmo horário, caso negativo pedimos informar o contato deles em resposta a esse whatsapp para podermos agendar novo horário com os mesmos. 
+Lembrando que em caso de menor de idade a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação.`
 
                 const messageTwilio = await client.messages.create({
                     to: result.whatsapp,
@@ -2145,7 +2146,7 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
                     { reenviadoVigencia: true },
                     { agendado: { $ne: 'agendado' } },
                 ]
-            })
+            }).lean()
 
             const propostas = result.filter(proposta => {
                 return moment(proposta.vigencia) <= moment()
@@ -2224,7 +2225,7 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
             const find = await PropostaEntrevista.find({
                 dataConclusao: { $regex: mes },
                 enfermeiro: analista
-            })
+            }).lean()
 
             for (const item of find) {
 
