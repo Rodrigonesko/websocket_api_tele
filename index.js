@@ -36,11 +36,13 @@ const reenviarMensagens = require('./src/tasks/reenvioMensagem')
 
 reenviarMensagens()
 
+lembreteMensagem()
+
 setInterval(reenviarMensagens, 4000000)
 
 setInterval(lembreteMensagem, 300000)
 
-lembreteMensagem()
+
 
 const routes = require('./src/config/routes')
 app.use(bodyParser.urlencoded({ extended: true }));

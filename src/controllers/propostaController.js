@@ -2966,6 +2966,25 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
                 msg: "Internal Server Error"
             })
         }
+    },
+
+    getPropostasPorMes: async (req, res) => {
+        try {
+
+            const { mes } = req.params
+
+            const result = await PropostaEntrevista.find({
+                dataConclusao: { $regex: mes }
+            }).lean().sort('dataConclusao')
+
+            return res.json(result)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: "Internal Server Error"
+            })
+        }
     }
 }
 

@@ -70,6 +70,7 @@ router.get('/totalPropostasNaoRealizadas', auth, propostaController.quantidadeNa
 router.post('/filterPropostasNaoRealizadas', auth, propostaController.filterNaoRealizadas)
 router.post('/filterPropostasAgendadas', auth, propostaController.filterAgendadas)
 router.put('/changeWhatsappSender', auth, propostaController.changeWhatsappSender)
+router.get('/propostasPorMes/:mes', auth, propostaController.getPropostasPorMes)
 
 router.post('/receiveMessage', propostaController.mensagemRecebida)
 
