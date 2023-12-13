@@ -2972,18 +2972,8 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
         try {
 
             const { mes } = req.params
-            const start = new Date(mes);
-            const end = new Date(mes);
-            end.setMonth(end.getMonth() + 1);
-
-            const startStr = start.toISOString().split('T')[0];
-            const endStr = end.toISOString().split('T')[0];
-
             const result = await PropostaEntrevista.find({
-                dataConclusao: {
-                    $gte: startStr,
-                    $lt: endStr
-                }
+                dataConclusao: { $regex: mes }
             }).lean().sort('dataConclusao')
 
             return res.json(result)
