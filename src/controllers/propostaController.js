@@ -1870,11 +1870,11 @@ module.exports = {
             })
 
 
-            let msg = `Agendado para o dia ${moment(result.dataEntrevista).format("DD/MM/YYYY")} às ${moment(result.horarioEntrevista).format("HH:mm")},
+            let msg = `Agendado para o dia ${moment(result.dataEntrevista).format("DD/MM/YYYY")} às ${moment(result.dataEntrevista).format("HH:mm")},
 Lembrando que em caso de menor de idade a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação.`
 
             if (dependentes.length > 1) {
-                msg = `Agendado para o dia ${moment(result.dataEntrevista).format("DD/MM/YYYY")} às ${moment(result.horarioEntrevista).format("HH:mm")}. Lembrando que a entrevista é para o Senhor(a) e os dependentes, `
+                msg = `Agendado para o dia ${moment(result.dataEntrevista).format("DD/MM/YYYY")} às ${moment(result.dataEntrevista).format("HH:mm")}. Lembrando que a entrevista é para o Senhor(a) e os dependentes, `
                 let count = 0
                 for (const e of dependentes) {
                     count++
