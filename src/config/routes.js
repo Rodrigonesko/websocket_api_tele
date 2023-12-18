@@ -71,6 +71,7 @@ router.post('/filterPropostasNaoRealizadas', auth, propostaController.filterNaoR
 router.post('/filterPropostasAgendadas', auth, propostaController.filterAgendadas)
 router.put('/changeWhatsappSender', auth, propostaController.changeWhatsappSender)
 router.get('/propostasPorMes/:mes', auth, propostaController.getPropostasPorMes)
+router.post('/paginacaoAgenda', auth, propostaController.paginacaoAgenda)
 
 router.post('/receiveMessage', propostaController.mensagemRecebida)
 

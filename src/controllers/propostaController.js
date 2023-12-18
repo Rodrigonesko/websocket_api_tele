@@ -2955,6 +2955,39 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
         }
     },
 
+    paginacaoAgenda: async (req, res) => {
+        try {
+
+            const { page = 1, limit = 100 } = req.body
+
+            let skip = (page - 1) * limit
+
+            const result = await PropostaEntrevista.find({
+                agendado: { $ne: 'agendado' },
+                $and: [
+                    { status: { $ne: 'Concluído' } },
+                    { status: { $ne: 'Cancelado' } }
+                ]
+            }).skip(skip).limit(limit).sort('vigencia')
+
+            const total = await PropostaEntrevista.find({
+                agendado: { $ne: 'agendado' },
+                $and: [
+                    { status: { $ne: 'Concluído' } },
+                    { status: { $ne: 'Cancelado' } }
+                ]
+            }).countDocuments()
+
+            return res.json({ result, total })
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: "Internal Server Error"
+            })
+        }
+    },
+
     changeWhatsappSender: async (req, res) => {
         try {
 
