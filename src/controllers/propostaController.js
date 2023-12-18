@@ -1026,8 +1026,9 @@ module.exports = {
     mensagemRecebida: async (req, res) => {
         try {
 
-            const { from, mensagem, fixed } = req.body
+            const { from, mensagem, fixed, To } = req.body
 
+            console.log(To);
 
             await Chat.create({
                 de: fixed,
