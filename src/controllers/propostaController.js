@@ -1032,7 +1032,7 @@ module.exports = {
 
             await Chat.create({
                 de: fixed,
-                para: TwilioNumber,
+                para: To,
                 mensagem,
                 horario: moment().format('YYYY-MM-DD HH:mm')
             })
@@ -1045,13 +1045,13 @@ module.exports = {
             if (diaDaSemana === 'Saturday' || diaDaSemana === 'Sunday' || hora > '17:30' || hora < '08:30') {
                 const msg = "Olá, nosso horário de atendimento é de segunda a sexta das 08:30 às 17:30, responderemos sua mensagem assim que possível. A amil agradece seu contato."
                 const messageTwilio = await client.messages.create({
-                    from: TwilioNumber,
+                    from: To,
                     body: msg,
                     to: from
                 })
 
                 await Chat.create({
-                    de: TwilioNumber,
+                    de: To,
                     para: fixed,
                     mensagem: msg,
                     horario: moment().format('YYYY-MM-DD HH:mm'),
@@ -1061,6 +1061,13 @@ module.exports = {
 
                 return res.json(msg)
             }
+
+            await PropostaEntrevista.updateMany({
+                whatsapp: fixed,
+                status: { $ne: 'Cancelado', $ne: 'Concluído' },
+            }, {
+                wppSender: To
+            })
 
             const find = await PropostaEntrevista.findOne({
                 whatsapp: fixed,
@@ -1072,13 +1079,13 @@ module.exports = {
                 //mandar mensagem para atendimento humanizado
                 const msg = "Seu número não consta em nossa base de contatos"
                 const messageTwilio = await client.messages.create({
-                    from: TwilioNumber,
+                    from: To,
                     body: msg,
                     to: from
                 })
 
                 await Chat.create({
-                    de: TwilioNumber,
+                    de: To,
                     para: fixed,
                     mensagem: msg,
                     horario: moment().format('YYYY-MM-DD HH:mm'),
