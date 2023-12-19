@@ -514,7 +514,93 @@ module.exports = {
     newWebHook: async (req, res) => {
         try {
 
-            
+            const { Body, From, To, ProfileName } = req.body
+
+            let find = await PropostaEntrevista.findOne({
+                whatsapp: From,
+                status: { $ne: 'Cancelado', $ne: 'Concluído' }
+            });
+
+            //Verifique se a mensagem digitada é um cpf
+
+            if (Body.length === 11 && !isNaN(Number(Body)) && !find) {
+                find = await PropostaEntrevista.findOneAndUpdate({
+                    cpfTitular: Body,
+                    status: { $ne: 'Cancelado', $ne: 'Concluído' }
+                }, {
+                    whatsapp: From,
+                    wppSender: To,
+                    statusWhatsapp: 'Cpf digitado',
+                });
+
+                if (!find) {
+                    const msg = 'Olá, seu CPF não consta em nossa base de contatos, por favor verifique se o mesmo foi digitado corretamente e tente novamente.'
+                    const messageTwilio = await client.messages.create({
+                        from: TwilioNumber,
+                        body: msg,
+                        to: From
+                    })
+
+                    await Chat.create({
+                        de: To,
+                        para: From,
+                        mensagem: msg,
+                        horario: moment().format('YYYY-MM-DD HH:mm'),
+                        status: messageTwilio.status,
+                        sid: messageTwilio.sid
+                    })
+
+                    return res.json(msg)
+                }
+            }
+
+            if (!find) {
+
+                const msg = 'Olá, por favor nos informe seu CPF (Somente números) para que possamos verificar se você possui uma proposta em aberto.'
+
+                const messageTwilio = await client.messages.create({
+                    from: TwilioNumber,
+                    body: msg,
+                    to: From
+                })
+
+                await Chat.create({
+                    de: To,
+                    para: From,
+                    mensagem: msg,
+                    horario: moment().format('YYYY-MM-DD HH:mm'),
+                    status: messageTwilio.status,
+                    sid: messageTwilio.sid
+                })
+
+                return res.json(msg)
+            }
+
+            if (!isNaN(Number(Body)) && find.statusWhatsapp === 'Cpf digitado') {
+
+                const msg = 'Olá, por gentileza escolha o dia em que o Sr (a) deseja realizar a entrevista.\nDigite somente o número referente ao dia escolhido. \n\n1 - Hoje \n2 - Amanhã \n3 - Depois de amanhã'
+
+                const messageTwilio = await client.messages.create({
+                    from: To,
+                    body: msg,
+                    to: From
+                })
+
+                await Chat.create({
+                    de: To,
+                    para: From,
+                    mensagem: msg,
+                    horario: moment().format('YYYY-MM-DD HH:mm'),
+                    status: messageTwilio.status,
+                    sid: messageTwilio.sid
+                })
+
+                const update = await PropostaEntrevista.findByIdAndUpdate({
+                    _id: find._id
+                }, {
+                    statusWhatsapp: 'Dia enviado'
+                })
+            }
 
         } catch (error) {
             console.log(error);

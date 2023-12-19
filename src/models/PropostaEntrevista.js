@@ -90,6 +90,11 @@ const propostaScheema = new mongoose.Schema({
     wppSender: String,
     whatsappsAnteriores: [],
     canal: String,
+    statusWhatsapp: String,
+    diasEnviados: [''],
+    diaEscolhido: String,
+    horariosEnviados: [''],
+    horarioEscolhido: String
 }, {
     timestamps: true
 })
