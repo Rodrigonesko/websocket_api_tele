@@ -1,21 +1,12 @@
 const express = require('express')
 const router = express.Router()
 
-const publicController = require('../controllers/publicController')
-const userController = require('../controllers/UserController')
 const propostaController = require('../controllers/propostaController')
 const comentarioController = require('../controllers/comentariosController')
 const auth = require('../middlewares/auth')
 const verifyToken = require('../middlewares/verifyToken')
 
-
 router.get('/verifyToken', auth, verifyToken.verify)
-
-router.get('/', publicController.index)
-router.post('/login', publicController.login)
-router.post('/logout', publicController.logout)
-
-router.get('/user', auth, userController.index)
 
 router.post('/upload', auth, propostaController.upload)
 router.get('/show', propostaController.show)

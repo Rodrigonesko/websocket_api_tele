@@ -23,7 +23,12 @@ app.use(cors({ credentials: true, origin: true }));
 
 //Mongo 
 const mongoose = require('mongoose')
-mongoose.connect(process.env.MONGODB_URL)
+mongoose.connect(process.env.MONGODB_URL, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  authSource: 'admin',
+  authMechanism: 'SCRAM-SHA-256',
+})
 
 module.exports = {
   io
