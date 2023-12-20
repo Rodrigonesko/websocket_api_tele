@@ -580,6 +580,11 @@ module.exports = {
                 return res.json(msg)
             }
 
+            find = await PropostaEntrevista.findOne({
+                cpf: Number(Body),
+                status: { $ne: 'Cancelado', $ne: 'Concluído' }
+            });
+
             if (!isNaN(Number(Body)) && find.statusWhatsapp === 'Cpf digitado') {
 
                 const diasDisponiveis = await buscarDiasDisponiveis()
