@@ -517,6 +517,8 @@ module.exports = {
 
             let { Body, From, To, ProfileName } = req.body
 
+            console.log(Body);
+
             await Chat.create({
                 de: From,
                 para: To,
@@ -600,7 +602,7 @@ module.exports = {
                 return res.json(msg)
             }
 
-            if ((Body.length === 11 || Body.length === 10) && !isNaN(Number(Body)) && !find) {
+            if ((Body.length === 11) && !isNaN(Number(Body)) && !find) {
 
                 console.log(Body);
 
@@ -661,7 +663,7 @@ module.exports = {
                 return res.json(msg)
             }
 
-            if (!isNaN(Number(Body)) && find.statusWhatsapp === 'Cpf digitado') {
+            if (!isNaN(Number(Body)) && (find.statusWhatsapp === 'Cpf digitado' || !find.statusWhatsapp) ) {
 
                 const diasDisponiveis = await buscarDiasDisponiveis()
 
@@ -947,6 +949,8 @@ module.exports = {
                     return res.json({ msg: 'ok' })
                 }
             }
+
+            return res.json({ msg: 'ok' })
 
         } catch (error) {
             console.log(error);
