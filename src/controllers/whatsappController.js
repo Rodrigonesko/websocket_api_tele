@@ -525,8 +525,11 @@ module.exports = {
             //Verifique se a mensagem digitada é um cpf
 
             if (Body.length === 11 && !isNaN(Number(Body)) && !find) {
+
+                console.log(Body);
+
                 find = await PropostaEntrevista.findOneAndUpdate({
-                    cpfTitular: Body,
+                    cpfTitular: Number(Body),
                     status: { $ne: 'Cancelado', $ne: 'Concluído' }
                 }, {
                     whatsapp: From,
