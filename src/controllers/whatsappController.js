@@ -537,7 +537,7 @@ module.exports = {
                 if (!find) {
                     const msg = 'Olá, seu CPF não consta em nossa base de contatos, por favor verifique se o mesmo foi digitado corretamente e tente novamente.'
                     const messageTwilio = await client.messages.create({
-                        from: TwilioNumber,
+                        from: To,
                         body: msg,
                         to: From
                     })
@@ -560,7 +560,7 @@ module.exports = {
                 const msg = 'Olá, por favor nos informe seu CPF (Somente números) para que possamos verificar se você possui uma proposta em aberto.'
 
                 const messageTwilio = await client.messages.create({
-                    from: TwilioNumber,
+                    from: To,
                     body: msg,
                     to: From
                 })
