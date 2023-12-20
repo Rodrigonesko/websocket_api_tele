@@ -517,17 +517,21 @@ module.exports = {
 
             let { Body, From, To, ProfileName } = req.body
 
-            let find = await PropostaEntrevista.findOne({
-                whatsapp: From,
-                status: { $ne: 'Cancelado', $ne: 'Concluído' }
-            });
-
             if (From.length === 22) {
                 let primeiraParte = From.slice(0, 14)
                 let segundaParte = From.slice(14)
 
                 From = `${primeiraParte}9${segundaParte}`
             }
+
+            let find = await PropostaEntrevista.findOne({
+                whatsapp: From,
+                status: { $ne: 'Cancelado', $ne: 'Concluído' }
+            });
+
+            console.log(From);
+
+
 
             //Verifique se a mensagem digitada é um cpf
 
