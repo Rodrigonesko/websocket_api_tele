@@ -1,5 +1,6 @@
 const moment = require('moment');
 require('moment-business-days');
+const Horario = require('../models/Horario');
 
 function ExcelDateToJSDate(serial) {
     var utc_days = Math.floor(serial - 25569);
@@ -128,10 +129,75 @@ function calcularDiasUteis(dataInicio, dataFim, feriados) {
     return diasUteis - 1;
 }
 
+async function buscarDiasDisponiveis() {
+    let hoje = new Date();
+    let dd = String(hoje.getDate()).padStart(2, '0');
+    let mm = String(hoje.getMonth() + 1).padStart(2, '0'); // Janeiro é 0!
+    let yyyy = hoje.getFullYear();
+
+    hoje = yyyy + '-' + mm + '-' + dd;
+
+    const horarios = await Horario.find({
+        dia: { $gt: hoje }, // $gte significa "maior ou igual a"
+        agendado: { $ne: 'Agendado' }
+    });
+
+    let diasDisponiveis = horarios.map(horario => horario.dia);
+
+    diasDisponiveis = [...new Set(diasDisponiveis)];
+
+    return diasDisponiveis;
+}
+
+async function buscarHorariosDisponiveis(dia) {
+    const horarios = await Horario.find({
+        dia,
+        agendado: { $ne: 'Agendado' }
+    });
+
+    let horariosDisponiveis = horarios.map(horario => horario.horario);
+
+    horariosDisponiveis = [...new Set(horariosDisponiveis)];
+
+    return horariosDisponiveis.sort();
+}
+
+async function enfermeiraComMenosAgendamentos(horario, dia) {
+
+    let enfermeiroComAAgendaMaisLivre = null;
+    let maxAgendamentos = 0;
+
+    let horarios = await Horario.find({
+        dia,
+        horario,
+        agendado: { $ne: 'Agendado' }
+    }).lean()
+
+    const enfermeiros = horarios.map(horario => horario.enfermeiro)
+
+    for (const enfermeiro of enfermeiros) {
+        const agendamentos = await Horario.find({
+            enfermeiro,
+            dia,
+            agendado: { $ne: 'Agendado' }
+        }).lean()
+        
+        if (agendamentos.length > maxAgendamentos) {
+            maxAgendamentos = agendamentos.length;
+            enfermeiroComAAgendaMaisLivre = enfermeiro;
+        }
+    }
+    return enfermeiroComAAgendaMaisLivre;
+
+}
+
 module.exports = {
     ExcelDateToJSDate,
     calcularIdade,
     modeloMensagem1,
     modeloMensagem2,
-    calcularDiasUteis
+    calcularDiasUteis,
+    buscarDiasDisponiveis,
+    buscarHorariosDisponiveis,
+    enfermeiraComMenosAgendamentos
 }
