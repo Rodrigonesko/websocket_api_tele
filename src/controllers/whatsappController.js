@@ -600,7 +600,7 @@ module.exports = {
                 return res.json(msg)
             }
 
-            if (Body.length === 11 && !isNaN(Number(Body)) && !find) {
+            if ((Body.length === 11 || Body.length === 10) && !isNaN(Number(Body)) && !find) {
 
                 console.log(Body);
 
@@ -947,7 +947,7 @@ module.exports = {
                     return res.json({ msg: 'ok' })
                 }
             }
-            
+
         } catch (error) {
             console.log(error);
             return res.status(500).json({
