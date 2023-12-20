@@ -1213,7 +1213,7 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 13:00 às 15:00 ${find.opcaoDia1}`,
+                            janelaHorario: `Das 12:00 às 14:00 ${find.opcaoDia1}`,
                             situacao: 'Janela escolhida',
                             atendimentoHumanizado: false,
                             horarioRespondido: moment().format('YYYY-MM-DD HH:mm')
@@ -1224,7 +1224,7 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 15:00 às 17:00 ${find.opcaoDia1}`,
+                            janelaHorario: `Das 14:00 às 16:00 ${find.opcaoDia1}`,
                             situacao: 'Janela escolhida',
                             atendimentoHumanizado: false,
                             horarioRespondido: moment().format('YYYY-MM-DD HH:mm')
@@ -1235,7 +1235,7 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 17:00 às 19:00 ${find.opcaoDia1}`,
+                            janelaHorario: `Das 16:00 às 18:00 ${find.opcaoDia1}`,
                             situacao: 'Janela escolhida',
                             atendimentoHumanizado: false,
                             horarioRespondido: moment().format('YYYY-MM-DD HH:mm')
@@ -1246,7 +1246,7 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 09:00 às 11:00 ${find.opcaoDia2}`,
+                            janelaHorario: `Das 08:00 às 10:00 ${find.opcaoDia2}`,
                             situacao: 'Janela escolhida',
                             atendimentoHumanizado: false,
                             horarioRespondido: moment().format('YYYY-MM-DD HH:mm')
@@ -1257,7 +1257,7 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 11:00 às 13:00 ${find.opcaoDia2}`,
+                            janelaHorario: `Das 10:00 às 12:00 ${find.opcaoDia2}`,
                             situacao: 'Janela escolhida',
                             atendimentoHumanizado: false,
                             horarioRespondido: moment().format('YYYY-MM-DD HH:mm')
@@ -1268,7 +1268,7 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 13:00 às 15:00 ${find.opcaoDia2}`,
+                            janelaHorario: `Das 12:00 às 14:00 ${find.opcaoDia2}`,
                             situacao: 'Janela escolhida',
                             atendimentoHumanizado: false,
                             horarioRespondido: moment().format('YYYY-MM-DD HH:mm')
@@ -1279,7 +1279,7 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 15:00 às 17:00 ${find.opcaoDia2}`,
+                            janelaHorario: `Das 14:00 às 16:00 ${find.opcaoDia2}`,
                             situacao: 'Janela escolhida',
                             atendimentoHumanizado: false,
                             horarioRespondido: moment().format('YYYY-MM-DD HH:mm')
@@ -1290,7 +1290,7 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 17:00 às 19:00 ${find.opcaoDia2}`,
+                            janelaHorario: `Das 16:00 às 18:00 ${find.opcaoDia2}`,
                             situacao: 'Janela escolhida',
                             atendimentoHumanizado: false,
                             horarioRespondido: moment().format('YYYY-MM-DD HH:mm')
@@ -1316,7 +1316,7 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 09:00 às 11:00 ${find.opcaoDia1}`,
+                            janelaHorario: `Das 08:00 às 10:00 ${find.opcaoDia1}`,
                             situacao: 'Janela escolhida',
                             atendimentoHumanizado: false,
                             horarioRespondido: moment().format('YYYY-MM-DD HH:mm')
@@ -1327,7 +1327,7 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 11:00 às 13:00 ${find.opcaoDia1}`,
+                            janelaHorario: `Das 10:00 às 12:00 ${find.opcaoDia1}`,
                             situacao: 'Janela escolhida',
                             atendimentoHumanizado: false,
                             horarioRespondido: moment().format('YYYY-MM-DD HH:mm')
@@ -1338,7 +1338,7 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 13:00 às 15:00 ${find.opcaoDia1}`,
+                            janelaHorario: `Das 12:00 às 14:00 ${find.opcaoDia1}`,
                             situacao: 'Janela escolhida',
                             atendimentoHumanizado: false,
                             horarioRespondido: moment().format('YYYY-MM-DD HH:mm')
@@ -1349,7 +1349,7 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 15:00 às 17:00 ${find.opcaoDia1}`,
+                            janelaHorario: `Das 14:00 às 16:00 ${find.opcaoDia1}`,
                             situacao: 'Janela escolhida',
                             atendimentoHumanizado: false,
                             horarioRespondido: moment().format('YYYY-MM-DD HH:mm')
@@ -1360,7 +1360,7 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 17:00 às 19:00 ${find.opcaoDia1}`,
+                            janelaHorario: `Das 16:00 às 18:00${find.opcaoDia1}`,
                             situacao: 'Janela escolhida',
                             atendimentoHumanizado: false,
                             horarioRespondido: moment().format('YYYY-MM-DD HH:mm')
@@ -1371,7 +1371,7 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 09:00 às 11:00 ${find.opcaoDia2}`,
+                            janelaHorario: `Das 08:00 às 10:00 ${find.opcaoDia2}`,
                             situacao: 'Janela escolhida',
                             atendimentoHumanizado: false,
                             horarioRespondido: moment().format('YYYY-MM-DD HH:mm')
@@ -1382,7 +1382,7 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 11:00 às 13:00 ${find.opcaoDia2}`,
+                            janelaHorario: `Das 10:00 às 12:00 ${find.opcaoDia2}`,
                             situacao: 'Janela escolhida',
                             atendimentoHumanizado: false,
                             horarioRespondido: moment().format('YYYY-MM-DD HH:mm')
@@ -1393,7 +1393,7 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 13:00 às 15:00 ${find.opcaoDia2}`,
+                            janelaHorario: `Das 12:00 às 14:00 ${find.opcaoDia2}`,
                             situacao: 'Janela escolhida',
                             atendimentoHumanizado: false,
                             horarioRespondido: moment().format('YYYY-MM-DD HH:mm')
@@ -1404,7 +1404,7 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 15:00 às 17:00 ${find.opcaoDia2}`,
+                            janelaHorario: `Das 14:00 às 16:00 ${find.opcaoDia2}`,
                             situacao: 'Janela escolhida',
                             atendimentoHumanizado: false,
                             horarioRespondido: moment().format('YYYY-MM-DD HH:mm')
@@ -1415,7 +1415,7 @@ module.exports = {
                         await PropostaEntrevista.updateMany({
                             cpfTitular: find.cpfTitular
                         }, {
-                            janelaHorario: `Das 17:00 às 19:00 ${find.opcaoDia2}`,
+                            janelaHorario: `Das 16:00 às 18:00 ${find.opcaoDia2}`,
                             situacao: 'Janela escolhida',
                             atendimentoHumanizado: false,
                             horarioRespondido: moment().format('YYYY-MM-DD HH:mm')
