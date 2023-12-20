@@ -1997,7 +1997,7 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
                 whatsapp
             })
 
-            if (!dados.cpfTitular) {
+            if (!dados) {
                 return res.json({
                     msg: 'Não encontrado'
                 })
