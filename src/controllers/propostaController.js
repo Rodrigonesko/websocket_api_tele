@@ -1997,6 +1997,12 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
                 whatsapp
             })
 
+            if (!dados.cpfTitular) {
+                return res.json({
+                    msg: 'Não encontrado'
+                })
+            }
+
             const result = await PropostaEntrevista.updateMany({
                 cpfTitular: dados.cpfTitular
             }, {
