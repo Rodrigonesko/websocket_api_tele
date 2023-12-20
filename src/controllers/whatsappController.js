@@ -882,7 +882,7 @@ module.exports = {
 
                 if (Number(Body) === 1) {
 
-                    const msg = `Por favor, nos informe a quantidade de dependentes maiores de idade que deseja agendar.`
+                    const msg = `Agendamento, realizado com sucesso, agradecemos a confirmação do horário, a entrevista será realizada no dia ${moment(find.diaEscolhido).format('DD/MM/YYYY')} ${find.horarioEscolhido}, às ${find.horarioEscolhido}. Lembrando que caso tenha dependentes, a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação. Amil agradece.`
 
                     const messageTwilio = await client.messages.create({
                         from: To,
@@ -899,10 +899,21 @@ module.exports = {
                         sid: messageTwilio.sid
                     })
 
-                    const update = await PropostaEntrevista.findByIdAndUpdate({
-                        _id: find._id
+                    const update = await PropostaEntrevista.updateMany({
+                        cpfTitular: find.cpfTitular
                     }, {
-                        statusWhatsapp: 'Quantidade de dependentes',
+                        statusWhatsapp: 'Horario confirmado',
+                        atendimentoEncerrado: true,
+                        atendimentoHumanizado: false,
+                        agendado: 'agendado',
+                        situacao: 'Agendado',
+                        contato1: moment().format('YYYY-MM-DD HH:mm'),
+                        responsavelContato1: 'Bot Whatsapp',
+                        visualizado: true,
+                        enviadoTwilio: true,
+                        newStatus: 'Agendado',
+                        enfermeiro: enfermeira,
+                        quemAgendou: 'Bot Whatsapp',
                     })
 
                     return res.json({ msg: 'ok' })
@@ -936,9 +947,7 @@ module.exports = {
                     return res.json({ msg: 'ok' })
                 }
             }
-
-
-
+            
         } catch (error) {
             console.log(error);
             return res.status(500).json({
