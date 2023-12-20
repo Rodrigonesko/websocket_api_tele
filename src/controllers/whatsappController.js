@@ -515,12 +515,19 @@ module.exports = {
     newWebHook: async (req, res) => {
         try {
 
-            const { Body, From, To, ProfileName } = req.body
+            let { Body, From, To, ProfileName } = req.body
 
             let find = await PropostaEntrevista.findOne({
                 whatsapp: From,
                 status: { $ne: 'Cancelado', $ne: 'Concluído' }
             });
+
+            if (From.length === 22) {
+                let primeiraParte = From.slice(0, 14)
+                let segundaParte = From.slice(14)
+
+                From = `${primeiraParte}9${segundaParte}`
+            }
 
             //Verifique se a mensagem digitada é um cpf
 
@@ -589,8 +596,7 @@ module.exports = {
 
                 const diasDisponiveis = await buscarDiasDisponiveis()
 
-                const msg = `Olá, por gentileza escolha o dia em que o Sr (a) deseja realizar a entrevista.\nDigite somente o número referente ao dia escolhido.
-                    ${diasDisponiveis.map((dia, index) => {
+                const msg = `Olá, por gentileza escolha o dia em que o Sr (a) deseja realizar a entrevista.\nDigite somente o número referente ao dia escolhido.\n${diasDisponiveis.map((dia, index) => {
                     return `${index + 1}. ${moment(dia).format('DD/MM/YYYY')}`
                 }).join('\n')}`
 
