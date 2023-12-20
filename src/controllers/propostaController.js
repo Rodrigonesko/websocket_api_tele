@@ -1832,7 +1832,7 @@ module.exports = {
 
             if (verificarStatusMensagem.status === 'failed' || verificarStatusMensagem.status === 'undelivered') {
                 return res.status(403).json({
-                    msg: verificarStatusMensagem.status
+                    msg: verificarStatusMensagem.errorCode
                 })
             }
 
@@ -1842,7 +1842,8 @@ module.exports = {
                 mensagem,
                 horario: moment().format('YYYY-MM-DD HH:mm'),
                 status: verificarStatusMensagem.status,
-                sid: verificarStatusMensagem.sid
+                sid: verificarStatusMensagem.sid,
+                errorCode: verificarStatusMensagem.errorCode
             })
 
             return res.json({ msg: 'ok' })
@@ -1911,7 +1912,8 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
                     horario: moment().format('YYYY-MM-DD HH:mm'),
                     mensagem: msg,
                     status: messageTwilio.status,
-                    sid: messageTwilio.sid
+                    sid: messageTwilio.sid,
+                    errorCode: messageTwilio.errorCode
                 })
 
                 return res.json(msg)
@@ -1929,7 +1931,8 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
                 horario: moment().format('YYYY-MM-DD HH:mm'),
                 mensagem: msg,
                 status: messageTwilio.status,
-                sid: messageTwilio.sid
+                sid: messageTwilio.sid,
+                errorCode: messageTwilio.errorCode
             })
             return res.json('Agendado')
 
@@ -2045,7 +2048,8 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
                 horario: moment().format('YYYY-MM-DD HH:mm:ss'),
                 mensagem: msg,
                 status: messageTwilio.status,
-                sid: messageTwilio.sid
+                sid: messageTwilio.sid,
+                errorCode: messageTwilio.errorCode
             })
 
             return res.json(msg)
@@ -2092,7 +2096,8 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
                     mensagem,
                     horario: moment().format('YYYY-MM-DD HH:mm:ss'),
                     status: messageTwilio.status,
-                    sid: messageTwilio.sid
+                    sid: messageTwilio.sid,
+                    errorCode: messageTwilio.errorCode
                 })
 
                 const { cpfTitular } = await PropostaEntrevista.findOne({
@@ -2478,14 +2483,13 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
     hookStatusMessage: async (req, res) => {
         try {
 
-            const { SmsSid, SmsStatus, To, From } = req.body
-
-            console.log(req.body);
+            const { SmsSid, SmsStatus, To, From, ErrorCode } = req.body
 
             const update = await Chat.updateOne({
                 sid: SmsSid
             }, {
-                status: SmsStatus
+                status: SmsStatus,
+                errorCode: ErrorCode || undefined
             })
 
             if (update.nModified === 0) {

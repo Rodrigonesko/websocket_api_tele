@@ -8,6 +8,7 @@ const chatScheema = new mongoose.Schema({
     lida: Boolean,
     status: String,
     sid: String,
+    errorCode: String,
 })
 
 module.exports = mongoose.model('Chat', chatScheema)

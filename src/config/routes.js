@@ -5,6 +5,7 @@ const propostaController = require('../controllers/propostaController')
 const comentarioController = require('../controllers/comentariosController')
 const auth = require('../middlewares/auth')
 const verifyToken = require('../middlewares/verifyToken')
+const whatsappController = require('../controllers/whatsappController')
 
 router.get('/verifyToken', auth, verifyToken.verify)
 
@@ -78,5 +79,6 @@ router.post('/hookStatusMessage', propostaController.hookStatusMessage)
 router.post('/comentario', auth, comentarioController.create)
 router.get('/comentario/:cpf', auth, comentarioController.getComentarioPorCpf)
 router.delete('/comentario/:id', auth, comentarioController.delete)
+router.get('/teste2', whatsappController.teste)
 
 module.exports = router

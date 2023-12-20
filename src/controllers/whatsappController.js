@@ -608,5 +608,26 @@ module.exports = {
                 msg: 'Internal Server Error'
             })
         }
+    },
+
+    teste: async (req, res) => {
+        try {
+
+            const sid = 'SM9f72582c95e591118c83e4d6c6872f06'
+
+            const result = await client.messages(sid).fetch()
+
+            console.log(result);
+
+            //console.log(Body, From, To, ProfileName);
+
+            return res.json({ msg: 'ok' })
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
     }
 }
