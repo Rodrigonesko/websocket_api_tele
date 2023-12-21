@@ -819,7 +819,7 @@ module.exports = {
                     return res.json({ msg: 'ok' })
                 }
 
-                const horarioDisponivel = await verificarHorarioDisponivel(horarioEscolhido, find.diaEscolhido)
+                const horarioDisponivel = await verificarHorarioDisponivel(find.diaEscolhido, horarioEscolhido)
 
                 if (!horarioDisponivel) {
                     const msg = `Olá, o horário escolhido não está mais disponível, por favor escolha outro horário.`
@@ -840,7 +840,7 @@ module.exports = {
 
                     return res.json({ msg: 'ok' })
                 }
-            
+
                 const msg = `Olá, por gentileza confirme o dia e horário escolhido para a entrevista.\n${moment(find.diaEscolhido).format('DD/MM/YYYY')} ${horarioEscolhido}\nDigite 1 para confirmar ou 2 para escolher outro horário.`
 
                 const messageTwilio = await client.messages.create({
