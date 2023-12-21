@@ -517,7 +517,12 @@ module.exports = {
 
             let { Body, From, To, ProfileName } = req.body
 
-            console.log(Body);
+            if (From.length === 22) {
+                let primeiraParte = From.slice(0, 14)
+                let segundaParte = From.slice(14)
+
+                From = `${primeiraParte}9${segundaParte}`
+            }
 
             await Chat.create({
                 de: From,
@@ -526,19 +531,14 @@ module.exports = {
                 horario: moment().format('YYYY-MM-DD HH:mm'),
             })
 
-            if (From.length === 22) {
-                let primeiraParte = From.slice(0, 14)
-                let segundaParte = From.slice(14)
-
-                From = `${primeiraParte}9${segundaParte}`
-            }
-
             let find = await PropostaEntrevista.findOne({
                 whatsapp: From,
                 status: { $ne: 'Cancelado', $ne: 'Concluído' }
             });
 
-            if (find?.statusWhatsapp === 'Horaraio confirmado') {
+            console.log(find);
+
+            if (find?.statusWhatsapp === 'Horario confirmado') {
                 const msg = "O Horario já foi confirmado, caso queira reagendar, por favor entre em contato com a central de atendimento."
                 const messageTwilio = await client.messages.create({
                     from: To,
@@ -560,13 +560,13 @@ module.exports = {
 
             //Verifique se a mensagem digitada é um cpf
 
-            if (isNaN(Number(Body)) && find.atendimentoHumanizado) {
+            if (isNaN(Number(Body)) && find?.atendimentoHumanizado) {
 
                 return res.json(Body)
 
             }
 
-            if ((!isNaN(Number(Body)) && (find.statusWhatsapp === 'Cpf digitado' || !find.statusWhatsapp)) || find.statusWhatsapp === 'Saudacao enviada') {
+            if ((!isNaN(Number(Body)) && (find?.statusWhatsapp === 'Cpf digitado')) || find?.statusWhatsapp === 'Saudacao enviada') {
 
                 const diasDisponiveis = await buscarDiasDisponiveis()
 
@@ -597,7 +597,7 @@ module.exports = {
                 })
             }
 
-            if ((isNaN(Number(Body)) && !find.atendimentoHumanizado && !find.perguntaAtendimentoHumanizado && !!find) && (Body !== 'Ok' && find.statusWhatsapp !== 'Saudacao enviada')) {
+            if ((isNaN(Number(Body)) && !find?.atendimentoHumanizado && !find?.perguntaAtendimentoHumanizado && !!find) && (Body !== 'Ok' && find?.statusWhatsapp !== 'Saudacao enviada')) {
 
                 const msg = 'Olá, infelizmente ainda não entendemos sua mensagem, por favor siga as instruções informadas acima.'
 
@@ -625,7 +625,7 @@ module.exports = {
                 return res.json(msg)
             }
 
-            if (isNaN(Number(Body)) && !find.atendimentoHumanizado && find.perguntaAtendimentoHumanizado && !!find) {
+            if (isNaN(Number(Body)) && !find?.atendimentoHumanizado && find?.perguntaAtendimentoHumanizado && !!find) {
 
                 const msg = 'Olá, infelizmente ainda não entendemos sua mensagem, um analista irá entrar em contato para realizar o agendamento.'
 
@@ -804,9 +804,10 @@ module.exports = {
                             newStatus: 'Agendado',
                             enfermeiro: enfermeira,
                             quemAgendou: 'Bot Whatsapp',
+                            dataEntrevista: `${moment(find.diaEscolhido).format('YYYY-MM-DD')} ${find.horarioEscolhido}`,
                         })
 
-                        const msg = `Olá, agradecemos a confirmação do horário, a entrevista será realizada no dia ${moment(find.diaEscolhido).format('DD/MM/YYYY')} ${find.horarioEscolhido}, às ${find.horarioEscolhido}. Lembrando que caso tenha dependentes, a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação. Gostaria de agendar os dependentes maiores de idade no mesmo horario?\n1 - sim\n2 - não.`
+                        const msg = `Olá, agradecemos a confirmação do horário, a entrevista será realizada no dia ${moment(find.diaEscolhido).format('DD/MM/YYYY')}, às ${find.horarioEscolhido}. Lembrando que caso tenha dependentes, a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação. Gostaria de agendar os dependentes maiores de idade no mesmo horario?\n1 - sim\n2 - não.`
 
                         const messageTwilio = await client.messages.create({
                             from: To,
@@ -841,6 +842,7 @@ module.exports = {
                             newStatus: 'Agendado',
                             enfermeiro: enfermeira,
                             quemAgendou: 'Bot Whatsapp',
+                            dataEntrevista: `${moment(find.diaEscolhido).format('YYYY-MM-DD')} ${find.horarioEscolhido}`,
                         })
 
                         const msg = `Olá, agradecemos a confirmação do horário, a entrevista será realizada no dia ${moment(find.diaEscolhido).format('DD/MM/YYYY')} ${find.horarioEscolhido}, às ${find.horarioEscolhido}. Lembrando que caso tenha dependentes, a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação.`
@@ -904,7 +906,7 @@ module.exports = {
 
                 if (Number(Body) === 1) {
 
-                    const msg = `Agendamento, realizado com sucesso, agradecemos a confirmação do horário, a entrevista será realizada no dia ${moment(find.diaEscolhido).format('DD/MM/YYYY')} ${find.horarioEscolhido}, às ${find.horarioEscolhido}. Lembrando que caso tenha dependentes, a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação. Amil agradece.`
+                    const msg = `Agendamento, realizado com sucesso, agradecemos a confirmação do horário, a entrevista será realizada no dia ${moment(find.diaEscolhido).format('DD/MM/YYYY')}, às ${find.horarioEscolhido}. Lembrando que caso tenha dependentes, a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação. Amil agradece.`
 
                     const messageTwilio = await client.messages.create({
                         from: To,
@@ -921,6 +923,8 @@ module.exports = {
                         sid: messageTwilio.sid
                     })
 
+                    console.log(find.cpfTitular);
+
                     const update = await PropostaEntrevista.updateMany({
                         cpfTitular: find.cpfTitular
                     }, {
@@ -934,8 +938,9 @@ module.exports = {
                         visualizado: true,
                         enviadoTwilio: true,
                         newStatus: 'Agendado',
-                        enfermeiro: enfermeira,
+                        enfermeiro: find.enfermeiro,
                         quemAgendou: 'Bot Whatsapp',
+                        dataEntrevista: `${moment(find.diaEscolhido).format('YYYY-MM-DD')} ${find.horarioEscolhido}`,
                     })
 
                     return res.json({ msg: 'ok' })
