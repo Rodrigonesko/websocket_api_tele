@@ -181,14 +181,23 @@ async function enfermeiraComMenosAgendamentos(horario, dia) {
             dia,
             agendado: { $ne: 'Agendado' }
         }).lean()
-        
+
         if (agendamentos.length > maxAgendamentos) {
             maxAgendamentos = agendamentos.length;
             enfermeiroComAAgendaMaisLivre = enfermeiro;
         }
     }
     return enfermeiroComAAgendaMaisLivre;
+}
 
+async function verificarHorarioDisponivel(dia, horario) {
+    const horarios = await Horario.find({
+        dia,
+        horario,
+        agendado: { $ne: 'Agendado' }
+    });
+
+    return horarios.length > 0;
 }
 
 module.exports = {
@@ -199,5 +208,6 @@ module.exports = {
     calcularDiasUteis,
     buscarDiasDisponiveis,
     buscarHorariosDisponiveis,
-    enfermeiraComMenosAgendamentos
+    enfermeiraComMenosAgendamentos,
+    verificarHorarioDisponivel
 }
