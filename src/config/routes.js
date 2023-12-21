@@ -81,5 +81,6 @@ router.get('/comentario/:cpf', auth, comentarioController.getComentarioPorCpf)
 router.delete('/comentario/:id', auth, comentarioController.delete)
 router.get('/teste2', whatsappController.teste)
 router.post('/newWebHook', whatsappController.newWebHook)
+router.post('/sendMessageSaudacao', whatsappController.sendMessageSaudacao)
 
 module.exports = router

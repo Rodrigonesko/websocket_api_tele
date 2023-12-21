@@ -538,6 +538,26 @@ module.exports = {
                 status: { $ne: 'Cancelado', $ne: 'Concluído' }
             });
 
+            if (find?.statusWhatsapp === 'Horaraio confirmado') {
+                const msg = "O Horario já foi confirmado, caso queira reagendar, por favor entre em contato com a central de atendimento."
+                const messageTwilio = await client.messages.create({
+                    from: To,
+                    body: msg,
+                    to: From
+                })
+
+                await Chat.create({
+                    de: To,
+                    para: From,
+                    mensagem: msg,
+                    horario: moment().format('YYYY-MM-DD HH:mm'),
+                    status: messageTwilio.status,
+                    sid: messageTwilio.sid
+                })
+
+                return res.json(msg)
+            }
+
             //Verifique se a mensagem digitada é um cpf
 
             if (isNaN(Number(Body)) && find.atendimentoHumanizado) {
@@ -663,7 +683,7 @@ module.exports = {
                 return res.json(msg)
             }
 
-            if (!isNaN(Number(Body)) && (find.statusWhatsapp === 'Cpf digitado' || !find.statusWhatsapp) ) {
+            if ((!isNaN(Number(Body)) && (find.statusWhatsapp === 'Cpf digitado' || !find.statusWhatsapp)) || find.statusWhatsapp === 'Saudacao enviada') {
 
                 const diasDisponiveis = await buscarDiasDisponiveis()
 
@@ -958,6 +978,52 @@ module.exports = {
                 msg: 'Internal Server Error'
             })
         }
+    },
+
+    sendMessageSaudacao: async (req, res) => {
+
+        try {
+
+            const { _id } = req.body
+
+            const proposta = await PropostaEntrevista.findOne({
+                _id
+            })
+
+            const msg = `Prezado Sr. (a) ${proposta.nome},
+Somos da Área de Implantação da Amil e para concluirmos a contratação do Plano de Saúde do Sr.(a), e dos seus dependentes (caso tenha) precisamos confirmar alguns dados médicos.
+Por gentileza, poderia responder essa mensagem para podermos seguir com o atendimento?`
+
+            const messageTwilio = await client.messages.create({
+                from: 'whatsapp:+15752234727',
+                body: msg,
+                to: `whatsapp:${proposta.whatsapp}`
+            })
+
+            await Chat.create({
+                de: '+15752234727',
+                para: proposta.whatsapp,
+                mensagem: msg,
+                horario: moment().format('YYYY-MM-DD HH:mm'),
+                status: messageTwilio.status,
+                sid: messageTwilio.sid
+            })
+
+            const update = await PropostaEntrevista.findByIdAndUpdate({
+                _id
+            }, {
+                statusWhatsapp: 'Saudacao enviada',
+            })
+
+            return res.json({ msg: 'ok' })
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+
     },
 
     teste: async (req, res) => {
