@@ -566,7 +566,38 @@ module.exports = {
 
             }
 
-            if (isNaN(Number(Body)) && !find.atendimentoHumanizado && !find.perguntaAtendimentoHumanizado && !!find) {
+            if ((!isNaN(Number(Body)) && (find.statusWhatsapp === 'Cpf digitado' || !find.statusWhatsapp)) || find.statusWhatsapp === 'Saudacao enviada') {
+
+                const diasDisponiveis = await buscarDiasDisponiveis()
+
+                const msg = `Olá, por gentileza escolha o dia em que o Sr (a) deseja realizar a entrevista.\nDigite somente o número referente ao dia escolhido.\n${diasDisponiveis.map((dia, index) => {
+                    return `${index + 1}. ${moment(dia).format('DD/MM/YYYY')}`
+                }).join('\n')}`
+
+                const messageTwilio = await client.messages.create({
+                    from: To,
+                    body: msg,
+                    to: From
+                })
+
+                await Chat.create({
+                    de: To,
+                    para: From,
+                    mensagem: msg,
+                    horario: moment().format('YYYY-MM-DD HH:mm'),
+                    status: messageTwilio.status,
+                    sid: messageTwilio.sid
+                })
+
+                const update = await PropostaEntrevista.findByIdAndUpdate({
+                    _id: find._id
+                }, {
+                    statusWhatsapp: 'Dia enviado',
+                    diasEnviados: diasDisponiveis,
+                })
+            }
+
+            if ((isNaN(Number(Body)) && !find.atendimentoHumanizado && !find.perguntaAtendimentoHumanizado && !!find) && (Body !== 'Ok' && find.statusWhatsapp !== 'Saudacao enviada')) {
 
                 const msg = 'Olá, infelizmente ainda não entendemos sua mensagem, por favor siga as instruções informadas acima.'
 
@@ -681,37 +712,6 @@ module.exports = {
                 })
 
                 return res.json(msg)
-            }
-
-            if ((!isNaN(Number(Body)) && (find.statusWhatsapp === 'Cpf digitado' || !find.statusWhatsapp)) || find.statusWhatsapp === 'Saudacao enviada') {
-
-                const diasDisponiveis = await buscarDiasDisponiveis()
-
-                const msg = `Olá, por gentileza escolha o dia em que o Sr (a) deseja realizar a entrevista.\nDigite somente o número referente ao dia escolhido.\n${diasDisponiveis.map((dia, index) => {
-                    return `${index + 1}. ${moment(dia).format('DD/MM/YYYY')}`
-                }).join('\n')}`
-
-                const messageTwilio = await client.messages.create({
-                    from: To,
-                    body: msg,
-                    to: From
-                })
-
-                await Chat.create({
-                    de: To,
-                    para: From,
-                    mensagem: msg,
-                    horario: moment().format('YYYY-MM-DD HH:mm'),
-                    status: messageTwilio.status,
-                    sid: messageTwilio.sid
-                })
-
-                const update = await PropostaEntrevista.findByIdAndUpdate({
-                    _id: find._id
-                }, {
-                    statusWhatsapp: 'Dia enviado',
-                    diasEnviados: diasDisponiveis,
-                })
             }
 
             if (find.statusWhatsapp === 'Dia enviado' && !isNaN(Number(Body))) {
@@ -997,11 +997,11 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
             const messageTwilio = await client.messages.create({
                 from: 'whatsapp:+15752234727',
                 body: msg,
-                to: `whatsapp:${proposta.whatsapp}`
+                to: proposta.whatsapp
             })
 
             await Chat.create({
-                de: '+15752234727',
+                de: 'whatsapp:+15752234727',
                 para: proposta.whatsapp,
                 mensagem: msg,
                 horario: moment().format('YYYY-MM-DD HH:mm'),
