@@ -1118,7 +1118,7 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                         sid: messageTwilio.sid
                     })
 
-                    const link = `https://wa.me/${To.replace('whatsapp:', '')}?text=Olá, gostaria de agendar meu horário para a entrevista.`
+                    const link = `https://wa.me/${To.replace('whatsapp:', '')}?text=Olá,%20gostaria%20de%20agendar%20meu%20horário%20para%20a%20entrevista.`
 
                     const messageTwilio2 = await client.messages.create({
                         from: To,
