@@ -539,14 +539,45 @@ module.exports = {
             console.log(find);
 
 
-            //Verifica se esta no atendimenti humazizado
+            //Verifica se esta no atendimento humazizado
             if (isNaN(Number(Body)) && find?.atendimentoHumanizado) {
                 return res.json(Body)
             }
 
+            if (find) {
+                if (!find.statusWhatsapp) {
+                    await PropostaEntrevista.updateOne({
+                        _id: find._id
+                    }, {
+                        statusWhatsapp: 'Saudacao enviada'
+                    })
+
+                    const msg = `Prezado Sr. (a) ${find.nome},
+Somos da Área de Implantação da Amil e para concluirmos a contratação do Plano de Saúde do Sr.(a), e dos seus dependentes (caso tenha) precisamos confirmar alguns dados médicos.
+Por gentileza, poderia responder essa mensagem para podermos seguir com o atendimento?`
+
+                    const messageTwilio = await client.messages.create({
+                        from: To,
+                        body: msg,
+                        to: From
+                    })
+
+                    await Chat.create({
+                        de: To,
+                        para: From,
+                        mensagem: msg,
+                        horario: moment().format('YYYY-MM-DD HH:mm'),
+                        status: messageTwilio.status,
+                        sid: messageTwilio.sid
+                    })
+
+                    return res.json(msg)
+                }
+            }
+
             //Verifica se ja foi agendado
             if (find?.statusWhatsapp === 'Horario confirmado') {
-                const msg = "O Horario já foi confirmado, caso queira reagendar, por favor entre em contato com a central de atendimento."
+                const msg = "Seu horário já foi confirmado, caso precise reagendar, a central de atendimento irá entrar em contato."
                 const messageTwilio = await client.messages.create({
                     from: To,
                     body: msg,
@@ -560,6 +591,12 @@ module.exports = {
                     horario: moment().format('YYYY-MM-DD HH:mm'),
                     status: messageTwilio.status,
                     sid: messageTwilio.sid
+                })
+
+                const update = await PropostaEntrevista.updateOne({
+                    _id: find._id
+                }, {
+                    atendimentoHumanizado: true
                 })
 
                 return res.json(msg)
@@ -763,8 +800,7 @@ module.exports = {
 
                     return res.json({ msg: 'ok' })
                 }
-                const msg = `Olá, por gentileza escolha o horário em que o Sr (a) deseja realizar a entrevista.\nDigite somente o número referente ao horário escolhido.    
-                    ${horariosDisponiveis.map((horario, index) => {
+                const msg = `Olá, por gentileza escolha o horário em que o Sr (a) deseja realizar a entrevista.\nDigite somente o número referente ao horário escolhido.\n${horariosDisponiveis.map((horario, index) => {
                     return `${index + 1}. ${horario}`
                 }).join('\n')}`
 
@@ -896,7 +932,7 @@ module.exports = {
                             dataEntrevista: `${moment(find.diaEscolhido).format('YYYY-MM-DD')} ${find.horarioEscolhido}`,
                         })
 
-                        const msg = `Olá, agradecemos a confirmação do horário, a entrevista será realizada no dia ${moment(find.diaEscolhido).format('DD/MM/YYYY')}, às ${find.horarioEscolhido}. Lembrando que caso tenha dependentes, a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação. Gostaria de agendar os dependentes maiores de idade no mesmo horario?\n1 - sim\n2 - não.`
+                        const msg = `Agradecemos a confirmação do horário, a entrevista será realizada no dia ${moment(find.diaEscolhido).format('DD/MM/YYYY')}, às ${find.horarioEscolhido}.`  //Lembrando que caso tenha dependentes, a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação. Gostaria de agendar os dependentes maiores de idade no mesmo horario?\n1 - sim\n2 - não.`
 
                         const messageTwilio = await client.messages.create({
                             from: To,
@@ -913,6 +949,33 @@ module.exports = {
                             sid: messageTwilio.sid
                         })
 
+                        const dependentes = await PropostaEntrevista.find({
+                            cpfTitular: find.cpfTitular,
+                            tipoAssociado: 'Dependente',
+                            status: { $ne: 'Cancelado', $ne: 'Concluído' }
+                        })
+
+                        if (dependentes.length > 0) {
+
+                            const msg = `Foi detectado que o Sr (a) possui os seguintes depentendes:\n${dependentes.map(dependente => {
+                                return `${dependente.nome} - ${dependente.cpf}`
+                            }).join('\n')}\nGostaria de agendar os dependentes maiores de idade no mesmo horario?\n1 - sim\n2 - não.`
+
+                            const messageTwilio = await client.messages.create({
+                                from: To,
+                                body: msg,
+                                to: From
+                            })
+
+                            await Chat.create({
+                                de: To,
+                                para: From,
+                                mensagem: msg,
+                                horario: moment().format('YYYY-MM-DD HH:mm'),
+                                status: messageTwilio.status,
+                                sid: messageTwilio.sid
+                            })
+                        }
                         return res.json({ msg: 'ok' })
                     } else {
 
@@ -1038,7 +1101,7 @@ module.exports = {
 
                 if (Number(Body) === 2) {
 
-                    const msg = `Por favor, caso tenha dependentes maiores de idade, passe esse número para os dependentes, e os mesmos informem o cpf para que seja agendado a entrevista. Amil agradece.`
+                    const msg = `Por favor, caso tenha dependentes maiores de idade, passe esse link para os dependentes, para os mesmos agendarem seus horarios.`
 
                     const messageTwilio = await client.messages.create({
                         from: To,
@@ -1055,6 +1118,23 @@ module.exports = {
                         sid: messageTwilio.sid
                     })
 
+                    const link = `https://wa.me/${To.replace('whatsapp:', '')}?text=Olá, gostaria de agendar meu horário para a entrevista.`
+
+                    const messageTwilio2 = await client.messages.create({
+                        from: To,
+                        body: link,
+                        to: From
+                    })
+
+                    await Chat.create({
+                        de: To,
+                        para: From,
+                        mensagem: link,
+                        horario: moment().format('YYYY-MM-DD HH:mm'),
+                        status: messageTwilio2.status,
+                        sid: messageTwilio2.sid
+                    })
+
                     const update = await PropostaEntrevista.findByIdAndUpdate({
                         _id: find._id
                     }, {
@@ -1065,7 +1145,7 @@ module.exports = {
                 }
             }
 
-            return res.json({ msg: 'ok' })
+            return res.json({ msg: 'Nao entrou em nenhum if' })
 
         } catch (error) {
             console.log(error);
