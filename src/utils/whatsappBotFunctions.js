@@ -49,7 +49,7 @@ async function agendaComOStatusPerguntaDependentes(find, enfermeira) {
     const update = await PropostaEntrevista.updateOne({
         _id: find._id
     }, {
-        statusWhatsapp: 'Pergunta Dependentes',
+        statusWhatsapp: 'Pergunta dependentes',
         atendimentoEncerrado: true,
         atendimentoHumanizado: false,
         agendado: 'agendado',
