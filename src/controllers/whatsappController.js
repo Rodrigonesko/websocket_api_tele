@@ -1,22 +1,15 @@
 const PropostaEntrevista = require('../models/PropostaEntrevista');
 const Chat = require('../models/Chat');
-const Horario = require('../models/Horario');
 const moment = require('moment');
 require('moment-business-days')
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = require('twilio')(accountSid, authToken);
 const TwilioNumber = process.env.TWILIO_NUMBER
-const TwilioNumberPme = process.env.TWILIO_NUMBER_PME
-const TwilioNumberSP = process.env.TWILIO_NUMBER_SP
-const MessagingResponse = require('twilio').twiml.MessagingResponse;
-const VoiceResponse = require('twilio').twiml.VoiceResponse;
 const { modeloMensagem1, modeloMensagem2, buscarDiasDisponiveis, buscarHorariosDisponiveis, enfermeiraComMenosAgendamentos, verificarHorarioDisponivel } = require('../utils/functions')
-const { calcularIdade } = require('../utils/functions')
-const { ExcelDateToJSDate } = require('../utils/functions')
-const { calcularDiasUteis } = require('../utils/functions')
-
-const { io } = require('../../index')
+const { sendMessage, updatePropostaEntrevista, agendaEntrevistaPorCpfTitular, agendaEntrevistaPorId, encontrarPropostaPorWhatsapp } = require('../utils/whatsappBotFunctions')
+const { io } = require('../../index');
+const { mandarAtendimentoHumanizado } = require('./propostaController');
 
 module.exports = {
 
@@ -515,98 +508,44 @@ module.exports = {
     newWebHook: async (req, res) => {
         try {
 
-            let { Body, From, To, ProfileName } = req.body
+            let { Body, From, To } = req.body
 
             if (From.length === 22) {
                 let primeiraParte = From.slice(0, 14)
                 let segundaParte = From.slice(14)
-
                 From = `${primeiraParte}9${segundaParte}`
             }
-
             await Chat.create({
                 de: From,
                 para: To,
                 mensagem: Body,
                 horario: moment().format('YYYY-MM-DD HH:mm'),
             })
-
-            let find = await PropostaEntrevista.findOne({
-                whatsapp: From,
-                status: { $ne: 'Cancelado', $ne: 'Concluído' }
-            });
-
-            console.log(find);
-
+            let find = encontrarPropostaPorWhatsapp(From)
 
             //Verifica se esta no atendimento humazizado
             if (isNaN(Number(Body)) && find?.atendimentoHumanizado) {
                 return res.json(Body)
             }
-
             if (find) {
                 if (!find.statusWhatsapp) {
-                    await PropostaEntrevista.updateOne({
-                        _id: find._id
-                    }, {
-                        statusWhatsapp: 'Saudacao enviada'
-                    })
-
                     const msg = `Prezado Sr. (a) ${find.nome},
 Somos da Área de Implantação da Amil e para concluirmos a contratação do Plano de Saúde do Sr.(a), e dos seus dependentes (caso tenha) precisamos confirmar alguns dados médicos.
 Por gentileza, poderia responder essa mensagem para podermos seguir com o atendimento?`
-
-                    const messageTwilio = await client.messages.create({
-                        from: To,
-                        body: msg,
-                        to: From
-                    })
-
-                    await Chat.create({
-                        de: To,
-                        para: From,
-                        mensagem: msg,
-                        horario: moment().format('YYYY-MM-DD HH:mm'),
-                        status: messageTwilio.status,
-                        sid: messageTwilio.sid
-                    })
-
+                    await sendMessage(To, From, msg)
+                    await updatePropostaEntrevista(find, 'Saudacao enviada')
                     return res.json(msg)
                 }
             }
-
             //Verifica se ja foi agendado
             if (find?.statusWhatsapp === 'Horario confirmado') {
                 const msg = "Seu horário já foi confirmado, caso precise reagendar, a central de atendimento irá entrar em contato."
-                const messageTwilio = await client.messages.create({
-                    from: To,
-                    body: msg,
-                    to: From
-                })
-
-                await Chat.create({
-                    de: To,
-                    para: From,
-                    mensagem: msg,
-                    horario: moment().format('YYYY-MM-DD HH:mm'),
-                    status: messageTwilio.status,
-                    sid: messageTwilio.sid
-                })
-
-                const update = await PropostaEntrevista.updateOne({
-                    _id: find._id
-                }, {
-                    atendimentoHumanizado: true
-                })
-
+                await sendMessage(To, From, msg)
+                await mandarAtendimentoHumanizado(find)
                 return res.json(msg)
             }
-
             //Caso não o whatsapp não tenha sido encontrado no banco, verifica se o cpf foi digitado
             if ((Body.length === 11) && !isNaN(Number(Body)) && !find) {
-
-                console.log(Body);
-
                 find = await PropostaEntrevista.findOneAndUpdate({
                     cpfTitular: Number(Body),
                     status: { $ne: 'Cancelado', $ne: 'Concluído' }
@@ -615,57 +554,23 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                     wppSender: To,
                     statusWhatsapp: 'Cpf digitado',
                 });
-
                 find = await PropostaEntrevista.findOne({
                     cpf: Number(Body),
                     status: { $ne: 'Cancelado', $ne: 'Concluído' }
                 });
-
                 if (!find) {
                     const msg = 'Olá, seu CPF não consta em nossa base de contatos, por favor verifique se o mesmo foi digitado corretamente e tente novamente.'
-                    const messageTwilio = await client.messages.create({
-                        from: To,
-                        body: msg,
-                        to: From
-                    })
-
-                    await Chat.create({
-                        de: To,
-                        para: From,
-                        mensagem: msg,
-                        horario: moment().format('YYYY-MM-DD HH:mm'),
-                        status: messageTwilio.status,
-                        sid: messageTwilio.sid
-                    })
-
+                    await sendMessage(To, From, msg)
                     return res.json(msg)
                 }
             }
-
             //Caso o cpf tenha sido digitado e o whatsapp encontrado no banco, é enviado os dias disponiveis
             if ((!isNaN(Number(Body)) && (find?.statusWhatsapp === 'Cpf digitado')) || find?.statusWhatsapp === 'Saudacao enviada') {
-
                 const diasDisponiveis = await buscarDiasDisponiveis()
-
                 const msg = `Olá, por gentileza escolha o dia em que o Sr (a) deseja realizar a entrevista.\nDigite somente o número referente ao dia escolhido.\n${diasDisponiveis.map((dia, index) => {
                     return `${index + 1}. ${moment(dia).format('DD/MM/YYYY')}`
                 }).join('\n')}`
-
-                const messageTwilio = await client.messages.create({
-                    from: To,
-                    body: msg,
-                    to: From
-                })
-
-                await Chat.create({
-                    de: To,
-                    para: From,
-                    mensagem: msg,
-                    horario: moment().format('YYYY-MM-DD HH:mm'),
-                    status: messageTwilio.status,
-                    sid: messageTwilio.sid
-                })
-
+                await sendMessage(To, From, msg)
                 const update = await PropostaEntrevista.findByIdAndUpdate({
                     _id: find._id
                 }, {
@@ -673,152 +578,47 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                     diasEnviados: diasDisponiveis,
                 })
             }
-
             //Caso não seja digitado um numero e o whatsapp é encontrado no banco, é enviado a mensagem de atendimento humanizado
             if ((isNaN(Number(Body)) && !find?.atendimentoHumanizado && !find?.perguntaAtendimentoHumanizado && !!find) && (Body !== 'Ok' && find?.statusWhatsapp !== 'Saudacao enviada')) {
-
                 const msg = 'Olá, infelizmente ainda não entendemos sua mensagem, por favor siga as instruções informadas acima.'
-
-                const messageTwilio = await client.messages.create({
-                    from: To,
-                    body: msg,
-                    to: From
-                })
-
-                await Chat.create({
-                    de: To,
-                    para: From,
-                    mensagem: msg,
-                    horario: moment().format('YYYY-MM-DD HH:mm'),
-                    status: messageTwilio.status,
-                    sid: messageTwilio.sid
-                })
-
+                await sendMessage(To, From, msg)
                 await PropostaEntrevista.updateOne({
                     _id: find._id
                 }, {
                     perguntaAtendimentoHumanizado: true
                 })
-
                 return res.json(msg)
             }
-
             //Caso não seja digitado um numero e o whatsapp é encontrado no banco, é enviado para o atendimento humanizado
             if (isNaN(Number(Body)) && !find?.atendimentoHumanizado && find?.perguntaAtendimentoHumanizado && !!find) {
-
                 const msg = 'Olá, infelizmente ainda não entendemos sua mensagem, um analista irá entrar em contato para realizar o agendamento.'
-
-                const messageTwilio = await client.messages.create({
-                    from: To,
-                    body: msg,
-                    to: From
-                })
-
-                await Chat.create({
-                    de: To,
-                    para: From,
-                    mensagem: msg,
-                    horario: moment().format('YYYY-MM-DD HH:mm'),
-                    status: messageTwilio.status,
-                    sid: messageTwilio.sid
-                })
-
-                await PropostaEntrevista.updateOne({
-                    _id: find._id
-                }, {
-                    atendimentoHumanizado: true
-                })
-
+                await sendMessage(To, From, msg)
+                await mandarAtendimentoHumanizado(find)
                 return res.json(msg)
             }
-
             //Caso não for encontrado o whatsapp, é enviado a mensagem perguntado o cpf
             if (!find) {
-
                 const msg = 'Olá, por favor nos informe seu CPF (Somente números) para que possamos verificar se você possui uma proposta em aberto.'
-
-                const messageTwilio = await client.messages.create({
-                    from: To,
-                    body: msg,
-                    to: From
-                })
-
-                await Chat.create({
-                    de: To,
-                    para: From,
-                    mensagem: msg,
-                    horario: moment().format('YYYY-MM-DD HH:mm'),
-                    status: messageTwilio.status,
-                    sid: messageTwilio.sid
-                })
-
+                await sendMessage(To, From, msg)
                 return res.json(msg)
             }
-
             //Retorna os horarios disponiveis
             if (find.statusWhatsapp === 'Dia enviado' && !isNaN(Number(Body))) {
-
                 const horariosDisponiveis = await buscarHorariosDisponiveis(find.diasEnviados[Number(Body) - 1])
-
                 if (!find.diasEnviados[Number(Body) - 1]) {
                     const msg = `Olá, por favor escolha um dia válido.`
-
-                    const messageTwilio = await client.messages.create({
-                        from: To,
-                        body: msg,
-                        to: From
-                    })
-
-                    await Chat.create({
-                        de: To,
-                        para: From,
-                        mensagem: msg,
-                        horario: moment().format('YYYY-MM-DD HH:mm'),
-                        status: messageTwilio.status,
-                        sid: messageTwilio.sid
-                    })
-
+                    await sendMessage(To, From, msg)
                     return res.json({ msg: 'ok' })
                 }
-
                 if (horariosDisponiveis.length === 0) {
                     const msg = `Olá, infelizmente não temos horários disponíveis para o dia ${moment(find.diasEnviados[Number(Body) - 1]).format('DD/MM/YYYY')}, por favor escolha outro dia.`
-                    const messageTwilio = await client.messages.create({
-                        from: To,
-                        body: msg,
-                        to: From
-                    })
-
-                    await Chat.create({
-                        de: To,
-                        para: From,
-                        mensagem: msg,
-                        horario: moment().format('YYYY-MM-DD HH:mm'),
-                        status: messageTwilio.status,
-                        sid: messageTwilio.sid
-                    })
-
+                    await sendMessage(To, From, msg)
                     return res.json({ msg: 'ok' })
                 }
                 const msg = `Olá, por gentileza escolha o horário em que o Sr (a) deseja realizar a entrevista.\nDigite somente o número referente ao horário escolhido.\n${horariosDisponiveis.map((horario, index) => {
                     return `${index + 1}. ${horario}`
                 }).join('\n')}`
-
-                const messageTwilio = await client.messages.create({
-                    from: To,
-                    body: msg,
-                    to: From
-                })
-
-                await Chat.create({
-                    de: To,
-                    para: From,
-                    mensagem: msg,
-                    horario: moment().format('YYYY-MM-DD HH:mm'),
-                    status: messageTwilio.status,
-                    sid: messageTwilio.sid
-                })
-
+                await sendMessage(To, From, msg)
                 const update = await PropostaEntrevista.findByIdAndUpdate({
                     _id: find._id
                 }, {
@@ -826,74 +626,24 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                     horariosEnviados: horariosDisponiveis,
                     diaEscolhido: find.diasEnviados[Number(Body) - 1]
                 })
-
                 return res.json({ msg: 'ok' })
             }
-
             //Retorna a mensagem de confirmação de horario
             if (find.statusWhatsapp === 'Horario enviado' && !isNaN(Number(Body))) {
-
                 const horarioEscolhido = find.horariosEnviados[Number(Body) - 1]
-
                 if (!horarioEscolhido) {
                     const msg = `Olá, por favor escolha um horário válido.`
-                    const messageTwilio = await client.messages.create({
-                        from: To,
-                        body: msg,
-                        to: From
-                    })
-
-                    await Chat.create({
-                        de: To,
-                        para: From,
-                        mensagem: msg,
-                        horario: moment().format('YYYY-MM-DD HH:mm'),
-                        status: messageTwilio.status,
-                        sid: messageTwilio.sid
-                    })
-
+                    await sendMessage(To, From, msg)
                     return res.json({ msg: 'ok' })
                 }
-
                 const horarioDisponivel = await verificarHorarioDisponivel(find.diaEscolhido, horarioEscolhido)
-
                 if (!horarioDisponivel) {
                     const msg = `Olá, o horário escolhido não está mais disponível, por favor escolha outro horário.`
-                    const messageTwilio = await client.messages.create({
-                        from: To,
-                        body: msg,
-                        to: From
-                    })
-
-                    await Chat.create({
-                        de: To,
-                        para: From,
-                        mensagem: msg,
-                        horario: moment().format('YYYY-MM-DD HH:mm'),
-                        status: messageTwilio.status,
-                        sid: messageTwilio.sid
-                    })
-
+                    await sendMessage(To, From, msg)
                     return res.json({ msg: 'ok' })
                 }
-
                 const msg = `Olá, por gentileza confirme o dia e horário escolhido para a entrevista.\n${moment(find.diaEscolhido).format('DD/MM/YYYY')} ${horarioEscolhido}\nDigite 1 para confirmar ou 2 para escolher outro horário.`
-
-                const messageTwilio = await client.messages.create({
-                    from: To,
-                    body: msg,
-                    to: From
-                })
-
-                await Chat.create({
-                    de: To,
-                    para: From,
-                    mensagem: msg,
-                    horario: moment().format('YYYY-MM-DD HH:mm'),
-                    status: messageTwilio.status,
-                    sid: messageTwilio.sid
-                })
-
+                await sendMessage(To, From, msg)
                 const update = await PropostaEntrevista.findByIdAndUpdate({
                     _id: find._id
                 }, {
@@ -901,148 +651,42 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                     horarioEscolhido,
                     horarioRespondido: moment().format('YYYY-MM-DD HH:mm')
                 })
-
                 return res.json({ msg: 'ok' })
             }
-
             //Caso o horario seja confirmado, é enviado mensagem de dependentes
             if (find.statusWhatsapp === 'Confirmação de horario' && !isNaN(Number(Body))) {
-
                 if (Number(Body) === 1) {
-
                     const enfermeira = await enfermeiraComMenosAgendamentos(find.horarioEscolhido, find.diaEscolhido)
-
                     if (find.tipoAssociado === 'Titular') {
-
-                        const update = await PropostaEntrevista.findByIdAndUpdate({
-                            _id: find._id
-                        }, {
-                            statusWhatsapp: 'Pergunta dependentes',
-                            atendimentoEncerrado: true,
-                            atendimentoHumanizado: false,
-                            agendado: 'agendado',
-                            situacao: 'Agendado',
-                            contato1: moment().format('YYYY-MM-DD HH:mm'),
-                            responsavelContato1: 'Bot Whatsapp',
-                            visualizado: true,
-                            enviadoTwilio: true,
-                            newStatus: 'Agendado',
-                            enfermeiro: enfermeira,
-                            quemAgendou: 'Bot Whatsapp',
-                            dataEntrevista: `${moment(find.diaEscolhido).format('YYYY-MM-DD')} ${find.horarioEscolhido}`,
-                        })
-
+                        await agendaEntrevistaPorId(find, enfermeira)
                         const msg = `Agradecemos a confirmação do horário, a entrevista será realizada no dia ${moment(find.diaEscolhido).format('DD/MM/YYYY')}, às ${find.horarioEscolhido}.`  //Lembrando que caso tenha dependentes, a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação. Gostaria de agendar os dependentes maiores de idade no mesmo horario?\n1 - sim\n2 - não.`
-
-                        const messageTwilio = await client.messages.create({
-                            from: To,
-                            body: msg,
-                            to: From
-                        })
-
-                        await Chat.create({
-                            de: To,
-                            para: From,
-                            mensagem: msg,
-                            horario: moment().format('YYYY-MM-DD HH:mm'),
-                            status: messageTwilio.status,
-                            sid: messageTwilio.sid
-                        })
-
+                        await sendMessage(To, From, msg)
                         const dependentes = await PropostaEntrevista.find({
                             cpfTitular: find.cpfTitular,
                             tipoAssociado: 'Dependente',
                             status: { $ne: 'Cancelado', $ne: 'Concluído' }
                         })
-
                         if (dependentes.length > 0) {
-
                             const msg = `Foi detectado que o Sr (a) possui os seguintes depentendes:\n${dependentes.map(dependente => {
                                 return `${dependente.nome} - ${dependente.cpf}`
                             }).join('\n')}\nGostaria de agendar os dependentes maiores de idade no mesmo horario?\n1 - sim\n2 - não.`
-
-                            const messageTwilio = await client.messages.create({
-                                from: To,
-                                body: msg,
-                                to: From
-                            })
-
-                            await Chat.create({
-                                de: To,
-                                para: From,
-                                mensagem: msg,
-                                horario: moment().format('YYYY-MM-DD HH:mm'),
-                                status: messageTwilio.status,
-                                sid: messageTwilio.sid
-                            })
+                            await sendMessage(To, From, msg)
                         }
                         return res.json({ msg: 'ok' })
                     } else {
-
-                        const update = await PropostaEntrevista.findByIdAndUpdate({
-                            _id: find._id
-                        }, {
-                            statusWhatsapp: 'Horario confirmado',
-                            atendimentoEncerrado: true,
-                            atendimentoHumanizado: false,
-                            agendado: 'agendado',
-                            situacao: 'Agendado',
-                            contato1: moment().format('YYYY-MM-DD HH:mm'),
-                            responsavelContato1: 'Bot Whatsapp',
-                            visualizado: true,
-                            enviadoTwilio: true,
-                            newStatus: 'Agendado',
-                            enfermeiro: enfermeira,
-                            quemAgendou: 'Bot Whatsapp',
-                            dataEntrevista: `${moment(find.diaEscolhido).format('YYYY-MM-DD')} ${find.horarioEscolhido}`,
-                        })
-
+                        await agendaEntrevistaPorId(find, enfermeira)
                         const msg = `Olá, agradecemos a confirmação do horário, a entrevista será realizada no dia ${moment(find.diaEscolhido).format('DD/MM/YYYY')} ${find.horarioEscolhido}, às ${find.horarioEscolhido}. Lembrando que caso tenha dependentes, a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação.`
-
-                        const messageTwilio = await client.messages.create({
-                            from: To,
-                            body: msg,
-                            to: From
-                        })
-
-                        await Chat.create({
-                            de: To,
-                            para: From,
-                            mensagem: msg,
-                            horario: moment().format('YYYY-MM-DD HH:mm'),
-                            status: messageTwilio.status,
-                            sid: messageTwilio.sid
-                        })
-
+                        await sendMessage(To, From, msg)
                         return res.json({ msg: 'ok' })
                     }
-
                 }
-
                 if (Number(Body) === 2) {
-
                     const diasDisponiveis = await buscarDiasDisponiveis()
-
                     const msg = `Olá, por gentileza escolha o dia em que o Sr (a) deseja realizar a entrevista.\nDigite somente o número referente ao dia escolhido.
                         ${diasDisponiveis.map((dia, index) => {
                         return `${index + 1}. ${moment(dia).format('DD/MM/YYYY')}`
                     }).join('\n')}`
-
-                    const messageTwilio = await client.messages.create({
-                        from: To,
-                        body: msg,
-                        to: From
-                    })
-
-                    await Chat.create({
-                        de: To,
-                        para: From,
-                        mensagem: msg,
-                        horario: moment().format('YYYY-MM-DD HH:mm'),
-                        status: messageTwilio.status,
-                        sid: messageTwilio.sid
-                    })
-
+                    await sendMessage(To, From, msg)
                     const update = await PropostaEntrevista.findByIdAndUpdate({
                         _id: find._id
                     }, {
@@ -1050,103 +694,26 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                         diasEnviados: diasDisponiveis,
                     })
                 }
-
                 return res.json({ msg: 'ok' })
             }
-
             //Caso a resposta da pergunta dos dependentes seja sim, é enviado a mensagem de confirmação de horario
             if (find.statusWhatsapp === 'Pergunta dependentes' && !isNaN(Number(Body))) {
-
                 if (Number(Body) === 1) {
-
                     const msg = `Agendamento, realizado com sucesso, agradecemos a confirmação do horário, a entrevista será realizada no dia ${moment(find.diaEscolhido).format('DD/MM/YYYY')}, às ${find.horarioEscolhido}. Lembrando que caso tenha dependentes, a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação. Amil agradece.`
-
-                    const messageTwilio = await client.messages.create({
-                        from: To,
-                        body: msg,
-                        to: From
-                    })
-
-                    await Chat.create({
-                        de: To,
-                        para: From,
-                        mensagem: msg,
-                        horario: moment().format('YYYY-MM-DD HH:mm'),
-                        status: messageTwilio.status,
-                        sid: messageTwilio.sid
-                    })
-
-                    console.log(find.cpfTitular);
-
-                    const update = await PropostaEntrevista.updateMany({
-                        cpfTitular: find.cpfTitular
-                    }, {
-                        statusWhatsapp: 'Horario confirmado',
-                        atendimentoEncerrado: true,
-                        atendimentoHumanizado: false,
-                        agendado: 'agendado',
-                        situacao: 'Agendado',
-                        contato1: moment().format('YYYY-MM-DD HH:mm'),
-                        responsavelContato1: 'Bot Whatsapp',
-                        visualizado: true,
-                        enviadoTwilio: true,
-                        newStatus: 'Agendado',
-                        enfermeiro: find.enfermeiro,
-                        quemAgendou: 'Bot Whatsapp',
-                        dataEntrevista: `${moment(find.diaEscolhido).format('YYYY-MM-DD')} ${find.horarioEscolhido}`,
-                    })
-
+                    await sendMessage(To, From, msg)
+                    await agendaEntrevistaPorCpfTitular(find, find.enfermeiro)
                     return res.json({ msg: 'ok' })
                 }
-
                 if (Number(Body) === 2) {
-
                     const msg = `Por favor, caso tenha dependentes maiores de idade, passe esse link para os dependentes, para os mesmos agendarem seus horarios.`
-
-                    const messageTwilio = await client.messages.create({
-                        from: To,
-                        body: msg,
-                        to: From
-                    })
-
-                    await Chat.create({
-                        de: To,
-                        para: From,
-                        mensagem: msg,
-                        horario: moment().format('YYYY-MM-DD HH:mm'),
-                        status: messageTwilio.status,
-                        sid: messageTwilio.sid
-                    })
-
+                    await sendMessage(To, From, msg)
                     const link = `https://wa.me/${To.replace('whatsapp:', '')}?text=Olá,%20gostaria%20de%20agendar%20meu%20horário%20para%20a%20entrevista.`
-
-                    const messageTwilio2 = await client.messages.create({
-                        from: To,
-                        body: link,
-                        to: From
-                    })
-
-                    await Chat.create({
-                        de: To,
-                        para: From,
-                        mensagem: link,
-                        horario: moment().format('YYYY-MM-DD HH:mm'),
-                        status: messageTwilio2.status,
-                        sid: messageTwilio2.sid
-                    })
-
-                    const update = await PropostaEntrevista.findByIdAndUpdate({
-                        _id: find._id
-                    }, {
-                        statusWhatsapp: 'Horario confirmado',
-                    })
-
+                    await sendMessage(To, From, link)
+                    await updatePropostaEntrevista(find, 'Horario confirmado')
                     return res.json({ msg: 'ok' })
                 }
             }
-
             return res.json({ msg: 'Nao entrou em nenhum if' })
-
         } catch (error) {
             console.log(error);
             return res.status(500).json({
