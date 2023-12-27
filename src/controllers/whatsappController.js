@@ -521,7 +521,7 @@ module.exports = {
                 mensagem: Body,
                 horario: moment().format('YYYY-MM-DD HH:mm'),
             })
-            let find = encontrarPropostaPorWhatsapp(From)
+            let find = await encontrarPropostaPorWhatsapp(From)
 
             //Verifica se esta no atendimento humazizado
             if (isNaN(Number(Body)) && find?.atendimentoHumanizado) {
