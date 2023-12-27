@@ -7,9 +7,8 @@ const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = require('twilio')(accountSid, authToken);
 const TwilioNumber = process.env.TWILIO_NUMBER
 const { modeloMensagem1, modeloMensagem2, buscarDiasDisponiveis, buscarHorariosDisponiveis, enfermeiraComMenosAgendamentos, verificarHorarioDisponivel } = require('../utils/functions')
-const { sendMessage, updatePropostaEntrevista, agendaEntrevistaPorCpfTitular, agendaEntrevistaPorId, encontrarPropostaPorWhatsapp } = require('../utils/whatsappBotFunctions')
+const { sendMessage, updatePropostaEntrevista, agendaEntrevistaPorCpfTitular, agendaEntrevistaPorId, encontrarPropostaPorWhatsapp, mandarParaAtendimentoHumanizado } = require('../utils/whatsappBotFunctions')
 const { io } = require('../../index');
-const { mandarAtendimentoHumanizado } = require('./propostaController');
 
 module.exports = {
 
@@ -541,7 +540,7 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
             if (find?.statusWhatsapp === 'Horario confirmado') {
                 const msg = "Seu horário já foi confirmado, caso precise reagendar, a central de atendimento irá entrar em contato."
                 await sendMessage(To, From, msg)
-                await mandarAtendimentoHumanizado(find)
+                await mandarParaAtendimentoHumanizado(find)
                 return res.json(msg)
             }
             //Caso não o whatsapp não tenha sido encontrado no banco, verifica se o cpf foi digitado
