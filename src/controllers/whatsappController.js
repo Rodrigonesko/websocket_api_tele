@@ -7,7 +7,7 @@ const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = require('twilio')(accountSid, authToken);
 const TwilioNumber = process.env.TWILIO_NUMBER
 const { modeloMensagem1, modeloMensagem2, buscarDiasDisponiveis, buscarHorariosDisponiveis, enfermeiraComMenosAgendamentos, verificarHorarioDisponivel } = require('../utils/functions')
-const { sendMessage, updatePropostaEntrevista, agendaEntrevistaPorCpfTitular, agendaEntrevistaPorId, encontrarPropostaPorWhatsapp, mandarParaAtendimentoHumanizado } = require('../utils/whatsappBotFunctions')
+const { sendMessage, updatePropostaEntrevista, agendaEntrevistaPorCpfTitular, agendaEntrevistaPorId, encontrarPropostaPorWhatsapp, mandarParaAtendimentoHumanizado, agendaComOStatusPerguntaDependentes } = require('../utils/whatsappBotFunctions')
 const { io } = require('../../index');
 
 module.exports = {
@@ -655,16 +655,16 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
             //Caso o horario seja confirmado, é enviado mensagem de dependentes
             if (find.statusWhatsapp === 'Confirmação de horario' && !isNaN(Number(Body))) {
                 if (Number(Body) === 1) {
+                    const dependentes = await PropostaEntrevista.find({
+                        cpfTitular: find.cpfTitular,
+                        tipoAssociado: 'Dependente',
+                        status: { $ne: 'Cancelado', $ne: 'Concluído' }
+                    })
                     const enfermeira = await enfermeiraComMenosAgendamentos(find.horarioEscolhido, find.diaEscolhido)
-                    if (find.tipoAssociado === 'Titular') {
-                        await agendaEntrevistaPorId(find, enfermeira)
+                    if (find.tipoAssociado === 'Titular' && dependentes.length > 0) {
+                        await agendaComOStatusPerguntaDependentes(find, enfermeira)
                         const msg = `Agradecemos a confirmação do horário, a entrevista será realizada no dia ${moment(find.diaEscolhido).format('DD/MM/YYYY')}, às ${find.horarioEscolhido}.`  //Lembrando que caso tenha dependentes, a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação. Gostaria de agendar os dependentes maiores de idade no mesmo horario?\n1 - sim\n2 - não.`
                         await sendMessage(To, From, msg)
-                        const dependentes = await PropostaEntrevista.find({
-                            cpfTitular: find.cpfTitular,
-                            tipoAssociado: 'Dependente',
-                            status: { $ne: 'Cancelado', $ne: 'Concluído' }
-                        })
                         if (dependentes.length > 0) {
                             const msg = `Foi detectado que o Sr (a) possui os seguintes depentendes:\n${dependentes.map(dependente => {
                                 return `${dependente.nome} - ${dependente.cpf}`
@@ -681,8 +681,7 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                 }
                 if (Number(Body) === 2) {
                     const diasDisponiveis = await buscarDiasDisponiveis()
-                    const msg = `Olá, por gentileza escolha o dia em que o Sr (a) deseja realizar a entrevista.\nDigite somente o número referente ao dia escolhido.
-                        ${diasDisponiveis.map((dia, index) => {
+                    const msg = `Olá, por gentileza escolha o dia em que o Sr (a) deseja realizar a entrevista.\nDigite somente o número referente ao dia escolhido.\n${diasDisponiveis.map((dia, index) => {
                         return `${index + 1}. ${moment(dia).format('DD/MM/YYYY')}`
                     }).join('\n')}`
                     await sendMessage(To, From, msg)

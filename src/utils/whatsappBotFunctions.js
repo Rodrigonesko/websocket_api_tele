@@ -45,6 +45,28 @@ async function mandarParaAtendimentoHumanizado(find) {
     });
 }
 
+async function agendaComOStatusPerguntaDependentes(find, enfermeira) {
+    const update = await PropostaEntrevista.updateOne({
+        _id: find._id
+    }, {
+        statusWhatsapp: 'Pergunta Dependentes',
+        atendimentoEncerrado: true,
+        atendimentoHumanizado: false,
+        agendado: 'agendado',
+        situacao: 'Agendado',
+        contato1: moment().format('YYYY-MM-DD HH:mm'),
+        responsavelContato1: 'Bot Whatsapp',
+        visualizado: true,
+        enviadoTwilio: true,
+        newStatus: 'Agendado',
+        enfermeiro: enfermeira,
+        quemAgendou: 'Bot Whatsapp',
+        dataEntrevista: `${moment(find.diaEscolhido).format('YYYY-MM-DD')} ${find.horarioEscolhido}`,
+    });
+
+    return update;
+}
+
 async function agendaEntrevistaPorCpfTitular(find, enfermeira) {
     const update = await PropostaEntrevista.updateMany({
         cpfTitular: find.cpfTitular
@@ -103,5 +125,6 @@ module.exports = {
     mandarParaAtendimentoHumanizado,
     agendaEntrevistaPorCpfTitular,
     agendaEntrevistaPorId,
-    encontrarPropostaPorWhatsapp
+    encontrarPropostaPorWhatsapp,
+    agendaComOStatusPerguntaDependentes
 }
