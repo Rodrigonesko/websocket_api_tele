@@ -66,10 +66,12 @@ router.get('/propostasPorMes/:mes', auth, propostaController.getPropostasPorMes)
 router.post('/paginacaoAgenda', auth, propostaController.paginacaoAgenda)
 router.post('/quantidadePropostasPorMesFiltradas', auth, propostaController.quantidadePropostasPorMesFiltradas)
 router.post('/graficoPropostasPorMesFiltradas', auth, propostaController.graficoPropostasPorMesFiltradas)
+router.get('/quantidadeAnalistasPorMes/:mes', auth, propostaController.quantidadeAnalistasPorMes)
 
 router.post('/receiveMessage', propostaController.mensagemRecebida)
 
 router.get('/teste', propostaController.testeMensagem)
+
 
 router.post('/webHookMessage', propostaController.webHookMessage)
 router.post('/webHookCall', propostaController.webHookCall)

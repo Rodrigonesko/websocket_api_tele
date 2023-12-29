@@ -28,44 +28,49 @@ module.exports = {
                 throw new Error("'result' deve ser um array");
             }
 
-            const arrCpfTitulares = {};
+            const arrCpfTitulares = result.reduce((acc, item) => {
+                let numPropostas = []
 
-            for (const item of result) {
-                // Verifique se as propriedades esperadas existem no item
-                if (!item.hasOwnProperty('NUM_PROPOSTA') || !item.hasOwnProperty('TIPO_ASSOCIADO') || !item.hasOwnProperty('NUM_CPF')) {
-                    throw new Error("Cada item deve ter as propriedades 'NUM_PROPOSTA', 'TIPO_ASSOCIADO' e 'NUM_CPF'");
-                }
-
-                const proposta = item.NUM_PROPOSTA;
-                const tipoAssociado = item.TIPO_ASSOCIADO;
-                let cpf = typeof item.NUM_CPF !== 'number' && item.NUM_CPF !== undefined ? item.NUM_CPF.replace(/\D/g, '') : item.NUM_CPF;
-
-                // Use um objeto ou um Map para armazenar os itens existentes, usando 'proposta' como chave
-                let itemExistente = arrCpfTitulares[proposta];
-
-                if (itemExistente) {
-                    if (tipoAssociado === 'Titular') {
-                        itemExistente.numTitulares += 1;
-                        itemExistente.numAssociados += 1;
-                        itemExistente.cpfTitular = cpf;
+                result.forEach(e => {
+                    const proposta = e.NUM_PROPOSTA
+                    const tipoAssociado = e.TIPO_ASSOCIADO
+                    const itemExistente = numPropostas.find((elem) => elem.proposta === proposta)
+                    let cpf = ''
+                    if (typeof (e.NUM_CPF) !== 'number' && e.NUM_CPF !== undefined) {
+                        cpf = e.NUM_CPF.replace(/\D/g, '')
                     } else {
-                        itemExistente.numAssociados += 1;
+                        cpf = e.NUM_CPF
                     }
-                } else {
-                    itemExistente = { proposta: proposta, numTitulares: tipoAssociado === 'Titular' ? 1 : 0, numAssociados: 1, cpfTitular: cpf };
-                    arrCpfTitulares[proposta] = itemExistente;
+                    if (itemExistente) {
+                        if (tipoAssociado === 'Titular') {
+                            itemExistente.numTitulares += 1
+                            itemExistente.numAssociados += 1
+                            itemExistente.cpfTitular = cpf
+                        } else {
+                            itemExistente.numAssociados += 1
+                        }
+                    } else if (tipoAssociado === "Titular") {
+                        numPropostas.push({ proposta: proposta, numTitulares: 1, numAssociados: 1, cpfTitular: cpf })
+                    } else {
+                        numPropostas.push({ proposta: proposta, numAssociados: 1, numTitulares: 0 })
+                    }
+                })
+
+                const itemExistenteAssociados = numPropostas.find((elem) => elem.proposta === item.NUM_PROPOSTA)
+                if (itemExistenteAssociados.numTitulares !== 1 && itemExistenteAssociados.numTitulares !== itemExistenteAssociados.numAssociados) {
+                    acc.push({ ...item });
+                    return acc;
                 }
 
-                // Crie uma cópia do item antes de modificá-lo
-                let itemCopy = { ...item };
-
-                if (itemExistente.numTitulares !== 1 && itemExistente.numTitulares !== itemExistente.numAssociados) {
-                    arrCpfTitulares[proposta] = itemCopy;
+                if (item.TIPO_ASSOCIADO === 'Titular') {
+                    item.cpfTitular = item.NUM_CPF
                 } else {
-                    itemCopy.cpfTitular = itemExistente.cpfTitular;
-                    arrCpfTitulares[proposta] = itemCopy;
+                    const itemExistente = numPropostas.find((element) => element.proposta === item.NUM_PROPOSTA)
+                    item.cpfTitular = itemExistente.cpfTitular
                 }
-            }
+                acc.push({ ...item });
+                return acc;
+            }, [])
 
             let counter = 0;
             const wppSenders = [TwilioNumber, TwilioNumberPme, TwilioNumberSP];
@@ -1880,7 +1885,12 @@ module.exports = {
             })
 
             const umaHoraAntes = moment(result.dataEntrevista).subtract(1, 'hours').format('HH:mm')
-            const umaHoraDepois = moment(result.dataEntrevista).add(1, 'hours').format('HH:mm')
+            let umaHoraDepois = ''
+            if (moment(result.dataEntrevista).format('HH:mm') === '17:20' || moment(result.dataEntrevista).format('HH:mm') === '17:40') {
+                umaHoraDepois = '18:00'
+            } else {
+                umaHoraDepois = moment(result.dataEntrevista).add(1, 'hours').format('HH:mm')
+            }
 
             let msg = `Agendado para o dia ${moment(result.dataEntrevista).format("DD/MM/YYYY")} das ${umaHoraAntes} até as ${umaHoraDepois}.
 Lembrando que em caso de menor de idade a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação.`
@@ -3105,11 +3115,39 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
                 msg: "Internal Server Error"
             })
         }
+    },
+
+    quantidadeAnalistasPorMes: async (req, res) => {
+        try {
+
+            const { mes } = req.params
+
+            const result = await PropostaEntrevista.aggregate([
+                {
+                    $match: {
+                        dataConclusao: { $regex: mes }
+                    }
+                },
+                {
+                    $group: {
+                        _id: '$enfermeiro',
+                        total: { $sum: 1 }
+                    }
+                }
+            ])
+
+            console.log(result);
+
+            return res.json(result)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: "Internal Server Error"
+            })
+        }
     }
-
-
 }
-
 
 const feriados = [
     moment('2022-01-01'),

@@ -769,7 +769,7 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
     teste: async (req, res) => {
         try {
 
-            const result = await enfermeiraComMenosAgendamentos('16:00', '2023-12-22')
+            const result = await buscarHorariosDisponiveis('16:00', '2023-12-22')
             console.log(result);
 
             //console.log(Body, From, To, ProfileName);
