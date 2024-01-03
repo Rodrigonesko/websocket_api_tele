@@ -163,7 +163,7 @@ async function buscarHorariosDisponiveis(dia) {
     return horariosDisponiveis.sort();
 }
 
-async function verificarHorariosDisponiveis(dia, horario) {
+async function verificarHorarioDisponivel(dia, horario) {
     const horarios = await Horario.find({
         dia,
         horario,
@@ -235,5 +235,5 @@ module.exports = {
     buscarHorariosDisponiveis,
     enfermeiraComMenosAgendamentos,
     horariosDisponiveis,
-    verificarHorariosDisponiveis
+    verificarHorarioDisponivel
 }
