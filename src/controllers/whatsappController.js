@@ -6,7 +6,7 @@ const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = require('twilio')(accountSid, authToken);
 const TwilioNumber = process.env.TWILIO_NUMBER
-const { modeloMensagem1, modeloMensagem2, buscarDiasDisponiveis, buscarHorariosDisponiveis, enfermeiraComMenosAgendamentos, verificarHorarioDisponivel } = require('../utils/functions')
+const { modeloMensagem1, modeloMensagem2, buscarDiasDisponiveis, buscarHorariosDisponiveis, enfermeiraComMenosAgendamentos, verificarHorarioDisponivel, horariosDisponiveis } = require('../utils/functions')
 const { sendMessage, updatePropostaEntrevista, agendaEntrevistaPorCpfTitular, agendaEntrevistaPorId, encontrarPropostaPorWhatsapp, mandarParaAtendimentoHumanizado, agendaComOStatusPerguntaDependentes } = require('../utils/whatsappBotFunctions')
 const { io } = require('../../index');
 
@@ -662,19 +662,22 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                     })
                     const enfermeira = await enfermeiraComMenosAgendamentos(find.horarioEscolhido, find.diaEscolhido)
                     if (find.tipoAssociado === 'Titular' && dependentes.length > 0) {
-                        await agendaComOStatusPerguntaDependentes(find, enfermeira)
+                        // await agendaComOStatusPerguntaDependentes(find, enfermeira)
+                        await agendaEntrevistaPorId(find, enfermeira)
                         const msg = `Agradecemos a confirmação do horário, a entrevista será realizada no dia ${moment(find.diaEscolhido).format('DD/MM/YYYY')}, às ${find.horarioEscolhido}.`  //Lembrando que caso tenha dependentes, a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação. Gostaria de agendar os dependentes maiores de idade no mesmo horario?\n1 - sim\n2 - não.`
                         await sendMessage(To, From, msg)
                         if (dependentes.length > 0) {
                             const msg = `Foi detectado que o Sr (a) possui os seguintes depentendes:\n${dependentes.map(dependente => {
                                 return `${dependente.nome} - ${dependente.cpf}`
-                            }).join('\n')}\nGostaria de agendar os dependentes maiores de idade no mesmo horario?\n1 - sim\n2 - não.`
+                            }).join('\n')}\nPoderia encaminhar esse link para os dependentes maiores de idade, para que os mesmos agendem seus horários?`
                             await sendMessage(To, From, msg)
+                            const link = `https://wa.me/${To.replace('whatsapp:', '')}?text=Olá,%20gostaria%20de%20agendar%20meu%20horário%20para%20a%20entrevista.`
+                            await sendMessage(To, From, link)
                         }
                         return res.json({ msg: 'ok' })
                     } else {
                         await agendaEntrevistaPorId(find, enfermeira)
-                        const msg = `Olá, agradecemos a confirmação do horário, a entrevista será realizada no dia ${moment(find.diaEscolhido).format('DD/MM/YYYY')} ${find.horarioEscolhido}, às ${find.horarioEscolhido}. Lembrando que caso tenha dependentes, a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação.`
+                        const msg = `Olá, agradecemos a confirmação do horário, a entrevista será realizada no dia ${moment(find.diaEscolhido).format('DD/MM/YYYY')} ${find.horarioEscolhido}, às ${find.horarioEscolhido}.`
                         await sendMessage(To, From, msg)
                         return res.json({ msg: 'ok' })
                     }
@@ -769,7 +772,7 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
     teste: async (req, res) => {
         try {
 
-            const result = await buscarHorariosDisponiveis('16:00', '2023-12-22')
+            const result = await horariosDisponiveis('2024-01-03', 2)
             console.log(result);
 
             //console.log(Body, From, To, ProfileName);

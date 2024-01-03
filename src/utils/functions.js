@@ -1,6 +1,7 @@
 const moment = require('moment');
 require('moment-business-days');
 const Horario = require('../models/Horario');
+const User = require('../models/User');
 
 function ExcelDateToJSDate(serial) {
     var utc_days = Math.floor(serial - 25569);
@@ -162,6 +163,30 @@ async function buscarHorariosDisponiveis(dia) {
     return horariosDisponiveis.sort();
 }
 
+async function horariosDisponiveis(dia, dependentes) {
+
+    const users = await User.find({
+        atividadePrincipal: 'Tele Entrevista',
+        inativo: { $ne: true }
+    }).lean()
+
+    const enfermeiros = users.map(user => user.name)
+
+    for (const enfermeiro of enfermeiros) {
+
+        const horarios = await Horario.find({
+            dia,
+            enfermeiro,
+        }).lean()
+
+        for (let i = 0; i < horarios.length; i++) {
+            const element = horarios[i];
+            console.log(element);
+        }
+    }
+
+}
+
 async function enfermeiraComMenosAgendamentos(horario, dia) {
 
     let enfermeiroComAAgendaMaisLivre = null;
@@ -190,16 +215,6 @@ async function enfermeiraComMenosAgendamentos(horario, dia) {
     return enfermeiroComAAgendaMaisLivre;
 }
 
-async function verificarHorarioDisponivel(dia, horario) {
-    const horarios = await Horario.find({
-        dia,
-        horario,
-        agendado: { $ne: 'Agendado' }
-    });
-
-    return horarios.length > 0;
-}
-
 module.exports = {
     ExcelDateToJSDate,
     calcularIdade,
@@ -209,5 +224,5 @@ module.exports = {
     buscarDiasDisponiveis,
     buscarHorariosDisponiveis,
     enfermeiraComMenosAgendamentos,
-    verificarHorarioDisponivel
+    horariosDisponiveis
 }
