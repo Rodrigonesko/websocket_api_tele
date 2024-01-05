@@ -32,8 +32,8 @@ module.exports = {
                 let numPropostas = []
 
                 result.forEach(e => {
-                    const proposta = e.NUM_PROPOSTA
-                    const tipoAssociado = e.TIPO_ASSOCIADO
+                    const proposta = e.NUM_PROPOSTA || e.PROPOSTA
+                    const tipoAssociado = e.TIPO_ASSOCIADO || e.T
                     const itemExistente = numPropostas.find((elem) => elem.proposta === proposta)
                     let cpf = ''
                     if (typeof (e.NUM_CPF) !== 'number' && e.NUM_CPF !== undefined) {
@@ -82,7 +82,7 @@ module.exports = {
                     let wppSender = wppSenders[counter % wppSenders.length];
                     counter++;
 
-                    let proposta = item.NUM_PROPOSTA
+                    let proposta = item.NUM_PROPOSTA || item.PROPOSTA
 
                     //verifica se a proposta é um número
 
@@ -131,7 +131,7 @@ module.exports = {
 
                     const sexo = item.SEXO
 
-                    const tipoAssociado = item.TIPO_ASSOCIADO
+                    const tipoAssociado = item.TIPO_ASSOCIADO || item.T
 
                     const tipoContrato = item.TIPO_CONTRATO
 
@@ -3146,7 +3146,30 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
                 msg: "Internal Server Error"
             })
         }
-    }
+    },
+
+    relatorioAgendamentoPorMes: async (req, res) => {
+        try {
+
+            const { mes } = req.params
+
+            const result = await PropostaEntrevista.find({
+                dataEntrevista: { $regex: mes }
+            })
+
+            console.log(result);
+
+            return res.json(result)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: "Internal Server Error"
+            })
+        }
+    },
+
+    
 }
 
 const feriados = [
