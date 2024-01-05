@@ -6,7 +6,7 @@ const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = require('twilio')(accountSid, authToken);
 const TwilioNumber = process.env.TWILIO_NUMBER
-const { modeloMensagem1, modeloMensagem2, buscarDiasDisponiveis, buscarHorariosDisponiveis, enfermeiraComMenosAgendamentos, verificarHorarioDisponivel, horariosDisponiveis } = require('../utils/functions')
+const { modeloMensagem1, modeloMensagem2, buscarDiasDisponiveis, buscarHorariosDisponiveis, enfermeiraComMenosAgendamentos, verificarHorarioDisponivel, horariosDisponiveis, verificarDependentesMenoresDeIdade } = require('../utils/functions')
 const { sendMessage, updatePropostaEntrevista, agendaEntrevistaPorCpfTitular, agendaEntrevistaPorId, encontrarPropostaPorWhatsapp, mandarParaAtendimentoHumanizado, agendaComOStatusPerguntaDependentes } = require('../utils/whatsappBotFunctions')
 const { io } = require('../../index');
 
@@ -592,7 +592,7 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
             if (isNaN(Number(Body)) && !find?.atendimentoHumanizado && find?.perguntaAtendimentoHumanizado && !!find) {
                 const msg = 'Olá, infelizmente ainda não entendemos sua mensagem, um analista irá entrar em contato para realizar o agendamento.'
                 await sendMessage(To, From, msg)
-                await mandarAtendimentoHumanizado(find)
+                await mandarParaAtendimentoHumanizado(find)
                 return res.json(msg)
             }
             //Caso não for encontrado o whatsapp, é enviado a mensagem perguntado o cpf
@@ -668,11 +668,19 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                         await sendMessage(To, From, msg)
                         if (dependentes.length > 0) {
                             const msg = `Foi detectado que o Sr (a) possui os seguintes depentendes:\n${dependentes.map(dependente => {
-                                return `${dependente.nome} - ${dependente.cpf}`
+                                return `${dependente.nome} - cpf: ${dependente.cpf || 'Não informado'}`
                             }).join('\n')}\nPoderia encaminhar esse link para os dependentes maiores de idade, para que os mesmos agendem seus horários?`
                             await sendMessage(To, From, msg)
                             const link = `https://wa.me/${To.replace('whatsapp:', '')}?text=Olá,%20gostaria%20de%20agendar%20meu%20horário%20para%20a%20entrevista.`
                             await sendMessage(To, From, link)
+                            // const menoresIdade = await verificarDependentesMenoresDeIdade(find.cpfTitular)
+                            // if (menoresIdade.length > 0) {
+                            //     const msg = `Foi detectado que o Sr (a) possui os seguintes depentendes menores de idade:\n${menoresIdade.map(dependente => {
+                            //         return `${dependente.nome} - cpf: ${dependente.cpf || 'Não informado'} - idade: ${dependente.idade}`
+                            //     }).join('\n')}\nLembrando que a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação.`
+                            //     await sendMessage(To, From, msg)
+                            //     const msg2 = `Gostaria de agendar os dependentes menores de idade no mesmo horario?`
+                            // }
                         }
                         return res.json({ msg: 'ok' })
                     } else {

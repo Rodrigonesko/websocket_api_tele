@@ -2,6 +2,7 @@ const moment = require('moment');
 require('moment-business-days');
 const Horario = require('../models/Horario');
 const User = require('../models/User');
+const PropostaEntrevista = require('../models/PropostaEntrevista');
 
 function ExcelDateToJSDate(serial) {
     var utc_days = Math.floor(serial - 25569);
@@ -225,6 +226,16 @@ async function enfermeiraComMenosAgendamentos(horario, dia) {
     return enfermeiroComAAgendaMaisLivre;
 }
 
+async function verificarDependentesMenoresDeIdade(cpfTitular) {
+    const dependentes = await PropostaEntrevista.find({
+        cpfTitular,
+        idade: { $lt: 18 },
+        tipoAssociado: { $regex: /Dependente/ }
+    }).lean()
+
+    return dependentes
+}
+
 module.exports = {
     ExcelDateToJSDate,
     calcularIdade,
@@ -235,5 +246,6 @@ module.exports = {
     buscarHorariosDisponiveis,
     enfermeiraComMenosAgendamentos,
     horariosDisponiveis,
-    verificarHorarioDisponivel
+    verificarHorarioDisponivel,
+    verificarDependentesMenoresDeIdade 
 }

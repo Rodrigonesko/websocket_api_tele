@@ -1,4 +1,5 @@
 const Chat = require("../models/Chat");
+const Horario = require("../models/Horario");
 const PropostaEntrevista = require("../models/PropostaEntrevista");
 const moment = require('moment');
 require('moment-business-days')
@@ -118,6 +119,20 @@ async function encontrarPropostaPorWhatsapp(whatsapp) {
     });
 }
 
+async function marcarHorario(find, enfermeira) {
+    const update = await Horario.updateOne({
+        horario: find.horarioEscolhido,
+        dia: find.diaEscolhido,
+        enfermeiro: enfermeira
+    }, {
+        agendado: 'Agendado',
+        nome: find._id
+    })
+
+    return update;
+}
+
+
 module.exports = {
     sendMessage,
     createChatMessage,
@@ -126,5 +141,6 @@ module.exports = {
     agendaEntrevistaPorCpfTitular,
     agendaEntrevistaPorId,
     encontrarPropostaPorWhatsapp,
-    agendaComOStatusPerguntaDependentes
+    agendaComOStatusPerguntaDependentes,
+    marcarHorario
 }
