@@ -521,7 +521,6 @@ module.exports = {
                 horario: moment().format('YYYY-MM-DD HH:mm'),
             })
             let find = await encontrarPropostaPorWhatsapp(From)
-
             //Verifica se esta no atendimento humazizado
             if (isNaN(Number(Body)) && find?.atendimentoHumanizado) {
                 return res.json(Body)
@@ -546,7 +545,7 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
             //Caso não o whatsapp não tenha sido encontrado no banco, verifica se o cpf foi digitado
             if ((Body.length === 11) && !isNaN(Number(Body)) && !find) {
                 find = await PropostaEntrevista.findOneAndUpdate({
-                    cpfTitular: Number(Body),
+                    cpf: Number(Body),
                     status: { $ne: 'Cancelado', $ne: 'Concluído' }
                 }, {
                     whatsapp: From,
