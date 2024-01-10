@@ -667,7 +667,7 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                         await sendMessage(To, From, msg)
                         if (dependentes.length > 0) {
                             const msg = `Foi detectado que o Sr (a) possui os seguintes depentendes:\n${dependentes.map(dependente => {
-                                return `${dependente.nome} - cpf: ${dependente.cpf || 'Não informado'}`
+                                return `${dependente.nome} - cpf: ${dependente.cpf || 'Não informado'} - idade: ${dependente.idade || 'Não informado'}`
                             }).join('\n')}\nPoderia encaminhar esse link para os dependentes maiores de idade, para que os mesmos agendem seus horários?`
                             await sendMessage(To, From, msg)
                             const link = `https://wa.me/${To.replace('whatsapp:', '')}?text=Olá,%20gostaria%20de%20agendar%20meu%20horário%20para%20a%20entrevista.`
@@ -675,7 +675,7 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                             const menoresIdade = await verificarDependentesMenoresDeIdade(find.cpfTitular)
                             if (menoresIdade.length > 0) {
                                 for (const dependente of menoresIdade) {
-                                    await agendarEntrevistaParaDependentesMenoresIdade(find, dependente)
+                                    await agendarEntrevistaParaDependentesMenoresIdade(find, dependente, enfermeira)
                                 }
                                 const msg = `Foi agendado os seguintes dependentes menores de idade para o mesmo horário do Sr (a):\n${menoresIdade.map(dependente => {
                                     return `${dependente.nome} - cpf: ${dependente.cpf || 'Não informado'}`

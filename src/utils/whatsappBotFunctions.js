@@ -112,7 +112,7 @@ async function agendaEntrevistaPorId(find, enfermeira) {
     return update;
 }
 
-async function agendarEntrevistaParaDependentesMenoresIdade(dadosTitular, dadosDependente) {
+async function agendarEntrevistaParaDependentesMenoresIdade(dadosTitular, dadosDependente, enfermeira) {
     const update = await PropostaEntrevista.updateOne({
         _id: dadosDependente._id
     }, {
@@ -126,7 +126,7 @@ async function agendarEntrevistaParaDependentesMenoresIdade(dadosTitular, dadosD
         visualizado: true,
         enviadoTwilio: true,
         newStatus: 'Agendado',
-        enfermeiro: dadosTitular.enfermeiro,
+        enfermeiro: enfermeira,
         quemAgendou: 'Bot Whatsapp',
         dataEntrevista: `${moment(dadosTitular.diaEscolhido).format('YYYY-MM-DD')} ${dadosTitular.horarioEscolhido}`,
     });
