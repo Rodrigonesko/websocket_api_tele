@@ -686,7 +686,7 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                         return res.json({ msg: 'ok' })
                     } else {
                         await agendaEntrevistaPorId(find, enfermeira)
-                        const msg = `Agradecemos a confirmação do horário, a entrevista será realizada no dia ${moment(find.diaEscolhido).format('DD/MM/YYYY')} ${find.horarioEscolhido}, às ${find.horarioEscolhido}.`
+                        const msg = `Agradecemos a confirmação do horário, a entrevista será realizada no dia ${moment(find.diaEscolhido).format('DD/MM/YYYY')}, às ${find.horarioEscolhido}.`
                         await sendMessage(To, From, msg)
                         return res.json({ msg: 'ok' })
                     }
