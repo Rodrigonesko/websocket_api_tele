@@ -672,14 +672,16 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                             await sendMessage(To, From, msg)
                             const link = `https://wa.me/${To.replace('whatsapp:', '')}?text=Olá,%20gostaria%20de%20agendar%20meu%20horário%20para%20a%20entrevista.`
                             await sendMessage(To, From, link)
-                            // const menoresIdade = await verificarDependentesMenoresDeIdade(find.cpfTitular)
-                            // if (menoresIdade.length > 0) {
-                            //     const msg = `Foi detectado que o Sr (a) possui os seguintes depentendes menores de idade:\n${menoresIdade.map(dependente => {
-                            //         return `${dependente.nome} - cpf: ${dependente.cpf || 'Não informado'} - idade: ${dependente.idade}`
-                            //     }).join('\n')}\nLembrando que a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação.`
-                            //     await sendMessage(To, From, msg)
-                            //     const msg2 = `Gostaria de agendar os dependentes menores de idade no mesmo horario?`
-                            // }
+                            const menoresIdade = await verificarDependentesMenoresDeIdade(find.cpfTitular)
+                            for (const dependente of menoresIdade) {
+                                await agendaEntrevistaPorId(dependente, enfermeira)
+                            }
+                            if (menoresIdade.length > 0) {
+                                const msg = `Foi agendado os seguintes dependentes menores de idade:\n${menoresIdade.map(dependente => {
+                                    return `${dependente.nome} - cpf: ${dependente.cpf || 'Não informado'}`
+                                }).join('\n')}\nLembrando que a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação.`
+                                await sendMessage(To, From, msg)
+                            }
                         }
                         return res.json({ msg: 'ok' })
                     } else {

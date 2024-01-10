@@ -229,7 +229,7 @@ async function enfermeiraComMenosAgendamentos(horario, dia) {
 async function verificarDependentesMenoresDeIdade(cpfTitular) {
     const dependentes = await PropostaEntrevista.find({
         cpfTitular,
-        idade: { $lt: 18 },
+        idade: { $lt: 8 },
         tipoAssociado: { $regex: /Dependente/ }
     }).lean()
 
