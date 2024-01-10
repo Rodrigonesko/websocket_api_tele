@@ -7,7 +7,7 @@ const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = require('twilio')(accountSid, authToken);
 const TwilioNumber = process.env.TWILIO_NUMBER
 const { modeloMensagem1, modeloMensagem2, buscarDiasDisponiveis, buscarHorariosDisponiveis, enfermeiraComMenosAgendamentos, verificarHorarioDisponivel, horariosDisponiveis, verificarDependentesMenoresDeIdade } = require('../utils/functions')
-const { sendMessage, updatePropostaEntrevista, agendaEntrevistaPorCpfTitular, agendaEntrevistaPorId, encontrarPropostaPorWhatsapp, mandarParaAtendimentoHumanizado, agendaComOStatusPerguntaDependentes } = require('../utils/whatsappBotFunctions')
+const { sendMessage, updatePropostaEntrevista, agendaEntrevistaPorCpfTitular, agendaEntrevistaPorId, encontrarPropostaPorWhatsapp, mandarParaAtendimentoHumanizado, agendaComOStatusPerguntaDependentes, agendarEntrevistaParaDependentesMenoresIdade } = require('../utils/whatsappBotFunctions')
 const { io } = require('../../index');
 
 module.exports = {
@@ -673,11 +673,11 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                             const link = `https://wa.me/${To.replace('whatsapp:', '')}?text=Olá,%20gostaria%20de%20agendar%20meu%20horário%20para%20a%20entrevista.`
                             await sendMessage(To, From, link)
                             const menoresIdade = await verificarDependentesMenoresDeIdade(find.cpfTitular)
-                            for (const dependente of menoresIdade) {
-                                await agendaEntrevistaPorId(dependente, enfermeira)
-                            }
                             if (menoresIdade.length > 0) {
-                                const msg = `Foi agendado os seguintes dependentes menores de idade:\n${menoresIdade.map(dependente => {
+                                for (const dependente of menoresIdade) {
+                                    await agendarEntrevistaParaDependentesMenoresIdade(find, dependente)
+                                }
+                                const msg = `Foi agendado os seguintes dependentes menores de idade para o mesmo horário do Sr (a):\n${menoresIdade.map(dependente => {
                                     return `${dependente.nome} - cpf: ${dependente.cpf || 'Não informado'}`
                                 }).join('\n')}\nLembrando que a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação.`
                                 await sendMessage(To, From, msg)

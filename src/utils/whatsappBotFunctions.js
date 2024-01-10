@@ -112,6 +112,28 @@ async function agendaEntrevistaPorId(find, enfermeira) {
     return update;
 }
 
+async function agendarEntrevistaParaDependentesMenoresIdade(dadosTitular, dadosDependente) {
+    const update = await PropostaEntrevista.updateOne({
+        _id: dadosDependente._id
+    }, {
+        statusWhatsapp: 'Horario confirmado',
+        atendimentoEncerrado: true,
+        atendimentoHumanizado: false,
+        agendado: 'agendado',
+        situacao: 'Agendado',
+        contato1: moment().format('YYYY-MM-DD HH:mm'),
+        responsavelContato1: 'Bot Whatsapp',
+        visualizado: true,
+        enviadoTwilio: true,
+        newStatus: 'Agendado',
+        enfermeiro: dadosTitular.enfermeiro,
+        quemAgendou: 'Bot Whatsapp',
+        dataEntrevista: `${moment(dadosTitular.diaEscolhido).format('YYYY-MM-DD')} ${dadosTitular.horarioEscolhido}`,
+    });
+
+    return update;
+}
+
 async function encontrarPropostaPorWhatsapp(whatsapp) {
     return await PropostaEntrevista.findOne({
         whatsapp,
@@ -142,5 +164,6 @@ module.exports = {
     agendaEntrevistaPorId,
     encontrarPropostaPorWhatsapp,
     agendaComOStatusPerguntaDependentes,
-    marcarHorario
+    marcarHorario,
+    agendarEntrevistaParaDependentesMenoresIdade
 }
