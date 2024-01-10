@@ -536,8 +536,18 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                 }
             }
             //Verifica se ja foi agendado
-            if (find?.statusWhatsapp === 'Horario confirmado') {
-                const msg = "Seu horário já foi confirmado, caso precise reagendar, a central de atendimento irá entrar em contato."
+            if (find?.statusWhatsapp === 'Horario confirmado' && !find?.perguntaAtendimentoHumanizado && !find?.atendimentoHumanizado) {
+                const msg = "Seu horário já foi confirmado, caso deseje falar com um atendente mande mais uma mensagem."
+                await sendMessage(To, From, msg)
+                await PropostaEntrevista.updateOne({
+                    _id: find._id
+                }, {
+                    perguntaAtendimentoHumanizado: true
+                })
+                return res.json(msg)
+            }
+            if (find?.statusWhatsapp === 'Horario confirmado' && find?.perguntaAtendimentoHumanizado) {
+                const msg = "Um atendente irá entrar em contato o mais breve para te auxiliar."
                 await sendMessage(To, From, msg)
                 await mandarParaAtendimentoHumanizado(find)
                 return res.json(msg)
