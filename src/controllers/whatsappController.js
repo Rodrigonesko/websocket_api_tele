@@ -565,7 +565,7 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
             //Caso o cpf tenha sido digitado e o whatsapp encontrado no banco, é enviado os dias disponiveis
             if ((!isNaN(Number(Body)) && (find?.statusWhatsapp === 'Cpf digitado')) || find?.statusWhatsapp === 'Saudacao enviada') {
                 const diasDisponiveis = await buscarDiasDisponiveis()
-                const msg = `Olá, por gentileza escolha o dia em que o Sr (a) deseja realizar a entrevista.\nDigite somente o número referente ao dia escolhido.\n${diasDisponiveis.map((dia, index) => {
+                const msg = `Olá, por gentileza escolha o dia em que o Sr (a) ${find.nome} deseja realizar a entrevista.\nDigite somente o número referente ao dia escolhido.\n${diasDisponiveis.map((dia, index) => {
                     return `${index + 1}. ${moment(dia).format('DD/MM/YYYY')}`
                 }).join('\n')}`
                 await sendMessage(To, From, msg)
@@ -578,7 +578,7 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
             }
             //Caso não seja digitado um numero e o whatsapp é encontrado no banco, é enviado a mensagem de atendimento humanizado
             if ((isNaN(Number(Body)) && !find?.atendimentoHumanizado && !find?.perguntaAtendimentoHumanizado && !!find) && (Body !== 'Ok' && find?.statusWhatsapp !== 'Saudacao enviada')) {
-                const msg = 'Olá, infelizmente ainda não entendemos sua mensagem, por favor siga as instruções informadas acima.'
+                const msg = 'Infelizmente ainda não entendemos sua mensagem, por favor siga as instruções informadas acima.'
                 await sendMessage(To, From, msg)
                 await PropostaEntrevista.updateOne({
                     _id: find._id
@@ -589,7 +589,7 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
             }
             //Caso não seja digitado um numero e o whatsapp é encontrado no banco, é enviado para o atendimento humanizado
             if (isNaN(Number(Body)) && !find?.atendimentoHumanizado && find?.perguntaAtendimentoHumanizado && !!find) {
-                const msg = 'Olá, infelizmente ainda não entendemos sua mensagem, um analista irá entrar em contato para realizar o agendamento.'
+                const msg = 'Infelizmente ainda não entendemos sua mensagem, um analista irá entrar em contato para realizar o agendamento.'
                 await sendMessage(To, From, msg)
                 await mandarParaAtendimentoHumanizado(find)
                 return res.json(msg)
@@ -604,16 +604,16 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
             if (find.statusWhatsapp === 'Dia enviado' && !isNaN(Number(Body))) {
                 const horariosDisponiveis = await buscarHorariosDisponiveis(find.diasEnviados[Number(Body) - 1])
                 if (!find.diasEnviados[Number(Body) - 1]) {
-                    const msg = `Olá, por favor escolha um dia válido.`
+                    const msg = `Por favor escolha um dia válido.`
                     await sendMessage(To, From, msg)
                     return res.json({ msg: 'ok' })
                 }
                 if (horariosDisponiveis.length === 0) {
-                    const msg = `Olá, infelizmente não temos horários disponíveis para o dia ${moment(find.diasEnviados[Number(Body) - 1]).format('DD/MM/YYYY')}, por favor escolha outro dia.`
+                    const msg = `Infelizmente não temos horários disponíveis para o dia ${moment(find.diasEnviados[Number(Body) - 1]).format('DD/MM/YYYY')}, por favor escolha outro dia.`
                     await sendMessage(To, From, msg)
                     return res.json({ msg: 'ok' })
                 }
-                const msg = `Olá, por gentileza escolha o horário em que o Sr (a) deseja realizar a entrevista.\nDigite somente o número referente ao horário escolhido.\n${horariosDisponiveis.map((horario, index) => {
+                const msg = `Por gentileza escolha o horário em que o Sr (a) deseja realizar a entrevista.\nDigite somente o número referente ao horário escolhido.\n${horariosDisponiveis.map((horario, index) => {
                     return `${index + 1}. ${horario}`
                 }).join('\n')}`
                 await sendMessage(To, From, msg)
@@ -630,17 +630,17 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
             if (find.statusWhatsapp === 'Horario enviado' && !isNaN(Number(Body))) {
                 const horarioEscolhido = find.horariosEnviados[Number(Body) - 1]
                 if (!horarioEscolhido) {
-                    const msg = `Olá, por favor escolha um horário válido.`
+                    const msg = `Por favor escolha um horário válido.`
                     await sendMessage(To, From, msg)
                     return res.json({ msg: 'ok' })
                 }
                 const horarioDisponivel = await verificarHorarioDisponivel(find.diaEscolhido, horarioEscolhido)
                 if (!horarioDisponivel) {
-                    const msg = `Olá, o horário escolhido não está mais disponível, por favor escolha outro horário.`
+                    const msg = `O horário escolhido não está mais disponível, por favor escolha outro horário.`
                     await sendMessage(To, From, msg)
                     return res.json({ msg: 'ok' })
                 }
-                const msg = `Olá, por gentileza confirme o dia e horário escolhido para a entrevista.\n${moment(find.diaEscolhido).format('DD/MM/YYYY')} ${horarioEscolhido}\nDigite 1 para confirmar ou 2 para escolher outro horário.`
+                const msg = `Por gentileza confirme o dia e horário escolhido para a entrevista.\n${moment(find.diaEscolhido).format('DD/MM/YYYY')} ${horarioEscolhido}\nDigite 1 para confirmar ou 2 para escolher outro horário.`
                 await sendMessage(To, From, msg)
                 const update = await PropostaEntrevista.findByIdAndUpdate({
                     _id: find._id
@@ -684,14 +684,14 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                         return res.json({ msg: 'ok' })
                     } else {
                         await agendaEntrevistaPorId(find, enfermeira)
-                        const msg = `Olá, agradecemos a confirmação do horário, a entrevista será realizada no dia ${moment(find.diaEscolhido).format('DD/MM/YYYY')} ${find.horarioEscolhido}, às ${find.horarioEscolhido}.`
+                        const msg = `Agradecemos a confirmação do horário, a entrevista será realizada no dia ${moment(find.diaEscolhido).format('DD/MM/YYYY')} ${find.horarioEscolhido}, às ${find.horarioEscolhido}.`
                         await sendMessage(To, From, msg)
                         return res.json({ msg: 'ok' })
                     }
                 }
                 if (Number(Body) === 2) {
                     const diasDisponiveis = await buscarDiasDisponiveis()
-                    const msg = `Olá, por gentileza escolha o dia em que o Sr (a) deseja realizar a entrevista.\nDigite somente o número referente ao dia escolhido.\n${diasDisponiveis.map((dia, index) => {
+                    const msg = `Por gentileza escolha o dia em que o Sr (a) deseja realizar a entrevista.\nDigite somente o número referente ao dia escolhido.\n${diasDisponiveis.map((dia, index) => {
                         return `${index + 1}. ${moment(dia).format('DD/MM/YYYY')}`
                     }).join('\n')}`
                     await sendMessage(To, From, msg)
