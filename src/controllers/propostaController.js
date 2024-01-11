@@ -2597,10 +2597,6 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
             }
 
             let filter = {
-                $and: [
-                    { status: { $ne: "Concluído" } },
-                    { status: { $ne: 'Cancelado' } },
-                ]
             }
 
             let filterConditions = []
@@ -2608,6 +2604,11 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
             if (status.agendar) {
                 // filterConditions.push({ newStatus: 'Agendar' })
                 filterConditions.push({ agendado: { $ne: 'agendado' } })
+            }
+
+            if (status.canceladoHumanizado) {
+                filterConditions.push({ status: 'Cancelado' })
+                filterConditions.push({ atendimentoHumanizado: true })
             }
 
             if (status.humanizado) {
@@ -2679,15 +2680,19 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
                 filterConditions.push({ idade: { $lt: 60 } })
             }
 
-            filterConditions.push({ status: { $ne: 'Concluído' } })
-            filterConditions.push({ status: { $ne: 'Cancelado' } })
+            if (!status.canceladoHumanizado) {
+                filterConditions.push({ status: { $ne: 'Concluído' } })
+                filterConditions.push({ status: { $ne: 'Cancelado' } })
+            }
 
             if (filterConditions.length > 0) {
                 filter.$and = filterConditions
             }
 
+            console.log(filter);
+
             const result = await PropostaEntrevista.find(filter).skip(skip).limit(limit).sort('vigencia')
-            const total = await PropostaEntrevista.find(filter).countDocuments()
+            const total = await PropostaEntrevista.countDocuments(filter)
 
             console.log(total);
 
@@ -2704,155 +2709,161 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
     quantidadeNaoRealizadas: async (req, res) => {
         try {
 
-            const agendar = await PropostaEntrevista.find({
+            const agendar = await PropostaEntrevista.countDocuments({
                 $and: [
                     { status: { $ne: "Concluído" } },
                     { status: { $ne: 'Cancelado' } },
                     { agendado: { $ne: 'agendado' } },
                 ]
-            }).countDocuments()
+            })
 
-            const humanizado = await PropostaEntrevista.find({
+            const humanizado = await PropostaEntrevista.countDocuments({
                 $and: [
                     { status: { $ne: "Concluído" } },
                     { status: { $ne: 'Cancelado' } },
                     { atendimentoHumanizado: true },
                 ]
-            }).countDocuments()
+            })
 
-            const naoLidas = await PropostaEntrevista.find({
+            const canceladoHumanizado = await PropostaEntrevista.countDocuments({
+                status: 'Cancelado',
+                atendimentoHumanizado: true
+            })
+
+            const naoLidas = await PropostaEntrevista.countDocuments({
                 $and: [
                     { status: { $ne: "Concluído" } },
                     { status: { $ne: 'Cancelado' } },
                     { visualizado: true }
                 ]
-            }).countDocuments()
+            })
 
-            const janelas = await PropostaEntrevista.find({
+            const janelas = await PropostaEntrevista.countDocuments({
                 $and: [
                     { status: { $ne: "Concluído" } },
                     { status: { $ne: 'Cancelado' } },
                     { situacao: 'Janela escolhida' },
                     { atendimentoHumanizado: false }
                 ]
-            }).countDocuments()
+            })
 
-            const ajustar = await PropostaEntrevista.find({
+            const ajustar = await PropostaEntrevista.countDocuments({
                 $and: [
                     { status: { $ne: "Concluído" } },
                     { status: { $ne: 'Cancelado' } },
                     { situacao: 'Corrigir' },
                 ]
-            }).countDocuments()
+            })
 
-            const semWhats = await PropostaEntrevista.find({
+            const semWhats = await PropostaEntrevista.countDocuments({
                 $and: [
                     { status: { $ne: "Concluído" } },
                     { status: { $ne: 'Cancelado' } },
                     { newStatus: 'Sem whatsapp' }
                 ]
-            }).countDocuments()
+            })
 
-            const erroWhatsapp = await PropostaEntrevista.find({
+            const erroWhatsapp = await PropostaEntrevista.countDocuments({
                 $and: [
                     { status: { $ne: "Concluído" } },
                     { status: { $ne: 'Cancelado' } },
                     { newStatus: 'Problemas ao Enviar' }
                 ]
-            }).countDocuments()
+            })
 
-            const agendado = await PropostaEntrevista.find({
+            const agendado = await PropostaEntrevista.countDocuments({
                 $and: [
                     { status: { $ne: "Concluído" } },
                     { status: { $ne: 'Cancelado' } },
                     { newStatus: 'Agendado' },
                 ]
-            }).countDocuments()
+            })
 
-            const pme = await PropostaEntrevista.find({
+            const pme = await PropostaEntrevista.countDocuments({
                 tipoContrato: { $regex: 'pme', $options: 'i' },
                 $and: [
                     { status: { $ne: "Concluído" } },
                     { status: { $ne: 'Cancelado' } }
                 ]
-            }).countDocuments()
+            })
 
-            const pf = await PropostaEntrevista.find({
+            const pf = await PropostaEntrevista.countDocuments({
                 tipoContrato: { $regex: 'pf', $options: 'i' },
                 $and: [
                     { status: { $ne: "Concluído" } },
                     { status: { $ne: 'Cancelado' } }
                 ]
-            }).countDocuments()
+            })
 
-            const adesao = await PropostaEntrevista.find({
+            const adesao = await PropostaEntrevista.countDocuments({
                 tipoContrato: { $regex: 'adesão', $options: 'i' },
                 $and: [
                     { status: { $ne: "Concluído" } },
                     { status: { $ne: 'Cancelado' } }
                 ]
-            }).countDocuments()
+            })
 
-            const noPrazo = await PropostaEntrevista.find({
+            const noPrazo = await PropostaEntrevista.countDocuments({
                 vigencia: { $gte: moment().format('YYYY-MM-DD') },
                 $and: [
                     { status: { $ne: "Concluído" } },
                     { status: { $ne: 'Cancelado' } }
                 ]
-            }).countDocuments()
+            })
 
-            const foraDoPrazo = await PropostaEntrevista.find({
+            const foraDoPrazo = await PropostaEntrevista.countDocuments({
                 vigencia: { $lt: moment().format('YYYY-MM-DD') },
                 $and: [
                     { status: { $ne: "Concluído" } },
                     { status: { $ne: 'Cancelado' } }
                 ]
-            }).countDocuments()
+            })
 
-            const baixo = await PropostaEntrevista.find({
+            const baixo = await PropostaEntrevista.countDocuments({
                 riscoBeneficiario: undefined,
                 $and: [
                     { status: { $ne: "Concluído" } },
                     { status: { $ne: 'Cancelado' } }
                 ]
-            }).countDocuments()
+            })
 
-            const medio = await PropostaEntrevista.find({
+            const medio = await PropostaEntrevista.countDocuments({
                 riscoBeneficiario: 'Médio',
                 $and: [
                     { status: { $ne: "Concluído" } },
                     { status: { $ne: 'Cancelado' } }
                 ]
-            }).countDocuments()
+            })
 
-            const alto = await PropostaEntrevista.find({
+            const alto = await PropostaEntrevista.countDocuments({
                 riscoBeneficiario: 'Alto',
                 $and: [
                     { status: { $ne: "Concluído" } },
                     { status: { $ne: 'Cancelado' } }
                 ]
-            }).countDocuments()
+            })
 
-            const maior60 = await PropostaEntrevista.find({
+            const maior60 = await PropostaEntrevista.countDocuments({
                 idade: { $gte: 60 },
                 $and: [
                     { status: { $ne: "Concluído" } },
                     { status: { $ne: 'Cancelado' } }
                 ]
-            }).countDocuments()
+            })
 
-            const menor60 = await PropostaEntrevista.find({
+            const menor60 = await PropostaEntrevista.countDocuments({
                 idade: { $lt: 60 },
                 $and: [
                     { status: { $ne: "Concluído" } },
                     { status: { $ne: 'Cancelado' } }
                 ]
-            }).countDocuments()
+            })
 
 
             return res.json({
                 agendar,
                 humanizado,
+                canceladoHumanizado,
                 janelas,
                 ajustar,
                 semWhats,
@@ -3169,7 +3180,7 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
         }
     },
 
-    
+
 }
 
 const feriados = [
