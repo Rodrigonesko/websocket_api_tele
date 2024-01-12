@@ -6,6 +6,8 @@ require('moment-business-days')
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = require('twilio')(accountSid, authToken);
+const fs = require('fs');
+const { modeloMensagem2 } = require("./functions");
 
 async function updatePropostaEntrevista(find, status) {
     await PropostaEntrevista.updateOne({
@@ -152,6 +154,42 @@ async function marcarHorario(find, enfermeira) {
     })
 
     return update;
+}
+
+async function reenviarMensagensEmMassa() {
+    try {
+
+        fs.readFile('src/utils/base.csv', 'utf8', async (err, data) => {
+            if (err) {
+                console.log(err);
+                return;
+            }
+            const array = data.split('\n')
+            for (const item of array) {
+                let proposta = item.split(';')[2];
+                let cpf = item.split(';')[4];
+                const find = await PropostaEntrevista.findOne({
+                    proposta,
+                    cpf
+                }).lean()
+                if (find) {
+                    if (find.whatsapp === 'whatsapp:+55') {
+                        continue;
+                    }
+                    const mensagem = modeloMensagem2(find.nome, '15/01/2024', '15/01/2024');
+                    await sendMessage(find.wppSender, find.whatsapp, mensagem.mensagem);
+                    console.log('enviado', find.whatsapp, find.nome);
+                } else {
+                    console.log('nao encontrado');
+                }
+            }
+        })
+
+
+
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 

@@ -2180,6 +2180,7 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
                     { status: { $ne: 'Cancelado' } },
                     { reenviadoVigencia: true },
                     { agendado: { $ne: 'agendado' } },
+                    { tipoContrato: { $regex: 'pf', $options: 'i' } }
                 ]
             }).lean()
 
@@ -2547,24 +2548,24 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
         semWhats: true,
         agendado: true,
     });
-
+ 
     const [tipoContrato, setTipoContrato] = useState({
         pme: true,
         pf: true,
         adesao: true,
     });
-
+ 
     const [vigencia, setVigencia] = useState({
         noPrazo: true,
         foraDoPrazo: true,
     });
-
+ 
     const [altoRisco, setAltoRisco] = useState({
         baixo: true,
         medio: true,
         alto: true,
     });
-
+ 
         const [idade, setIdade] = useState({
         maior60: false,
         menor60: false,

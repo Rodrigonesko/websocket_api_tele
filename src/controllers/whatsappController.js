@@ -10,6 +10,8 @@ const { modeloMensagem1, modeloMensagem2, buscarDiasDisponiveis, buscarHorariosD
 const { sendMessage, updatePropostaEntrevista, agendaEntrevistaPorCpfTitular, agendaEntrevistaPorId, encontrarPropostaPorWhatsapp, mandarParaAtendimentoHumanizado, agendaComOStatusPerguntaDependentes, agendarEntrevistaParaDependentesMenoresIdade } = require('../utils/whatsappBotFunctions')
 const { io } = require('../../index');
 
+const fs = require('fs')
+
 module.exports = {
 
     enviarMensagem: async (req, res) => {
@@ -795,6 +797,28 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
             console.log(result);
 
             //console.log(Body, From, To, ProfileName);
+
+            return res.json({ msg: 'ok' })
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
+    },
+
+    reenviarMensagensEmMassa: async (req, res) => {
+        try {
+
+            fs.readFile('base.csv', 'utf8', async (err, data) => {
+                if (err) {
+                    console.log(err);
+                    return res.json({ msg: 'erro' })
+                }
+                const array = data.split('\n')
+                console.log(array);
+            })
 
             return res.json({ msg: 'ok' })
 
