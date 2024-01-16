@@ -577,7 +577,7 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
             //Caso o cpf tenha sido digitado e o whatsapp encontrado no banco, é enviado os dias disponiveis
             if ((!isNaN(Number(Body)) && (find?.statusWhatsapp === 'Cpf digitado')) || find?.statusWhatsapp === 'Saudacao enviada') {
                 const diasDisponiveis = await buscarDiasDisponiveis()
-                const msg = `Olá, por gentileza escolha o dia em que o Sr (a) ${find.nome} deseja realizar a entrevista.\nDigite somente o número referente ao dia escolhido.\n${diasDisponiveis.map((dia, index) => {
+                const msg = `Olá, por gentileza escolha o dia em que o Sr (a) ${find.nome} deseja realizar a teleentrevista. Informamos que demora de 8 a 10 minutos e que a mesma é imprescindível para a continuidade na contratação do plano.\nDigite somente o número referente ao dia escolhido.\n${diasDisponiveis.map((dia, index) => {
                     return `${index + 1}. ${moment(dia).format('DD/MM/YYYY')}`
                 }).join('\n')}`
                 await sendMessage(To, From, msg)
@@ -625,7 +625,7 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                     await sendMessage(To, From, msg)
                     return res.json({ msg: 'ok' })
                 }
-                const msg = `Por gentileza escolha o horário em que o Sr (a) deseja realizar a entrevista.\nDigite somente o número referente ao horário escolhido.\n${horariosDisponiveis.map((horario, index) => {
+                const msg = `Por gentileza escolha o horário em que o Sr (a) deseja realizar a teleentrevista. Para que a área médica entre em contato.\nDigite somente o número referente ao horário escolhido.\n${horariosDisponiveis.map((horario, index) => {
                     return `${index + 1}. ${horario}`
                 }).join('\n')}`
                 await sendMessage(To, From, msg)
@@ -675,14 +675,16 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                     if (find.tipoAssociado === 'Titular' && dependentes.length > 0) {
                         // await agendaComOStatusPerguntaDependentes(find, enfermeira)
                         await agendaEntrevistaPorId(find, enfermeira)
-                        const msg = `Agradecemos a confirmação do horário, a entrevista será realizada no dia ${moment(find.diaEscolhido).format('DD/MM/YYYY')}, às ${find.horarioEscolhido}.`  //Lembrando que caso tenha dependentes, a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação. Gostaria de agendar os dependentes maiores de idade no mesmo horario?\n1 - sim\n2 - não.`
+                        const msg = `Agradecemos a confirmação do horário, a entrevista será realizada no dia ${moment(find.diaEscolhido).format('DD/MM/YYYY')}, às ${find.horarioEscolhido}. Informamos que vamos ligar do número 11 42403554, pedimos para tirar do spam para evitar o bloqueio da ligação.`  //Lembrando que caso tenha dependentes, a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação. Gostaria de agendar os dependentes maiores de idade no mesmo horario?\n1 - sim\n2 - não.`
                         await sendMessage(To, From, msg)
                         if (dependentes.length > 0) {
                             const msg = `Foi detectado que o Sr (a) possui os seguintes depentendes:\n${dependentes.map(dependente => {
                                 return `${dependente.nome} - cpf: ${dependente.cpf || 'Não informado'} - idade: ${dependente.idade || 'Não informado'}`
-                            }).join('\n')}\nPoderia encaminhar esse link para os dependentes maiores de idade, para que os mesmos agendem seus horários?`
+                            }).join('\n')}\n`
                             await sendMessage(To, From, msg)
-                            const link = `https://wa.me/${To.replace('whatsapp:', '')}?text=Olá,%20gostaria%20de%20agendar%20meu%20horário%20para%20a%20entrevista.`
+                            const msg2 = `*Encaminhar a mensagem e o link abaixo para todos os seus dependes para que os mesmos possam agendar seus horários. Se possível avisa-los.*`
+                            await sendMessage(To, From, msg2)
+                            const link = `Oi, trata-se de complementação do nosso plano de saúde, por favor, clique no link abaixo para agendar o horário da sua telentrevista.\n\nhttps://wa.me/${To.replace('whatsapp:', '')}?text=Olá,%20gostaria%20de%20agendar%20meu%20horário%20para%20a%20entrevista.`
                             await sendMessage(To, From, link)
                             const menoresIdade = await verificarDependentesMenoresDeIdade(find.cpfTitular)
                             if (menoresIdade.length > 0) {

@@ -15,7 +15,8 @@ const { calcularIdade } = require('../utils/functions')
 const { ExcelDateToJSDate } = require('../utils/functions')
 const { calcularDiasUteis } = require('../utils/functions')
 
-const { io } = require('../../index')
+const { io } = require('../../index');
+const Log = require('../models/Log');
 
 module.exports = {
     upload: async (req, res) => {
@@ -294,6 +295,12 @@ module.exports = {
                 }
             }
 
+            await Log.create({
+                usuario: req.user,
+                acao: `Upload de propostas`,
+                data: moment().format('DD/MM/YYYY HH:mm:ss')
+            })
+
             return res.status(200).json({ message: `Foram inseridas ${quantidade} novas propostas!` })
         } catch (error) {
             console.log(error);
@@ -474,6 +481,12 @@ module.exports = {
                 _id: id
             })
 
+            await Log.create({
+                usuario: req.user,
+                acao: `Deletou a proposta ${remove.proposta}`,
+                data: moment().format('DD/MM/YYYY HH:mm:ss')
+            })
+
             return res.json(remove)
 
         } catch (error) {
@@ -493,6 +506,12 @@ module.exports = {
                 _id: id
             }, {
                 telefone: telefone
+            })
+
+            await Log.create({
+                usuario: req.user,
+                acao: `Alterou o telefone da proposta ${result.proposta}`,
+                data: moment().format('DD/MM/YYYY HH:mm:ss')
             })
 
             return res.status(200).json({
@@ -539,6 +558,12 @@ module.exports = {
                 $push: {
                     whatsappsAnteriores: find.whatsapp
                 }
+            })
+
+            await Log.create({
+                usuario: req.user,
+                acao: `Alterou o whatsapp da proposta ${find.proposta} - ${find.nome}`,
+                data: moment().format('DD/MM/YYYY HH:mm:ss')
             })
 
             return res.json({
@@ -608,6 +633,12 @@ module.exports = {
                 vigencia
             })
 
+            await Log.create({
+                usuario: req.user,
+                acao: `Alterou a vigência da proposta ${proposta.proposta} - ${proposta.nome}`,
+                data: moment().format('DD/MM/YYYY HH:mm:ss')
+            })
+
             return res.json(proposta)
 
         } catch (error) {
@@ -627,6 +658,12 @@ module.exports = {
                 cpfTitular
             }, {
                 vigencia
+            })
+
+            await Log.create({
+                usuario: req.user,
+                acao: `Alterou a vigência da proposta ${proposta.proposta} - ${proposta.cpfTitular}`,
+                data: moment().format('DD/MM/YYYY HH:mm:ss')
             })
 
             return res.json(proposta)
@@ -672,6 +709,12 @@ module.exports = {
                 formulario
             })
 
+            await Log.create({
+                usuario: req.user,
+                acao: `Alterou o formulário da proposta ${proposta.proposta} - ${proposta.nome}`,
+                data: moment().format('DD/MM/YYYY HH:mm:ss')
+            })
+
             return res.status(200).json(proposta)
 
         } catch (error) {
@@ -691,6 +734,12 @@ module.exports = {
                 _id: id
             }, {
                 sexo
+            })
+
+            await Log.create({
+                usuario: req.user,
+                acao: `Alterou o sexo da proposta ${proposta.proposta} - ${proposta.nome}`,
+                data: moment().format('DD/MM/YYYY HH:mm:ss')
             })
 
             return res.status(200).json(proposta)
@@ -852,6 +901,12 @@ module.exports = {
                 })
             }
 
+            await Log.create({
+                usuario: req.user,
+                acao: `Ajustou o CPF de ${propostas.length} propostas`,
+                data: moment().format('DD/MM/YYYY HH:mm:ss')
+            })
+
             return res.json(propostas)
 
         } catch (error) {
@@ -872,6 +927,12 @@ module.exports = {
             }, {
                 situacao: 'Corrigir',
                 cpfTitular: null
+            })
+
+            await Log.create({
+                usuario: req.user,
+                acao: `Voltou o ajuste da proposta ${result.proposta}`,
+                data: moment().format('DD/MM/YYYY HH:mm:ss')
             })
 
             return res.json(result)
@@ -994,6 +1055,12 @@ module.exports = {
                 horario: moment().format('YYYY-MM-DD HH:mm'),
                 status: verificarStatusMensagem.status,
                 sid: verificarStatusMensagem.sid
+            })
+
+            await Log.create({
+                usuario: req.user,
+                acao: `Enviou mensagem para ${proposta.nome} - ${proposta.proposta}`,
+                data: moment().format('DD/MM/YYYY HH:mm:ss')
             })
 
             return res.json({ msg: 'Enviada' })
@@ -1586,6 +1653,12 @@ module.exports = {
                 situacao: 'Atendimento humanizado'
             })
 
+            await Log.create({
+                usuario: req.user,
+                acao: `Mandou para atendimento humanizado a proposta ${result.proposta} - ${result.nome}`,
+                data: moment().format('DD/MM/YYYY HH:mm:ss')
+            })
+
             return res.json(result)
 
         } catch (error) {
@@ -1974,6 +2047,7 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
                 perguntaAtendimentoHumanizado: true
             })
 
+
             return res.json(result)
 
         } catch (error) {
@@ -1992,6 +2066,12 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
                 _id: id
             }, {
                 responsavelConversa: req.user
+            })
+
+            await Log.create({
+                usuario: req.user,
+                acao: `Assumiu o atendimento da proposta ${result.proposta} - ${result.nome}`,
+                data: moment().format('DD/MM/YYYY HH:mm:ss')
             })
 
             return res.json(result)
@@ -2074,6 +2154,12 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
                 errorCode: messageTwilio.errorCode
             })
 
+            await Log.create({
+                usuario: req.user,
+                acao: `Reenviou mensagem para o whatsapp ${proposta.whatsapp}`,
+                data: moment().format('DD/MM/YYYY HH:mm:ss')
+            })
+
             return res.json(msg)
 
         } catch (error) {
@@ -2135,6 +2221,12 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
                 })
             }
 
+            await Log.create({
+                usuario: req.user,
+                acao: `Reenviou mensagem para os whatsapp ${whatsapps}`,
+                data: moment().format('DD/MM/YYYY HH:mm:ss')
+            })
+
             return res.json({
                 msg: 'ok'
             })
@@ -2180,7 +2272,7 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
                     { status: { $ne: 'Cancelado' } },
                     { reenviadoVigencia: true },
                     { agendado: { $ne: 'agendado' } },
-                    { tipoContrato: { $regex: 'pf', $options: 'i' } }
+                    { tipoContrato: { $regex: /pf/, $options: 'i' } }
                 ]
             }).lean()
 
@@ -3036,6 +3128,7 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
             }, {
                 wppSender
             })
+            
 
             return res.json(result)
 
