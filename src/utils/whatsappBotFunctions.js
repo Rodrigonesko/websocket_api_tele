@@ -111,6 +111,8 @@ async function agendaEntrevistaPorId(find, enfermeira) {
         dataEntrevista: `${moment(find.diaEscolhido).format('YYYY-MM-DD')} ${find.horarioEscolhido}`,
     });
 
+    await marcarHorario(find, enfermeira);
+
     return update;
 }
 
@@ -132,6 +134,8 @@ async function agendarEntrevistaParaDependentesMenoresIdade(dadosTitular, dadosD
         quemAgendou: 'Bot Whatsapp',
         dataEntrevista: `${moment(dadosTitular.diaEscolhido).format('YYYY-MM-DD')} ${dadosTitular.horarioEscolhido}`,
     });
+
+    await marcarHorario(dadosTitular, enfermeira);
 
     return update;
 }
