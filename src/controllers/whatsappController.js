@@ -536,6 +536,21 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                     await updatePropostaEntrevista(find, 'Saudacao enviada')
                     return res.json(msg)
                 }
+
+                if (find.status === 'Concluído') {
+                    const msg = `Sua teleentrevista ja foi concluída, você será encaminhado para o atendimento humanizado.`
+                    await sendMessage(To, From, msg)
+                    await mandarParaAtendimentoHumanizado(find)
+                    return res.json(msg)
+                }
+
+                if (find.status === 'Cancelado') {
+                    const msg = `Sua teleentrevista foi cancelada, você será encaminhado para o atendimento humanizado.`
+                    await sendMessage(To, From, msg)
+                    await mandarParaAtendimentoHumanizado(find)
+                    return res.json(msg)
+                }
+
             }
             //Verifica se ja foi agendado
             if (find?.statusWhatsapp === 'Horario confirmado' && !find?.perguntaAtendimentoHumanizado && !find?.atendimentoHumanizado) {

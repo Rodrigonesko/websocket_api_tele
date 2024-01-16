@@ -137,10 +137,20 @@ async function agendarEntrevistaParaDependentesMenoresIdade(dadosTitular, dadosD
 }
 
 async function encontrarPropostaPorWhatsapp(whatsapp) {
-    return await PropostaEntrevista.findOne({
+    const result = await PropostaEntrevista.findOne({
         whatsapp,
         status: { $nin: ['Cancelado', 'Concluído'] }
     });
+
+    if (result) {
+        return result;
+    } else {
+        const result = await PropostaEntrevista.findOne({
+            whatsapp
+        });
+        return result;
+    }
+
 }
 
 async function marcarHorario(find, enfermeira) {
