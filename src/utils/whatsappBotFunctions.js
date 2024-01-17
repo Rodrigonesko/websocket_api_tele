@@ -166,7 +166,6 @@ async function marcarHorario(find, enfermeira) {
         agendado: 'Agendado',
         nome: find._id
     })
-
     return update;
 }
 

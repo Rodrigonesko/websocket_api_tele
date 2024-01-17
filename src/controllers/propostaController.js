@@ -508,12 +508,6 @@ module.exports = {
                 telefone: telefone
             })
 
-            await Log.create({
-                usuario: req.user,
-                acao: `Alterou o telefone da proposta ${result.proposta}`,
-                data: moment().format('DD/MM/YYYY HH:mm:ss')
-            })
-
             return res.status(200).json({
                 result
             })
