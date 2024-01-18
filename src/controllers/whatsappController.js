@@ -776,7 +776,7 @@ Somos da Área de Implantação da Amil e para concluirmos a contratação do Pl
 Por gentileza, poderia responder essa mensagem para podermos seguir com o atendimento?`
 
             const messageTwilio = await client.messages.create({
-                from: 'whatsapp:+15752234727',
+                from: 'whatsapp:+551150392183',
                 body: msg,
                 to: proposta.whatsapp
             })

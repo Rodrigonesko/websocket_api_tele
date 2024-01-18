@@ -1191,6 +1191,34 @@ module.exports = {
                 return res.json(msg)
             }
 
+            if (find.status === 'Cancelado') {
+
+                const msg = "Um atendente irá entrar em contato para realizar o agendamento."
+                const messageTwilio = await client.messages.create({
+                    from: wppSender,
+                    body: msg,
+                    to: from
+                })
+
+                await Chat.create({
+                    de: wppSender,
+                    para: fixed,
+                    mensagem: msg,
+                    horario: moment().format('YYYY-MM-DD HH:mm'),
+                    status: messageTwilio.status,
+                    sid: messageTwilio.sid
+                })
+
+                await PropostaEntrevista.findByIdAndUpdate({
+                    _id: find._id
+                }, {
+                    atendimentoHumanizado: true,
+                    perguntaAtendimentoHumanizado: true
+                })
+
+                return res.json(msg)
+            }
+
             if (find.situacao === 'Janela escolhida') {
                 return res.json({
                     msg: 'janela ja escolhida'
@@ -3122,7 +3150,7 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
             }, {
                 wppSender
             })
-            
+
 
             return res.json(result)
 
