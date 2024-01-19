@@ -550,7 +550,11 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                     await mandarParaAtendimentoHumanizado(find)
                     return res.json(msg)
                 }
-
+                await PropostaEntrevista.updateOne({
+                    _id: find._id
+                }, {
+                    wppSender: To
+                })
             }
             //Verifica se ja foi agendado
             if (find?.statusWhatsapp === 'Horario confirmado' && !find?.perguntaAtendimentoHumanizado && !find?.atendimentoHumanizado) {
@@ -692,7 +696,11 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                         await agendaEntrevistaPorId(find, enfermeira)
                         const msg = `Agradecemos a confirmação do horário, a entrevista será realizada no dia ${moment(find.diaEscolhido).format('DD/MM/YYYY')}, às ${find.horarioEscolhido}. Informamos que vamos ligar do número 11 42403554, pedimos para tirar do spam para evitar o bloqueio da ligação.`  //Lembrando que caso tenha dependentes, a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação. Gostaria de agendar os dependentes maiores de idade no mesmo horario?\n1 - sim\n2 - não.`
                         await sendMessage(To, From, msg)
-                        if (dependentes.length > 0) {
+                        //verofocar se os dependentes são maiores de idade
+                        let maioresIdade = dependentes.filter(dependente => {
+                            return dependente.idade >= 18
+                        })
+                        if (dependentes.length > 0 && maioresIdade.length > 0) {
                             const msg = `Foi detectado que o Sr (a) possui os seguintes depentendes:\n${dependentes.map(dependente => {
                                 return `${dependente.nome} - cpf: ${dependente.cpf || 'Não informado'} - idade: ${dependente.idade || 'Não informado'}`
                             }).join('\n')}\n`
