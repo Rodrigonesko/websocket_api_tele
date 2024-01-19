@@ -709,16 +709,16 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                             await sendMessage(To, From, msg2)
                             const link = `Oi, trata-se de complementação do nosso plano de saúde, por favor, clique no link abaixo para agendar o horário da sua telentrevista.\n\nhttps://wa.me/${To.replace('whatsapp:', '')}?text=Olá,%20gostaria%20de%20agendar%20meu%20horário%20para%20a%20entrevista.`
                             await sendMessage(To, From, link)
-                            const menoresIdade = await verificarDependentesMenoresDeIdade(find.cpfTitular)
-                            if (menoresIdade.length > 0) {
-                                for (const dependente of menoresIdade) {
-                                    await agendarEntrevistaParaDependentesMenoresIdade(find, dependente, enfermeira)
-                                }
-                                const msg = `Foi agendado os seguintes dependentes menores de idade para o mesmo horário do Sr (a):\n${menoresIdade.map(dependente => {
-                                    return `${dependente.nome} - cpf: ${dependente.cpf || 'Não informado'}`
-                                }).join('\n')}\nLembrando que a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação.`
-                                await sendMessage(To, From, msg)
+                        }
+                        const menoresIdade = await verificarDependentesMenoresDeIdade(find.cpfTitular)
+                        if (menoresIdade.length > 0) {
+                            for (const dependente of menoresIdade) {
+                                await agendarEntrevistaParaDependentesMenoresIdade(find, dependente, enfermeira)
                             }
+                            const msg = `Foi agendado os seguintes dependentes menores de idade para o mesmo horário do Sr (a):\n${menoresIdade.map(dependente => {
+                                return `${dependente.nome} - cpf: ${dependente.cpf || 'Não informado'}`
+                            }).join('\n')}\nLembrando que a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação.`
+                            await sendMessage(To, From, msg)
                         }
                         return res.json({ msg: 'ok' })
                     } else {
