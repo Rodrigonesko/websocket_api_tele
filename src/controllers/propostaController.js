@@ -3293,23 +3293,6 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
             })
         }
     },
-
-    queryFilterPropostas: async (req, res) => {
-        try {
-
-            const { query } = req.body
-
-            const result = await PropostaEntrevista.find(query).lean()
-
-            return res.json(result)
-
-        } catch (error) {
-            console.log(error);
-            return res.status(500).json({
-                msg: "Internal Server Error"
-            })
-        }
-    }
 }
 
 const feriados = [

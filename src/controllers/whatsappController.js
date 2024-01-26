@@ -705,7 +705,7 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                                 return `${dependente.nome} - cpf: ${dependente.cpf || 'Não informado'} - idade: ${dependente.idade || 'Não informado'}`
                             }).join('\n')}\n`
                             await sendMessage(To, From, msg)
-                            const msg2 = `*Por gentileza, ENCAMINHE a mensagem para os seus dependentes agendarem os seus horários*`
+                            const msg2 = `*Por gentileza, ENCAMINHE a mensagem para cada um de seus dependentes agendarem os seus horários*`
                             await sendMessage(To, From, msg2)
                             const link = `Oi, trata-se de complementação do nosso plano de saúde, por favor, clique no link abaixo para agendar o horário da sua telentrevista.\n\nhttps://wa.me/${To.replace('whatsapp:', '')}?text=Olá,%20gostaria%20de%20agendar%20meu%20horário%20para%20a%20entrevista.`
                             await sendMessage(To, From, link)
