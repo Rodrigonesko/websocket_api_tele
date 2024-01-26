@@ -1544,12 +1544,21 @@ module.exports = {
             let mensagem = modeloMensagem1('RODRIGO ONESKO DIAS', '26/04/2023', '27/04/2023').mensagem
 
             const result = await client.messages.create({
+                // from: TwilioNumberPme,
+                // body: 'Estamos tentando contato com o Sr(a) porém sem sucesso. A Sr(a) pode por favor ligar no número 11 4240-0422 e pedir para falar com a equipe médica.',
+                // to: 'whatsapp:+5541997971794'
+                to: 'whatsapp:+5541997971794',
                 from: TwilioNumberPme,
-                body: mensagem,
-                to: 'whatsapp:+5541988379528'
+                contentSid: 'HX456edc7c3b415bb4af1d204900bbddca',
+                messagingServiceSid: 'MG2343a045ad4b5d47d49fa6ce47f08367',
+                //body: 'Estamos tentando contato com o Sr(a) porém sem sucesso. A Sr(a) pode por favor ligar no número 11 4240-0422 e pedir para falar com a equipe médica.',
             })
 
             console.log(result);
+
+            const response = await client.messages(result.sid).fetch()
+
+            console.log(response);
 
             return res.json(result)
 
@@ -3056,46 +3065,35 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
 
     filterAgendadas: async (req, res) => {
         try {
-
-            const { responsavel, page = 1, limit = 100 } = req.body
+            const { responsavel, page = 1, limit = 100, pesquisa } = req.body
 
             let skip = (page - 1) * limit
 
-            if (responsavel === 'Todos') {
-                const result = await PropostaEntrevista.find({
-                    agendado: 'agendado',
-                    $and: [
-                        { status: { $ne: 'Concluído' } },
-                        { status: { $ne: 'Cancelado' } }
-                    ]
-                }).skip(skip).limit(limit).sort('dataEntrevista')
+            let query = {
+                $and: [
+                    { status: { $ne: 'Concluído' } },
+                    { status: { $ne: 'Cancelado' } },
+                    { agendado: 'agendado' }
+                ]
+            };
 
-                const total = await PropostaEntrevista.find({
-                    agendado: 'agendado',
-                    $and: [
-                        { status: { $ne: 'Concluído' } },
-                        { status: { $ne: 'Cancelado' } }
-                    ]
-                }).countDocuments()
-
-                return res.json({ result, total })
+            if (responsavel !== 'Todos') {
+                query.enfermeiro = responsavel;
             }
 
-            const result = await PropostaEntrevista.find({
-                enfermeiro: responsavel,
-                $and: [
-                    { status: { $ne: 'Concluído' } },
-                    { status: { $ne: 'Cancelado' } }
-                ]
-            }).skip(skip).limit(limit).sort('dataEntrevista')
+            if (pesquisa) {
+                query.$or = [
+                    { nome: { $regex: pesquisa, $options: 'i' } },
+                    { proposta: { $regex: pesquisa, $options: 'i' } }
+                ];
+            }
 
-            const total = await PropostaEntrevista.find({
-                enfermeiro: responsavel,
-                $and: [
-                    { status: { $ne: 'Concluído' } },
-                    { status: { $ne: 'Cancelado' } }
-                ]
-            }).countDocuments()
+            const result = await PropostaEntrevista.find(query)
+                .skip(skip)
+                .limit(limit)
+                .sort('dataEntrevista')
+
+            const total = await PropostaEntrevista.find(query).countDocuments()
 
             return res.json({ result, total })
 
@@ -3296,7 +3294,22 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
         }
     },
 
+    queryFilterPropostas: async (req, res) => {
+        try {
 
+            const { query } = req.body
+
+            const result = await PropostaEntrevista.find(query).lean()
+
+            return res.json(result)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: "Internal Server Error"
+            })
+        }
+    }
 }
 
 const feriados = [

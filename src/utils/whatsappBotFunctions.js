@@ -178,33 +178,35 @@ async function reenviarMensagensEmMassa() {
                 return;
             }
             const array = data.split('\n')
+            let contador = 0;
             for (const item of array) {
-                let proposta = item.split(';')[2];
-                let cpf = item.split(';')[4];
+                let proposta = item.split(';')[0];
+                let cpf = item.split(';')[1];
+                console.log(cpf);
+                cpf = String(cpf).replace(/\D/g, '');
                 const find = await PropostaEntrevista.findOne({
-                    proposta,
-                    cpf
-                }).lean()
+                    cpf: cpf,
+                    proposta
+                })
                 if (find) {
-                    if (find.whatsapp === 'whatsapp:+55') {
+                    if (find.whatsapp === 'whatsapp:+55' || find.whatsapp === 'whatsapp:+55undefinedundefined') {
                         continue;
                     }
-                    const mensagem = modeloMensagem2(find.nome, '15/01/2024', '15/01/2024');
+                    const mensagem = modeloMensagem2(find.nome, '24/01/2024', '25/01/2024');
                     await sendMessage(find.wppSender, find.whatsapp, mensagem.mensagem);
                     console.log('enviado', find.whatsapp, find.nome);
                 } else {
                     console.log('nao encontrado');
                 }
+                contador++;
+                console.log(contador);
             }
         })
-
-
 
     } catch (error) {
         console.log(error);
     }
 }
-
 
 module.exports = {
     sendMessage,
