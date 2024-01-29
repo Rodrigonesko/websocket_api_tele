@@ -798,10 +798,21 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                 sid: messageTwilio.sid
             })
 
-            const update = await PropostaEntrevista.findByIdAndUpdate({
+            await PropostaEntrevista.findByIdAndUpdate({
                 _id
             }, {
                 statusWhatsapp: 'Saudacao enviada',
+                situacao: 'Enviada',
+                wppSender: 'whatsapp:+551150392183'
+            })
+
+            await PropostaEntrevista.updateMany({
+                cpfTitular: proposta.cpfTitular,
+                whatsapp: 'whatsapp:+55'
+            }, {
+                statusWhatsapp: 'Saudacao enviada',
+                situacao: 'Enviada',
+                wppSender: 'whatsapp:+551150392183'
             })
 
             return res.json({ msg: 'ok' })

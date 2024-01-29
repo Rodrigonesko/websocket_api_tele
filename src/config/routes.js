@@ -67,6 +67,7 @@ router.post('/paginacaoAgenda', auth, propostaController.paginacaoAgenda)
 router.post('/quantidadePropostasPorMesFiltradas', auth, propostaController.quantidadePropostasPorMesFiltradas)
 router.post('/graficoPropostasPorMesFiltradas', auth, propostaController.graficoPropostasPorMesFiltradas)
 router.get('/quantidadeAnalistasPorMes/:mes', auth, propostaController.quantidadeAnalistasPorMes)
+router.get('/prototipoNaoEnviadas', auth, propostaController.filtroNaoEnviadas)
 
 router.post('/receiveMessage', propostaController.mensagemRecebida)
 
@@ -83,6 +84,8 @@ router.post('/hookStatusMessage', propostaController.hookStatusMessage)
 router.post('/comentario', auth, comentarioController.create)
 router.get('/comentario/:cpf', auth, comentarioController.getComentarioPorCpf)
 router.delete('/comentario/:id', auth, comentarioController.delete)
+
+//Rotas dos webhooks
 router.get('/teste2', whatsappController.teste)
 router.post('/newWebHook', whatsappController.newWebHook)
 router.post('/sendMessageSaudacao', whatsappController.sendMessageSaudacao)

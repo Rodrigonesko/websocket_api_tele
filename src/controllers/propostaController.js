@@ -887,6 +887,7 @@ module.exports = {
 
             for (const item of propostas) {
                 let cpfClean = item.cpfTitular.replace(/[^0-9]/g, '');
+                cpfClean = Number(cpfClean)
                 await PropostaEntrevista.findByIdAndUpdate({
                     _id: item.id
                 }, {
@@ -901,7 +902,7 @@ module.exports = {
                 data: moment().format('DD/MM/YYYY HH:mm:ss')
             })
 
-            return res.json(propostas)
+            return res.json({ msg: 'ok' })
 
         } catch (error) {
             console.log(error);
@@ -3293,6 +3294,30 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
             })
         }
     },
+
+    filtroNaoEnviadas: async (req, res) => {
+
+        const result = await PropostaEntrevista.find({
+            $and: [
+                { status: { $ne: 'Concluído' } },
+                { status: { $ne: 'Cancelado' } },
+                { situacao: 'A enviar' },
+                { agendado: { $ne: 'agendado' } }
+            ]
+        }).lean()
+
+        let cpfsTitulares = result.reduce((acc, cur) => {
+            acc[cur.cpfTitular] = acc[cur.cpfTitular] || [];
+            acc[cur.cpfTitular].push(cur);
+            return acc;
+        }, {});
+
+        let propostasSemDependentes = Object.values(cpfsTitulares).flatMap(propostas => {
+            return propostas.filter(proposta => !(proposta.tipoAssociado === 'Dependente' && proposta.idade >= 9 && proposta.idade <= 17));
+        });
+
+        return res.json({ result, propostasSemDependentes })
+    }
 }
 
 const feriados = [
