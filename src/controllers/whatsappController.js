@@ -553,7 +553,8 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                 await PropostaEntrevista.updateOne({
                     _id: find._id
                 }, {
-                    wppSender: To
+                    wppSender: To,
+
                 })
             }
             //Verifica se ja foi agendado
@@ -582,6 +583,7 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                     whatsapp: From,
                     wppSender: To,
                     statusWhatsapp: 'Cpf digitado',
+                    telefone: From
                 });
                 find = await PropostaEntrevista.findOne({
                     cpf: Number(Body),
@@ -788,6 +790,23 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                 body: msg,
                 to: proposta.whatsapp
             })
+
+            let statusMessage = await client.messages(messageTwilio.sid).fetch()
+            statusMessage = await client.messages(messageTwilio.sid).fetch()
+            statusMessage = await client.messages(messageTwilio.sid).fetch()
+            statusMessage = await client.messages(messageTwilio.sid).fetch()
+            statusMessage = await client.messages(messageTwilio.sid).fetch()
+            statusMessage = await client.messages(messageTwilio.sid).fetch()
+
+            if (statusMessage.status === 'undelivered' || statusMessage.status === 'failed') {
+                await PropostaEntrevista.updateMany({
+                    cpfTitular: proposta.cpfTitular
+                }, {
+                    newStatus: 'Sem whatsapp',
+                    situacao: 'Sem whatsapp',
+                })
+                return res.json({ msg: 'Falha ao enviar mensagem' })
+            }
 
             await Chat.create({
                 de: 'whatsapp:+551150392183',

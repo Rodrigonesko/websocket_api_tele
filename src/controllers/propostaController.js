@@ -3317,6 +3317,33 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
         });
 
         return res.json({ result, propostasSemDependentes })
+    },
+
+    semResposta: async (req, res) => {
+        try {
+
+            const result = await PropostaEntrevista.find({
+                $and: [
+                    { status: { $ne: 'Concluído' } },
+                    { status: { $ne: 'Cancelado' } },
+                    { agendado: { $ne: 'agendado' } },
+                    { situacao: 'Enviada' }
+                ]
+            }).sort({ horarioEnviado: 1 }).lean()
+
+            const semRespostaEmSeisHoras = result.filter(proposta => {
+                return moment(proposta.horarioEnviado).add(6, 'hours') <= moment()
+            })
+
+            return res.json(semRespostaEmSeisHoras)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: "Internal Server Error",
+                error
+            })
+        }
     }
 }
 
