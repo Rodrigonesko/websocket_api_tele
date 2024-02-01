@@ -1920,11 +1920,17 @@ module.exports = {
     mandarMensagem: async (req, res) => {
         try {
 
-            const { whatsapp, mensagem } = req.body
+            const { whatsapp, mensagem, id } = req.body
 
-            const find = await PropostaEntrevista.findOne({
+            let find = await PropostaEntrevista.findOne({
                 whatsapp
             })
+
+            if (id) {
+                find = await PropostaEntrevista.findOne({
+                    _id: id
+                })
+            }
 
             const wppSender = find.wppSender
 
@@ -1932,6 +1938,13 @@ module.exports = {
                 from: wppSender,
                 body: mensagem,
                 to: whatsapp
+            })
+
+            await PropostaEntrevista.updateOne({
+                _id: find._id
+            }, {
+                atendimentoHumanizado: true,
+                perguntaAtendimentoHumanizado: true
             })
 
             let verificarStatusMensagem = await client.messages(result.sid).fetch()
