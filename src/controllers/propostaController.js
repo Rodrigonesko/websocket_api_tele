@@ -3310,14 +3310,19 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
 
     filtroNaoEnviadas: async (req, res) => {
 
+        const { filter } = req.body
+
         const result = await PropostaEntrevista.find({
             $and: [
-                { status: { $ne: 'Concluído' } },
-                { status: { $ne: 'Cancelado' } },
-                { situacao: 'A enviar' },
-                { agendado: { $ne: 'agendado' } }
-            ]
+                // { status: { $ne: 'Concluído' } },
+                // { status: { $ne: 'Cancelado' } },
+                // { situacao: 'A enviar' },
+                // { agendado: { $ne: 'agendado' } }
+                { dataRecebimento: '2024-02-02' },
+                { tipoContrato: 'PME Porte I' },            ]
         }).lean()
+
+        console.log(result.length);
 
         let cpfsTitulares = result.reduce((acc, cur) => {
             acc[cur.cpfTitular] = acc[cur.cpfTitular] || [];
@@ -3325,11 +3330,80 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
             return acc;
         }, {});
 
-        let propostasSemDependentes = Object.values(cpfsTitulares).flatMap(propostas => {
-            return propostas.filter(proposta => !(proposta.tipoAssociado === 'Dependente' && proposta.idade >= 9 && proposta.idade <= 17));
-        });
+        let propostasSemDependentesEntre9a17 = Object.entries(cpfsTitulares).map(propostas => {
+            let flag = false;
+            for (const proposta of propostas[1]) {
+                if (proposta.idade >= 9 && proposta.idade <= 17) {
+                    flag = true;
+                }
+            }
+            if (!flag) {
+                return propostas[1];
+            }
+        })
 
-        return res.json({ result, propostasSemDependentes })
+        let filtradas = [];
+
+        if (filter === 'titular unico') {
+            filtradas = Object.entries(cpfsTitulares).filter(propostas => propostas[1].length === 1 && propostas[1][0].tipoAssociado === 'Titular').map(propostas => {
+                return propostas[1];
+            }).flat()
+        }
+        if (filter === 'titular unico com dependente menor de 8 anos') {
+            filtradas = Object.entries(cpfsTitulares).map(propostas => {
+                let count = 0
+                for (const proposta of propostas[1]) {
+                    if (proposta.idade <= 8 && proposta.tipoAssociado === 'Dependente') {
+                        count++;
+                    }
+                }
+                if (propostas[1].length - 1 === count && count !== 0) {
+                    console.log(propostas[1]);
+                    return propostas[1];
+                }
+            }).flat()
+        }
+        if (filter === 'titular com depente maior de 18 anos') {
+            filtradas = Object.entries(cpfsTitulares).filter(propostas => propostas[1].length > 1 && propostas[1].every(proposta => proposta.idade >= 18)).map(propostas => {
+                return propostas[1];
+            }).flat()
+        }
+        if (filter === 'titular com dependente maior de 18 anos e menor de 9 anos') {
+            filtradas = Object.entries(cpfsTitulares).map(propostas => {
+                let countMenor = 0
+                let countMaior = 0
+                for (const proposta of propostas[1]) {
+                    if (proposta.idade >= 18 && proposta.tipoAssociado === 'Dependente') {
+                        countMaior++;
+                    }
+                    if (proposta.idade <= 8 && proposta.tipoAssociado === 'Dependente') {
+                        countMenor++;
+                    }
+                }
+                if (propostas[1].length - 1 === countMaior + countMenor && countMenor !== 0 && countMaior !== 0 && propostas[1].length >= 3) {
+                    return propostas[1];
+                }
+            }).flat()
+        }
+        if (filter === 'titular com dependente maior de 9 anos e menor de 17 anos') {
+            filtradas = Object.entries(cpfsTitulares).map(propostas => {
+                let count = 0
+                for (const proposta of propostas[1]) {
+                    if (proposta.idade >= 9 && proposta.idade <= 17 && proposta.tipoAssociado === 'Dependente') {
+                        count++;
+                    }
+                }
+                if (count >= 1) {
+                    return propostas[1];
+                }
+            }).flat()
+        }
+
+        filtradas = filtradas.filter(proposta => proposta !== undefined).flat();
+
+        propostasSemDependentesEntre9a17 = propostasSemDependentesEntre9a17.filter(proposta => proposta !== undefined).flat();
+
+        return res.json({ result, propostasSemDependentes: propostasSemDependentesEntre9a17, filtradas })
     },
 
     semResposta: async (req, res) => {

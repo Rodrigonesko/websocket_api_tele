@@ -67,7 +67,7 @@ router.post('/paginacaoAgenda', auth, propostaController.paginacaoAgenda)
 router.post('/quantidadePropostasPorMesFiltradas', auth, propostaController.quantidadePropostasPorMesFiltradas)
 router.post('/graficoPropostasPorMesFiltradas', auth, propostaController.graficoPropostasPorMesFiltradas)
 router.get('/quantidadeAnalistasPorMes/:mes', auth, propostaController.quantidadeAnalistasPorMes)
-router.get('/prototipoNaoEnviadas', auth, propostaController.filtroNaoEnviadas)
+router.post('/prototipoNaoEnviadas', auth, propostaController.filtroNaoEnviadas)
 router.get('/semResposta', auth, propostaController.semResposta)
 
 router.post('/receiveMessage', propostaController.mensagemRecebida)
