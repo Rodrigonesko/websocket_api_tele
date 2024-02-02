@@ -3317,7 +3317,7 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
                 { status: { $ne: 'Concluído' } },
                 { status: { $ne: 'Cancelado' } },
                 { situacao: 'A enviar' },
-                { agendado: { $ne: 'agendado' } }
+                { agendado: { $ne: 'agendado' } },
             ]
         }).lean()
 
@@ -3357,7 +3357,6 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
                     }
                 }
                 if (propostas[1].length - 1 === count && count !== 0) {
-                    console.log(propostas[1]);
                     return propostas[1];
                 }
             }).flat()
@@ -3396,6 +3395,9 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
                     return propostas[1];
                 }
             }).flat()
+        }
+        if (filter === 'todas') {
+            filtradas = result
         }
 
         filtradas = filtradas.filter(proposta => proposta !== undefined).flat();
