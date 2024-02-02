@@ -3314,12 +3314,11 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
 
         const result = await PropostaEntrevista.find({
             $and: [
-                // { status: { $ne: 'Concluído' } },
-                // { status: { $ne: 'Cancelado' } },
-                // { situacao: 'A enviar' },
-                // { agendado: { $ne: 'agendado' } }
-                { dataRecebimento: '2024-02-02' },
-                { tipoContrato: 'PME Porte I' },            ]
+                { status: { $ne: 'Concluído' } },
+                { status: { $ne: 'Cancelado' } },
+                { situacao: 'A enviar' },
+                { agendado: { $ne: 'agendado' } }
+            ]
         }).lean()
 
         console.log(result.length);
