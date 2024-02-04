@@ -887,5 +887,103 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                 msg: 'Internal Server Error'
             })
         }
+    },
+
+    estatisticasAutoAgendamento: async (req, res) => {
+        try {
+
+            const { de, ate, filterText } = req.body
+
+            const result = await PropostaEntrevista.find({
+                horarioEnviado: {
+                    $gte: de,
+                    $lte: ate
+                },
+                statusWhatsapp: { $exists: true }
+            })
+
+            let cpfsTitulares = result.reduce((acc, cur) => {
+                acc[cur.cpfTitular] = acc[cur.cpfTitular] || [];
+                acc[cur.cpfTitular].push(cur);
+                return acc;
+            }, {});
+
+            let filtradas = [];
+
+            if (filterText === 'titular unico') {
+                filtradas = Object.entries(cpfsTitulares).filter(propostas => propostas[1].length === 1 && propostas[1][0].tipoAssociado === 'Titular').map(propostas => {
+                    return propostas[1];
+                }).flat()
+            }
+            if (filterText === 'titular unico com dependente menor de 8 anos') {
+                filtradas = Object.entries(cpfsTitulares).map(propostas => {
+                    let count = 0
+                    for (const proposta of propostas[1]) {
+                        if (proposta.idade <= 8 && proposta.tipoAssociado === 'Dependente') {
+                            count++;
+                        }
+                    }
+                    if (propostas[1].length - 1 === count && count !== 0) {
+                        return propostas[1];
+                    }
+                }).flat()
+            }
+            if (filterText === 'titular com depente maior de 18 anos') {
+                filtradas = Object.entries(cpfsTitulares).filter(propostas => propostas[1].length > 1 && propostas[1].every(proposta => proposta.idade >= 18)).map(propostas => {
+                    return propostas[1];
+                }).flat()
+            }
+            if (filterText === 'titular com dependente maior de 18 anos e menor de 9 anos') {
+                filtradas = Object.entries(cpfsTitulares).map(propostas => {
+                    let countMenor = 0
+                    let countMaior = 0
+                    for (const proposta of propostas[1]) {
+                        if (proposta.idade >= 18 && proposta.tipoAssociado === 'Dependente') {
+                            countMaior++;
+                        }
+                        if (proposta.idade <= 8 && proposta.tipoAssociado === 'Dependente') {
+                            countMenor++;
+                        }
+                    }
+                    if (propostas[1].length - 1 === countMaior + countMenor && countMenor !== 0 && countMaior !== 0 && propostas[1].length >= 3) {
+                        return propostas[1];
+                    }
+                }).flat()
+            }
+            if (filterText === 'titular com dependente maior de 9 anos e menor de 17 anos') {
+                filtradas = Object.entries(cpfsTitulares).map(propostas => {
+                    let count = 0
+                    for (const proposta of propostas[1]) {
+                        if (proposta.idade >= 9 && proposta.idade <= 17 && proposta.tipoAssociado === 'Dependente') {
+                            count++;
+                        }
+                    }
+                    if (count >= 1) {
+                        return propostas[1];
+                    }
+                }).flat()
+            }
+            if (filterText === 'todas') {
+                filtradas = result
+            }
+
+            filtradas = filtradas.filter(proposta => proposta !== undefined).flat();
+
+            let obj = {
+                total: filtradas.length,
+                agendados: filtradas.filter(proposta => proposta.statusWhatsapp === 'Horario confirmado').length,
+                semResposta: filtradas.filter(proposta => proposta.statusWhatsapp === 'Saudacao enviada').length,
+                naoAgendadas: filtradas.filter(proposta => proposta.statusWhatsapp !== 'Saudacao enviada' && proposta.agendado !== 'agendado').length,
+                propostas: filtradas
+            }
+
+            return res.json(obj)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: 'Internal Server Error'
+            })
+        }
     }
 }

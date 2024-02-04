@@ -3432,6 +3432,210 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
                 error
             })
         }
+    },
+
+    producaoIndividualAgendamentos: async (req, res) => {
+        try {
+
+            const { analista, mes } = req.params
+
+            const totalPropostasMes = await PropostaEntrevista.countDocuments({
+                dataRecebimento: { $regex: mes }
+            })
+
+            const totalAgendadas = await PropostaEntrevista.countDocuments({
+                agendado: 'agendado',
+                dataEntrevista: { $regex: mes }
+            })
+
+            const agendadasAnalista = await PropostaEntrevista.countDocuments({
+                quemAgendou: analista,
+                dataEntrevista: { $regex: mes }
+            })
+
+            const analistaQueMaisAgendou = await PropostaEntrevista.aggregate([
+                {
+                    $match: {
+                        dataEntrevista: { $regex: mes }
+                    }
+                },
+                {
+                    $group: {
+                        _id: '$quemAgendou',
+                        total: { $sum: 1 }
+                    }
+                },
+                {
+                    $sort: { total: -1 }
+                },
+                {
+                    $limit: 1
+                }
+            ])
+
+            const mediaDeAgendamentosPorAnalista = await PropostaEntrevista.aggregate([
+                {
+                    $match: {
+                        dataEntrevista: { $regex: mes }
+                    }
+                },
+                {
+                    $group: {
+                        _id: '$quemAgendou',
+                        total: { $sum: 1 }
+                    }
+                }
+            ])
+
+            const media = mediaDeAgendamentosPorAnalista.reduce((acc, cur) => {
+                return acc + cur.total
+            }, 0) / mediaDeAgendamentosPorAnalista.length
+
+            // console.log(
+            //     {
+            //         totalPropostasMes,
+            //         totalAgendadas,
+            //         agendadasAnalista,
+            //         analistaQueMaisAgendou,
+            //         mediaDeAgendamentosPorAnalista,
+            //         media
+            //     }
+            // );
+
+            const object = {
+                totalPropostasMes,
+                totalAgendadas,
+                agendadasAnalista,
+                analistaQueMaisAgendou,
+                mediaDeAgendamentosPorAnalista,
+                media
+            }
+
+            return res.json(object)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: "Internal Server Error",
+                error
+            })
+        }
+    },
+
+    comparativoAgendamentos: async (req, res) => {
+        try {
+
+            const { analista, mes } = req.params
+
+            // options={{
+            //     chart: {
+            //         id: 'basic-bar'
+            //     },
+            //     plotOptions: {
+            //         bar: {
+            //             distributed: false, // Altere para false
+            //         }
+            //     },
+            //     colors: ['#008FFB', '#FF4560'], // Azul e Vermelho
+            //     xaxis: {
+            //         categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep']
+            //     }
+            // }}
+            // series={[
+            //     {
+            //         name: 'series-1',
+            //         data: [30, 40, 45, 50, 49, 60, 70, 91, 125]
+            //     },
+            //     {
+            //         name: 'series-2',
+            //         data: [33, 32, 41, 36, 52, 75, 80, 101, 98] // Adicione seus próprios dados aqui
+            //     }
+            // ]}
+
+            const analistaQueMaisAgendou = await PropostaEntrevista.aggregate([
+                {
+                    $match: {
+                        dataEntrevista: { $regex: mes }
+                    }
+                },
+                {
+                    $group: {
+                        _id: '$quemAgendou',
+                        total: { $sum: 1 }
+                    }
+                },
+                {
+                    $sort: { total: -1 }
+                },
+                {
+                    $limit: 1
+                }
+            ])
+
+            const agendadasAnalista = await PropostaEntrevista.find({
+                quemAgendou: analista,
+                dataEntrevista: { $regex: mes }
+            })
+
+            const agendadasAnalistaQueMaisAgendou = await PropostaEntrevista.find({
+                quemAgendou: analistaQueMaisAgendou[0]._id,
+                dataEntrevista: { $regex: mes }
+            })
+
+            const agendadasMes = await PropostaEntrevista.find({
+                dataEntrevista: { $regex: mes }
+            }, {
+                dataEntrevista: 1
+            }).lean()
+
+            console.log(agendadasAnalistaQueMaisAgendou.length, agendadasAnalista.length);
+
+            // Crie um array de datas para o eixo x
+            let dates = [];
+
+            for (const item of agendadasMes) {
+                if (!dates.includes(item.dataEntrevista.split(' ')[0])) {
+                    dates.push(item.dataEntrevista.split(' ')[0])
+                }
+            }
+
+            dates = dates.sort((a, b) => {
+                return new Date(a) - new Date(b)
+            })
+
+            console.log(dates);
+
+            // Crie um array de objetos com as datas e a quantidade de agendamentos
+
+            let series = [
+                {
+                    name: analista,
+                    data: []
+                },
+                {
+                    name: analistaQueMaisAgendou[0]._id,
+                    data: []
+                }
+            ];
+
+            for (const date of dates) {
+                series[0].data.push(agendadasAnalista.filter(e => e.dataEntrevista.split(' ')[0] === date).length)
+                series[1].data.push(agendadasAnalistaQueMaisAgendou.filter(e => e.dataEntrevista.split(' ')[0] === date).length)
+            }
+
+            console.log(series);
+
+            dates = dates.map(e => moment(e).format('DD/MM'))
+
+            return res.json({ series, dates })
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: "Internal Server Error",
+                error
+            })
+        }
     }
 }
 

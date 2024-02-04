@@ -69,6 +69,9 @@ router.post('/graficoPropostasPorMesFiltradas', auth, propostaController.grafico
 router.get('/quantidadeAnalistasPorMes/:mes', auth, propostaController.quantidadeAnalistasPorMes)
 router.post('/prototipoNaoEnviadas', auth, propostaController.filtroNaoEnviadas)
 router.get('/semResposta', auth, propostaController.semResposta)
+router.post('/estatisticasAutoAgendamento', auth, whatsappController.estatisticasAutoAgendamento)
+router.get('/producaoIndividualAgendamentos/:analista/:mes', auth, propostaController.producaoIndividualAgendamentos)
+router.get('/comparativoAgendamentos/:analista/:mes', auth, propostaController.comparativoAgendamentos)
 
 router.post('/receiveMessage', propostaController.mensagemRecebida)
 
