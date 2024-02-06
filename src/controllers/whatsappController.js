@@ -838,6 +838,8 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                 horarioEnviado: moment().format('YYYY-MM-DD HH:mm')
             })
 
+            console.log('Mensagem enviada com sucesso');
+
             return res.json({ msg: 'ok' })
 
         } catch (error) {
