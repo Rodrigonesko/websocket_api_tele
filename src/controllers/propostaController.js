@@ -10,7 +10,7 @@ const TwilioNumberPme = process.env.TWILIO_NUMBER_PME
 const TwilioNumberSP = process.env.TWILIO_NUMBER_SP
 const MessagingResponse = require('twilio').twiml.MessagingResponse;
 const VoiceResponse = require('twilio').twiml.VoiceResponse;
-const { modeloMensagem1, modeloMensagem2 } = require('../utils/functions')
+const { modeloMensagem1, modeloMensagem2, countWeekdaysInMonth } = require('../utils/functions')
 const { calcularIdade } = require('../utils/functions')
 const { ExcelDateToJSDate } = require('../utils/functions')
 const { calcularDiasUteis } = require('../utils/functions')
@@ -3527,31 +3527,6 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
 
             const { analista, mes } = req.params
 
-            // options={{
-            //     chart: {
-            //         id: 'basic-bar'
-            //     },
-            //     plotOptions: {
-            //         bar: {
-            //             distributed: false, // Altere para false
-            //         }
-            //     },
-            //     colors: ['#008FFB', '#FF4560'], // Azul e Vermelho
-            //     xaxis: {
-            //         categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep']
-            //     }
-            // }}
-            // series={[
-            //     {
-            //         name: 'series-1',
-            //         data: [30, 40, 45, 50, 49, 60, 70, 91, 125]
-            //     },
-            //     {
-            //         name: 'series-2',
-            //         data: [33, 32, 41, 36, 52, 75, 80, 101, 98] // Adicione seus próprios dados aqui
-            //     }
-            // ]}
-
             const analistaQueMaisAgendou = await PropostaEntrevista.aggregate([
                 {
                     $match: {
@@ -3628,6 +3603,147 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
             dates = dates.map(e => moment(e).format('DD/MM'))
 
             return res.json({ series, dates })
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: "Internal Server Error",
+                error
+            })
+        }
+    },
+
+    analiticoAgendamentoMensal: async (req, res) => {
+        try {
+
+            const { mes } = req.params
+
+            const propostasRecebidas = await PropostaEntrevista.countDocuments({
+                dataRecebimento: { $regex: mes }
+            })
+
+            const propostasAgendadas = await PropostaEntrevista.countDocuments({
+                dataRecebimento: { $regex: mes },
+                agendado: 'agendado'
+            })
+
+            const propostasNaoAgendadas = await PropostaEntrevista.countDocuments({
+                dataRecebimento: { $regex: mes },
+                agendado: { $ne: 'agendado' },
+                status: { $ne: 'Concluído', $ne: 'Cancelado' },
+            })
+
+            const propostasNaoAgendadasEConcluidas = await PropostaEntrevista.countDocuments({
+                dataRecebimento: { $regex: mes },
+                agendado: { $ne: 'agendado' },
+                status: 'Concluído'
+            })
+
+            const propostasNaoAgendadasECanceladas = await PropostaEntrevista.countDocuments({
+                dataRecebimento: { $regex: mes },
+                agendado: { $ne: 'agendado' },
+                status: 'Cancelado'
+            })
+
+            return res.json({
+                propostasRecebidas,
+                propostasAgendadas,
+                propostasNaoAgendadas,
+                propostasNaoAgendadasEConcluidas,
+                propostasNaoAgendadasECanceladas
+            })
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: "Internal Server Error",
+                error
+            })
+        }
+    },
+
+    graficoPropostasAgendadas: async (req, res) => {
+        try {
+
+            const { mes } = req.params
+
+            const result = await PropostaEntrevista.find({
+                dataEntrevista: { $regex: mes }
+            }).lean()
+
+            let data = [
+                //{ x: 'Dia/Mes/Ano', y: 54 },
+            ]
+
+            for (const item of result) {
+
+                const key = moment(item.dataEntrevista).format('YYYY-MM-DD')
+
+                const index = data.findIndex(e => e.x === key)
+
+                if (index === -1) {
+                    data.push({
+                        x: key,
+                        y: 1
+                    })
+                } else {
+                    data[index].y += 1
+                }
+            }
+
+            data = data.map(e => {
+                return {
+                    x: moment(e.x).format('DD/MM'),
+                    y: e.y
+                }
+            }).sort((a, b) => {
+                const dateA = new Date(a.x.split('/').reverse().join('-'));
+                const dateB = new Date(b.x.split('/').reverse().join('-'));
+                return dateA - dateB;
+            });
+
+            return res.json(data)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: "Internal Server Error",
+                error
+            })
+        }
+    },
+
+    producaoAnalistasAgendamento: async (req, res) => {
+        try {
+
+            const { mes } = req.params
+
+            const diasUteis = countWeekdaysInMonth(mes.split('-')[0], mes.split('-')[1] - 1)
+
+            let result = await PropostaEntrevista.aggregate([
+                {
+                    $match: {
+                        dataEntrevista: { $regex: mes }
+                    }
+                },
+                {
+                    $group: {
+                        _id: '$quemAgendou',
+                        total: { $sum: 1 },
+                    }
+                }
+            ])
+
+            result = result.map(item => {
+                return {
+                    ...item,
+                    media: item.total / diasUteis
+                }
+            }).sort((a, b) => b.total - a.total)
+
+            console.log(result);
+
+            return res.json(result)
 
         } catch (error) {
             console.log(error);

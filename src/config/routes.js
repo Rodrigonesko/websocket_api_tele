@@ -72,6 +72,9 @@ router.get('/semResposta', auth, propostaController.semResposta)
 router.post('/estatisticasAutoAgendamento', auth, whatsappController.estatisticasAutoAgendamento)
 router.get('/producaoIndividualAgendamentos/:analista/:mes', auth, propostaController.producaoIndividualAgendamentos)
 router.get('/comparativoAgendamentos/:analista/:mes', auth, propostaController.comparativoAgendamentos)
+router.get('/analiticoAgendamentoMensal/:mes', auth, propostaController.analiticoAgendamentoMensal)
+router.get('/producaoAnalistasAgendamento/:mes', auth, propostaController.producaoAnalistasAgendamento)
+router.get('/graficoPropostasAgendadas/:mes', auth, propostaController.graficoPropostasAgendadas)
 
 router.post('/receiveMessage', propostaController.mensagemRecebida)
 
