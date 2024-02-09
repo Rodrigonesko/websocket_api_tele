@@ -3491,16 +3491,32 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
                 return acc + cur.total
             }, 0) / mediaDeAgendamentosPorAnalista.length
 
-            // console.log(
-            //     {
-            //         totalPropostasMes,
-            //         totalAgendadas,
-            //         agendadasAnalista,
-            //         analistaQueMaisAgendou,
-            //         mediaDeAgendamentosPorAnalista,
-            //         media
-            //     }
-            // );
+            const realizadaAgendada = await PropostaEntrevista.countDocuments({
+                dataConclusao: { $regex: mes },
+                agendado: 'agendado',
+                enfermeiro: analista
+            })
+
+            const realizadaNaoAgendada = await PropostaEntrevista.countDocuments({
+                dataConclusao: { $regex: mes },
+                agendado: { $ne: 'agendado' },
+                enfermeiro: analista
+            })
+
+            const quantidadePrimeiroContato = await PropostaEntrevista.countDocuments({
+                contato1: { $regex: moment(mes).format('MM/YYYY') },
+                responsavelContato1: analista
+            })
+
+            const quantidadeSegundoContato = await PropostaEntrevista.countDocuments({
+                contato2: { $regex: moment(mes).format('MM/YYYY') },
+                responsavelContato2: analista
+            })
+
+            const quantidadeTerceiroContato = await PropostaEntrevista.countDocuments({
+                contato3: { $regex: moment(mes).format('MM/YYYY') },
+                responsavelContato3: analista
+            })
 
             const object = {
                 totalPropostasMes,
@@ -3508,7 +3524,12 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
                 agendadasAnalista,
                 analistaQueMaisAgendou,
                 mediaDeAgendamentosPorAnalista,
-                media
+                media,
+                realizadaAgendada,
+                realizadaNaoAgendada,
+                quantidadePrimeiroContato,
+                quantidadeSegundoContato,
+                quantidadeTerceiroContato
             }
 
             return res.json(object)
@@ -3550,12 +3571,12 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
             const agendadasAnalista = await PropostaEntrevista.find({
                 quemAgendou: analista,
                 dataEntrevista: { $regex: mes }
-            })
+            }).lean()
 
             const agendadasAnalistaQueMaisAgendou = await PropostaEntrevista.find({
                 quemAgendou: analistaQueMaisAgendou[0]._id,
                 dataEntrevista: { $regex: mes }
-            })
+            }).lean()
 
             const agendadasMes = await PropostaEntrevista.find({
                 dataEntrevista: { $regex: mes }
@@ -3644,6 +3665,7 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
                 agendado: { $ne: 'agendado' },
                 status: 'Cancelado'
             })
+
 
             return res.json({
                 propostasRecebidas,
@@ -3752,7 +3774,7 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
                 error
             })
         }
-    }
+    },
 }
 
 const feriados = [
