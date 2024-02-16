@@ -851,7 +851,15 @@ module.exports = {
         try {
 
             const propostas = await PropostaEntrevista.find({
-                situacao: 'A enviar'
+                situacao: 'A enviar',
+                $and: [
+                    {
+                        status: { $ne: 'Concluído' }
+                    },
+                    {
+                        status: { $ne: 'Cancelado' }
+                    }
+                ]
             })
 
             return res.json(propostas)
@@ -868,7 +876,11 @@ module.exports = {
         try {
 
             const propostas = await PropostaEntrevista.find({
-                situacao: 'Corrigir'
+                situacao: 'Corrigir',
+                $and: [
+                    { status: { $ne: 'Concluído' } },
+                    { status: { $ne: 'Cancelado' } }
+                ]
             })
 
             return res.json(propostas)
@@ -998,15 +1010,10 @@ module.exports = {
 
             let verificarStatusMensagem
 
-            verificarStatusMensagem = await client.messages(result.sid).fetch()
 
-            verificarStatusMensagem = await client.messages(result.sid).fetch()
-
-            verificarStatusMensagem = await client.messages(result.sid).fetch()
-
-            verificarStatusMensagem = await client.messages(result.sid).fetch()
-
-            verificarStatusMensagem = await client.messages(result.sid).fetch()
+            for (let index = 0; index < 5; index++) {
+                verificarStatusMensagem = await client.messages(result.sid).fetch()
+            }
 
             if (verificarStatusMensagem.status === 'undelivered') {
                 console.log('Problema ao enviar');

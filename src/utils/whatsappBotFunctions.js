@@ -181,7 +181,7 @@ async function reenviarMensagensEmMassa() {
             let contador = 0;
             for (const item of array) {
                 let proposta = item.split(';')[0];
-                let cpf = item.split(';')[1];
+                let cpf = item.split(';')[2];
                 console.log(cpf);
                 cpf = String(cpf).replace(/\D/g, '');
                 const find = await PropostaEntrevista.findOne({
@@ -192,7 +192,8 @@ async function reenviarMensagensEmMassa() {
                     if (find.whatsapp === 'whatsapp:+55' || find.whatsapp === 'whatsapp:+55undefinedundefined') {
                         continue;
                     }
-                    const mensagem = modeloMensagem2(find.nome, '24/01/2024', '25/01/2024');
+                    // ALTERAR OS DIAS DAS MENSAGENS PARA OS DIAS CORRETOS !!!!!!!!!
+                    const mensagem = modeloMensagem2(find.nome, '19/02/2024', '20/02/2024');
                     await sendMessage(find.wppSender, find.whatsapp, mensagem.mensagem);
                     console.log('enviado', find.whatsapp, find.nome);
                 } else {
@@ -207,6 +208,8 @@ async function reenviarMensagensEmMassa() {
         console.log(error);
     }
 }
+
+//reenviarMensagensEmMassa();
 
 module.exports = {
     sendMessage,
