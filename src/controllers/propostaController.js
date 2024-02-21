@@ -904,7 +904,8 @@ module.exports = {
                     _id: item.id
                 }, {
                     cpfTitular: cpfClean,
-                    situacao: 'A enviar'
+                    situacao: 'A enviar',
+                    quemAjustou: req.user,
                 })
             }
 
@@ -3525,6 +3526,12 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
                 responsavelContato3: analista
             })
 
+            const janelas = await PropostaEntrevista.countDocuments({
+                janelaHorario: { $exists: true },
+                quemAgendou: analista,
+                dataEntrevista: { $regex: mes }
+            })
+
             const object = {
                 totalPropostasMes,
                 totalAgendadas,
@@ -3536,7 +3543,8 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
                 realizadaNaoAgendada,
                 quantidadePrimeiroContato,
                 quantidadeSegundoContato,
-                quantidadeTerceiroContato
+                quantidadeTerceiroContato,
+                janelas
             }
 
             return res.json(object)

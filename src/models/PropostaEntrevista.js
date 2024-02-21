@@ -94,7 +94,8 @@ const propostaScheema = new mongoose.Schema({
     diasEnviados: [''],
     diaEscolhido: String,
     horariosEnviados: [''],
-    horarioEscolhido: String
+    horarioEscolhido: String,
+    quemAjustou: String
 }, {
     timestamps: true
 })

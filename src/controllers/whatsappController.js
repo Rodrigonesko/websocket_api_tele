@@ -835,7 +835,9 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                 statusWhatsapp: 'Saudacao enviada',
                 situacao: 'Enviada',
                 wppSender: 'whatsapp:+551150392183',
-                horarioEnviado: moment().format('YYYY-MM-DD HH:mm')
+                horarioEnviado: moment().format('YYYY-MM-DD HH:mm'),
+                responsavelContato1: 'Bot Whatsapp',
+                horarioContato1: moment().format('YYYY-MM-DD HH:mm')
             })
 
             console.log('Mensagem enviada com sucesso');
