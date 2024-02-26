@@ -3790,6 +3790,39 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
             })
         }
     },
+
+    producaoConcluidasSemAgendar: async (req, res) => {
+        try {
+
+            const { mes } = req.params
+
+            let result = await PropostaEntrevista.aggregate([
+                {
+                    $match: {
+                        dataConclusao: { $regex: mes },
+                        agendado: { $ne: 'agendado' }
+                    }
+                },
+                {
+                    $group: {
+                        _id: '$enfermeiro',
+                        total: { $sum: 1 }
+                    }
+                }
+            ])
+
+            result = result.sort((a, b) => b.total - a.total)
+
+            return res.json(result)
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: "Internal Server Error",
+                error
+            })
+        }
+    }
 }
 
 const feriados = [

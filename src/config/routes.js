@@ -75,6 +75,7 @@ router.get('/comparativoAgendamentos/:analista/:mes', auth, propostaController.c
 router.get('/analiticoAgendamentoMensal/:mes', auth, propostaController.analiticoAgendamentoMensal)
 router.get('/producaoAnalistasAgendamento/:mes', auth, propostaController.producaoAnalistasAgendamento)
 router.get('/graficoPropostasAgendadas/:mes', auth, propostaController.graficoPropostasAgendadas)
+router.get('/producaoConcluidasSemAgendar/:mes', auth, propostaController.producaoConcluidasSemAgendar)
 
 router.post('/receiveMessage', propostaController.mensagemRecebida)
 
