@@ -409,18 +409,18 @@ module.exports = {
 
             let statusAgendado = ''
 
-            if(find.retrocedido === 'Sim'){
+            if (find.retrocedido === 'Sim') {
                 statusAgendado = 'Cancelado humanizado'
             }
-            if(find.janelaHorario){
+            if (find.janelaHorario) {
                 statusAgendado = 'Janela'
             }
 
-            if(find.newStatus === 'Erro Whatsapp' || find.newStatus === 'Sem Whatsapp'){
+            if (find.newStatus === 'Erro Whatsapp' || find.newStatus === 'Sem Whatsapp') {
                 statusAgendado = 'Sem Whatsapp'
             }
 
-            if(find.atendimentoHumanizado){
+            if (find.atendimentoHumanizado) {
                 statusAgendado = 'Humanizado'
             }
 
@@ -3548,10 +3548,32 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
                 responsavelContato3: analista
             })
 
-            const janelas = await PropostaEntrevista.countDocuments({
-                janelaHorario: { $exists: true },
-                quemAgendou: analista,
-                dataEntrevista: { $regex: mes }
+            const quantidadeHumanizado = await PropostaEntrevista.countDocuments({
+                dataRecebimento: { $regex: mes },
+                agendado: 'agendado',
+                statusAgendado: 'Humanizado',
+                quemAgendou: analista
+            })
+
+            const quantidadeSemWhats = await PropostaEntrevista.countDocuments({
+                dataRecebimento: { $regex: mes },
+                agendado: 'agendado',
+                statusAgendado: 'Sem Whatsapp',
+                quemAgendou: analista
+            })
+
+            const quantidadeJanela = await PropostaEntrevista.countDocuments({
+                dataRecebimento: { $regex: mes },
+                agendado: 'agendado',
+                statusAgendado: 'Janela',
+                quemAgendou: analista
+            })
+
+            const quantidadadeCanceladoHumanizado = await PropostaEntrevista.countDocuments({
+                dataRecebimento: { $regex: mes },
+                agendado: 'agendado',
+                statusAgendado: 'Cancelado humanizado',
+                quemAgendou: analista
             })
 
             const object = {
@@ -3566,7 +3588,10 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
                 quantidadePrimeiroContato,
                 quantidadeSegundoContato,
                 quantidadeTerceiroContato,
-                janelas
+                quantidadeHumanizado,
+                quantidadeSemWhats,
+                quantidadeJanela,
+                quantidadadeCanceladoHumanizado
             }
 
             return res.json(object)
@@ -3703,13 +3728,40 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
                 status: 'Cancelado'
             })
 
+            const quantidadeHumanizado = await PropostaEntrevista.countDocuments({
+                dataRecebimento: { $regex: mes },
+                agendado: 'agendado',
+                statusAgendado: 'Humanizado'
+            })
+
+            const quantidadeSemWhats = await PropostaEntrevista.countDocuments({
+                dataRecebimento: { $regex: mes },
+                agendado: 'agendado',
+                statusAgendado: 'Sem Whatsapp'
+            })
+
+            const quantidadeJanela = await PropostaEntrevista.countDocuments({
+                dataRecebimento: { $regex: mes },
+                agendado: 'agendado',
+                statusAgendado: 'Janela'
+            })
+
+            const quantidadadeCanceladoHumanizado = await PropostaEntrevista.countDocuments({
+                dataRecebimento: { $regex: mes },
+                agendado: 'agendado',
+                statusAgendado: 'Cancelado humanizado'
+            })
 
             return res.json({
                 propostasRecebidas,
                 propostasAgendadas,
                 propostasNaoAgendadas,
                 propostasNaoAgendadasEConcluidas,
-                propostasNaoAgendadasECanceladas
+                propostasNaoAgendadasECanceladas,
+                quantidadeHumanizado,
+                quantidadeSemWhats,
+                quantidadeJanela,
+                quantidadadeCanceladoHumanizado
             })
 
         } catch (error) {
