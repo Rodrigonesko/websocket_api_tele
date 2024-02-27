@@ -84,7 +84,7 @@ function modeloMensagem1(nome, data1, data2) {
     7. Das 14:00 às 16:00
     8. Das 16:00 às 18:00
     Qual o melhor horário?
-    Informamos que vamos ligar dos números 11 42404975 ou 42403554, pedimos tirar do spam para evitar bloqueio da ligação. Desde já agradecemos.
+    Informamos que vamos ligar dos números 11 42407120 ou 42403554, pedimos tirar do spam para evitar bloqueio da ligação. Desde já agradecemos.
     Atenção: o preenchimento dos horários é feito em tempo real. Caso o horário informado não esteja mais disponível, apresentarei uma nova opção.
     Lembrando que em caso de menor de idade a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação.`
 
@@ -108,7 +108,7 @@ function modeloMensagem2(nome, data1, data2) {
     9. Das 14:00 às 16:00
     10. Das 16:00 às 18:00
     Qual o melhor horário?
-    Informamos que vamos ligar dos números 11 42404975 ou 42403554, pedimos tirar do spam para evitar bloqueio da ligação. Desde já agradecemos.
+    Informamos que vamos ligar dos números 11 42407120 ou 42403554, pedimos tirar do spam para evitar bloqueio da ligação. Desde já agradecemos.
     Atenção: o preenchimento dos horários é feito em tempo real. Caso o horário informado não esteja mais disponível, apresentarei uma nova opção.
     Lembrando que em caso de menor de idade a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação.`
 

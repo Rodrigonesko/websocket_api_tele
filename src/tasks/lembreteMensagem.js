@@ -5,7 +5,8 @@ const TwilioNumber = process.env.TWILIO_NUMBER
 const moment = require('moment')
 
 const PropostaEntrevista = require('../models/PropostaEntrevista')
-const Chat = require('../models/Chat')
+const Chat = require('../models/Chat');
+const { sendMessage } = require('../utils/whatsappBotFunctions');
 
 async function lembreteMensagem() {
 
@@ -21,7 +22,7 @@ async function lembreteMensagem() {
         const dataEntrevista = item.dataEntrevista
         const agora = moment().format('YYYY-MM-DD HH:mm:ss')
 
-        const {wppSender} = item
+        const { wppSender } = item
 
         let whatsapp
 
@@ -37,7 +38,7 @@ async function lembreteMensagem() {
 
         if (verificarTempoEntreDatas(agora, dataEntrevista) && !item.lembrete) {
 
-            const mensagem = `Sr (a) ${item.nome}, a equipe médica está finalizando um atendimento e, na sequência, entrará em contato contigo conforme o agendamento feito anteriormente. Informamos que vamos ligar dos números 11 42404975 ou 11 42403554, pedimos tirar do spam para evitar bloqueio da ligação. Essa entrevista dura em média de 8 a 10 minutos, orientamos que esteja em ambiente silencioso e sem interferências para evitar ruídos que possam interferir nas respostas, bem como na qualidade da ligação. Agradecemos desde já.`
+            const mensagem = `Sr (a) ${item.nome}, a equipe médica está finalizando um atendimento e, na sequência, entrará em contato contigo conforme o agendamento feito anteriormente. Informamos que vamos ligar dos números 11 42407120 ou 11 42403554, pedimos tirar do spam para evitar bloqueio da ligação. Essa entrevista dura em média de 8 a 10 minutos, orientamos que esteja em ambiente silencioso e sem interferências para evitar ruídos que possam interferir nas respostas, bem como na qualidade da ligação. Agradecemos desde já.`
 
             console.log(whatsapp, item.dataEntrevista, agora, item.nome);
 
@@ -47,18 +48,7 @@ async function lembreteMensagem() {
                 lembrete: true
             })
 
-            await Chat.create({
-                de: wppSender,
-                para: whatsapp,
-                mensagem,
-                horario: moment().format('YYYY-MM-DD HH:mm')
-            })
-
-            await client.messages.create({
-                from: wppSender,
-                to: whatsapp,
-                body: mensagem
-            })
+            await sendMessage(wppSender, whatsapp, mensagem)
         }
     }
 }
