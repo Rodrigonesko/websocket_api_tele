@@ -27,6 +27,7 @@ const propostaScheema = new mongoose.Schema({
     d9: String,
     observacao: String,
     agendado: String,
+    statusAgendado: String,
     cid: String,
     filial: String,
     riscoBeneficiario: String,

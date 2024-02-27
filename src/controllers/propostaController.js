@@ -403,6 +403,27 @@ module.exports = {
 
             const { id, dataEHora, responsavel, quemAgendou, canal } = req.body
 
+            const find = await PropostaEntrevista.findOne({
+                _id: id
+            })
+
+            let statusAgendado = ''
+
+            if(find.retrocedido === 'Sim'){
+                statusAgendado = 'Cancelado humanizado'
+            }
+            if(find.janelaHorario){
+                statusAgendado = 'Janela'
+            }
+
+            if(find.newStatus === 'Erro Whatsapp' || find.newStatus === 'Sem Whatsapp'){
+                statusAgendado = 'Sem Whatsapp'
+            }
+
+            if(find.atendimentoHumanizado){
+                statusAgendado = 'Humanizado'
+            }
+
             const updateTele = await PropostaEntrevista.findByIdAndUpdate({
                 _id: id
             }, {
@@ -411,7 +432,8 @@ module.exports = {
                 enfermeiro: responsavel,
                 quemAgendou: quemAgendou,
                 newStatus: 'Agendado',
-                canal
+                canal,
+                statusAgendado
             })
 
             return res.json(updateTele)
