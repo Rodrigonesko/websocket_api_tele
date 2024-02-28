@@ -98,27 +98,17 @@ module.exports = {
                     vigencia = moment(vigencia).format('YYYY-MM-DD')
 
                     const filial = item.FILIAL
-
                     const riscoBeneficiario = item.RISCO_BENEF
-
                     const riscoImc = item.RISCO_IMC
-
                     const sinistral = item.SINISTRALIDADE_ANT
-
                     const liminar = item.LIMINAR_ANT
-
                     const fraude = item.FRAUDE_ANT
-
                     const propCancel = item.PROP_CANCEL_UNDER_ANT
-
                     const sinistContr = item.SINIST_CONTR_ANT
-
                     const corretora = item.CORRETORA
-
                     const corretor = item.CORRETOR
 
                     let cpf = ''
-
 
                     //Verificar se o item.NUM_CPF não é um número
 
@@ -127,21 +117,13 @@ module.exports = {
                     } else {
                         cpf = item.NUM_CPF
                     }
-
-                    const nome = item.NOME_ASSOCIADO
-
+                    const nome = item.NOME_ASSOCIADO?.trim()
                     const sexo = item.SEXO
-
                     const tipoAssociado = item.TIPO_ASSOCIADO || item.T
-
                     const tipoContrato = item.TIPO_CONTRATO
-
                     const nomeOperadora = item.NOM_OPERADORA
-
                     vigencia = moment().businessAdd(2).format('YYYY-MM-DD')
-
                     const grupoCarencia = item.GRUPO_CARENCIA
-
                     const d1 = item.DS_1
                     const d2 = item.DS_2
                     const d3 = item.DS_3
