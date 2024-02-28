@@ -524,7 +524,7 @@ module.exports = {
             })
             let find = await encontrarPropostaPorWhatsapp(From)
             //Verifica se esta no atendimento humazizado
-            if (isNaN(Number(Body)) && find?.atendimentoHumanizado) {
+            if (find?.atendimentoHumanizado) {
                 return res.json(Body)
             }
             if (find) {

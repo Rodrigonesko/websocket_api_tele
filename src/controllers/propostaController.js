@@ -1977,7 +1977,8 @@ module.exports = {
                 horario: moment().format('YYYY-MM-DD HH:mm'),
                 status: verificarStatusMensagem.status,
                 sid: verificarStatusMensagem.sid,
-                errorCode: verificarStatusMensagem.errorCode
+                errorCode: verificarStatusMensagem.errorCode,
+                quemEnviou: req.user
             })
 
             return res.json({ msg: 'ok' })
