@@ -509,7 +509,7 @@ module.exports = {
     newWebHook: async (req, res) => {
         try {
 
-            let { Body, From, To } = req.body
+            let { Body, From, To, MediaUrl0 } = req.body
 
             if (From.length === 22) {
                 let primeiraParte = From.slice(0, 14)
@@ -521,6 +521,7 @@ module.exports = {
                 para: To,
                 mensagem: Body,
                 horario: moment().format('YYYY-MM-DD HH:mm'),
+                arquivo: MediaUrl0
             })
             let find = await encontrarPropostaPorWhatsapp(From)
             //Verifica se esta no atendimento humazizado

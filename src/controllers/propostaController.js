@@ -120,7 +120,12 @@ module.exports = {
                     const nome = item.NOME_ASSOCIADO?.trim()
                     const sexo = item.SEXO
                     const tipoAssociado = item.TIPO_ASSOCIADO || item.T
-                    const tipoContrato = item.TIPO_CONTRATO
+                    let tipoContrato = item.TIPO_CONTRATO
+
+                    if (tipoContrato === 'Pessoa Física') {
+                        tipoContrato = 'PF - Pessoa Física'
+                    }
+
                     const nomeOperadora = item.NOM_OPERADORA
                     vigencia = moment().businessAdd(2).format('YYYY-MM-DD')
                     const grupoCarencia = item.GRUPO_CARENCIA

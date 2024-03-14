@@ -10,6 +10,8 @@ const chatScheema = new mongoose.Schema({
     sid: String,
     errorCode: String,
     quemEnviou: String
+}, {
+    timestamps: true
 })
 
 module.exports = mongoose.model('Chat', chatScheema)

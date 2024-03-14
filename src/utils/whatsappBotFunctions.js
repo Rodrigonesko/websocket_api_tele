@@ -209,6 +209,53 @@ async function reenviarMensagensEmMassa() {
     }
 }
 
+async function reenviarMensagensVigencia() {
+    try {
+
+        const find = await PropostaEntrevista.find({
+            $or: [
+                { vigencia: '2024-03-01' },
+                { vigencia: '2024-03-04' },
+                { vigencia: '2024-03-05' },
+            ],
+            agendado: { $ne: 'agendado' },
+            $and: [
+                { status: { $ne: 'Cancelado' } },
+                { status: { $ne: 'Concluído' } }
+            ]
+        });
+
+        for (const proposta of find) {
+            if (proposta.whatsapp === 'whatsapp:+55' || proposta.whatsapp === 'whatsapp:+55undefinedundefined') {
+                continue;
+            }
+
+            const mensagem = modeloMensagem2(proposta.nome, '11/03/2024', '12/03/2024');
+            console.log(proposta.whatsapp, mensagem.mensagem);
+
+            await sendMessage(proposta.wppSender, proposta.whatsapp, mensagem.mensagem);
+
+            await PropostaEntrevista.updateOne({
+                _id: proposta._id
+            }, {
+                opcaoDia1: '11/03/2024',
+                opcaoDia2: '12/03/2024',
+                perguntaAtendimentoHumanizado: true,
+                atendimentoHumanizado: false,
+            });
+
+            console.log('enviado', proposta.whatsapp, proposta.nome);
+        }
+        
+        console.log('Terminou de enviar as mensagens');
+
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+// reenviarMensagensVigencia()
+
 //reenviarMensagensEmMassa();
 
 module.exports = {
