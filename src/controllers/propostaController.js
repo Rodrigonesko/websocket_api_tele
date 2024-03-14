@@ -122,8 +122,12 @@ module.exports = {
                     const tipoAssociado = item.TIPO_ASSOCIADO || item.T
                     let tipoContrato = item.TIPO_CONTRATO
 
-                    if (tipoContrato === 'Pessoa Física') {
-                        tipoContrato = 'PF - Pessoa Física'
+                    function removeAcentos(text) {
+                        return text.normalize('NFD').replace(/[\u0300-\u036f]/g, "");
+                    }
+
+                    if (removeAcentos(tipoContrato).toLowerCase() === 'pessoa fisica') {
+                        tipoContrato = 'PF - PESSOA FÍSICA'
                     }
 
                     const nomeOperadora = item.NOM_OPERADORA
