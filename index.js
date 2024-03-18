@@ -38,14 +38,17 @@ module.exports = {
 
 const lembreteMensagem = require('./src/tasks/lembreteMensagem')
 const reenviarMensagens = require('./src/tasks/reenvioMensagem')
+const enviarHumanizado = require('./src/tasks/enviarHumanizado')
 
-reenviarMensagens()
+// reenviarMensagens()
 
-lembreteMensagem()
+// lembreteMensagem()
 
-setInterval(reenviarMensagens, 4000000)
+// setInterval(reenviarMensagens, 4000000)
 
-setInterval(lembreteMensagem, 300000)
+// setInterval(lembreteMensagem, 300000)
+
+enviarHumanizado()
 
 const routes = require('./src/config/routes')
 app.use(bodyParser.urlencoded({ extended: true }));

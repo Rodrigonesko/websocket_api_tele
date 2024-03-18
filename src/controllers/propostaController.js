@@ -424,7 +424,8 @@ module.exports = {
                 quemAgendou: quemAgendou,
                 newStatus: 'Agendado',
                 canal,
-                statusAgendado
+                statusAgendado,
+                statusWhatsapp: 'Horario confirmado'
             })
 
             return res.json(updateTele)

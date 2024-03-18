@@ -152,10 +152,20 @@ async function buscarDiasDisponiveis() {
 }
 
 async function buscarHorariosDisponiveis(dia) {
-    const horarios = await Horario.find({
+
+    if (dia > moment().format('YYYY-MM-DD')) {
+        return [];
+    }
+
+    let horarios = await Horario.find({
         dia,
         agendado: { $ne: 'Agendado' }
-    });
+    })
+
+    if (dia === moment().format('YYYY-MM-DD')) {
+        let horaAtual = moment().format('HH:mm');
+        horarios = horarios.filter(horario => horario.horario > horaAtual);
+    }
 
     let horariosDisponiveis = horarios.map(horario => horario.horario);
 

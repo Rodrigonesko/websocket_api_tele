@@ -603,7 +603,7 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                     return `${index + 1}. ${moment(dia).format('DD/MM/YYYY')}`
                 }).join('\n')}`
                 await sendMessage(To, From, msg)
-                const update = await PropostaEntrevista.findByIdAndUpdate({
+                await PropostaEntrevista.findByIdAndUpdate({
                     _id: find._id
                 }, {
                     statusWhatsapp: 'Dia enviado',
@@ -636,6 +636,22 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
             }
             //Retorna os horarios disponiveis
             if (find.statusWhatsapp === 'Dia enviado' && !isNaN(Number(Body))) {
+
+                if (find.diasEnviados[Number(Body) - 1] < moment().format('YYYY-MM-DD')) {
+                    await sendMessage(To, From, 'O dia escolhido não pode ser anterior ao dia de hoje.')
+                    const diasDisponiveis = await buscarDiasDisponiveis()
+                    const msg = `Olá, por gentileza escolha o dia em que o Sr (a) ${find.nome} deseja realizar a teleentrevista. Informamos que demora de 8 a 10 minutos e que a mesma é imprescindível para a continuidade na contratação do plano.\nDigite somente o número referente ao dia escolhido.\n${diasDisponiveis.map((dia, index) => {
+                        return `${index + 1}. ${moment(dia).format('DD/MM/YYYY')}`
+                    }).join('\n')}`
+                    await sendMessage(To, From, msg)
+                    await PropostaEntrevista.findByIdAndUpdate({
+                        _id: find._id
+                    }, {
+                        statusWhatsapp: 'Dia enviado',
+                        diasEnviados: diasDisponiveis,
+                    })
+                }
+
                 const horariosDisponiveis = await buscarHorariosDisponiveis(find.diasEnviados[Number(Body) - 1])
                 if (!find.diasEnviados[Number(Body) - 1]) {
                     const msg = `Por favor escolha um dia válido.`
