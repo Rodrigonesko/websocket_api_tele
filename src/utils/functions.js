@@ -153,7 +153,7 @@ async function buscarDiasDisponiveis() {
 
 async function buscarHorariosDisponiveis(dia) {
 
-    if (dia > moment().format('YYYY-MM-DD')) {
+    if (dia < moment().format('YYYY-MM-DD')) {
         return [];
     }
 
