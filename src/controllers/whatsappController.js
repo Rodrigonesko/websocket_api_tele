@@ -650,6 +650,7 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                         statusWhatsapp: 'Dia enviado',
                         diasEnviados: diasDisponiveis,
                     })
+                    return res.json({ msg: 'ok' })
                 }
 
                 const horariosDisponiveis = await buscarHorariosDisponiveis(find.diasEnviados[Number(Body) - 1])
