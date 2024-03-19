@@ -9,7 +9,8 @@ const chatScheema = new mongoose.Schema({
     status: String,
     sid: String,
     errorCode: String,
-    quemEnviou: String
+    quemEnviou: String,
+    arquivo: String
 }, {
     timestamps: true
 })

@@ -10,7 +10,8 @@ const { modeloMensagem1, modeloMensagem2, buscarDiasDisponiveis, buscarHorariosD
 const { sendMessage, updatePropostaEntrevista, agendaEntrevistaPorCpfTitular, agendaEntrevistaPorId, encontrarPropostaPorWhatsapp, mandarParaAtendimentoHumanizado, agendaComOStatusPerguntaDependentes, agendarEntrevistaParaDependentesMenoresIdade } = require('../utils/whatsappBotFunctions')
 const { io } = require('../../index');
 
-const fs = require('fs')
+const fs = require('fs');
+const Log = require('../models/Log');
 
 module.exports = {
 
@@ -740,13 +741,26 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                             }).join('\n')}\nLembrando que a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação.`
                             await sendMessage(To, From, msg)
                         }
+                        await Log.create({
+                            nome: 'Bot whatsapp',
+                            acao: `Agendamento de entrevista para o beneficiario ${find.nome}`,
+                            data: moment().format('YYYY-MM-DD HH:mm')
+                        })
                         return res.json({ msg: 'ok' })
                     } else {
                         await agendaEntrevistaPorId(find, enfermeira)
                         const msg = `Agradecemos a confirmação do horário, a entrevista será realizada no dia ${moment(find.diaEscolhido).format('DD/MM/YYYY')}, às ${find.horarioEscolhido}.`
                         await sendMessage(To, From, msg)
+                        await Log.create({
+                            nome: 'Bot whatsapp',
+                            acao: `Agendamento de entrevista para o beneficiario ${find.nome}`,
+                            data: moment().format('YYYY-MM-DD HH:mm')
+                        })
                         return res.json({ msg: 'ok' })
                     }
+
+
+
                 }
                 if (Number(Body) === 2) {
                     const diasDisponiveis = await buscarDiasDisponiveis()
@@ -802,6 +816,8 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
             const msg = `Prezado Sr. (a) ${proposta.nome},
 Somos da Área de Implantação da Amil e para concluirmos a contratação do Plano de Saúde do Sr.(a), e dos seus dependentes (caso tenha) precisamos confirmar alguns dados médicos.
 Por gentileza, poderia responder essa mensagem para podermos seguir com o atendimento?`
+
+            let wppSender = proposta.wppSender
 
             const messageTwilio = await client.messages.create({
                 from: 'whatsapp:+551150392183',
@@ -916,13 +932,17 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
 
             const { de, ate, filterText } = req.body
 
+            console.log(de, ate, filterText);
+
             const result = await PropostaEntrevista.find({
                 horarioEnviado: {
                     $gte: de,
                     $lte: ate
                 },
-                statusWhatsapp: { $exists: true }
-            })
+                statusWhatsapp: { $exists: true },
+            }).lean()
+
+            console.log(result.length);
 
             let cpfsTitulares = result.reduce((acc, cur) => {
                 acc[cur.cpfTitular] = acc[cur.cpfTitular] || [];
