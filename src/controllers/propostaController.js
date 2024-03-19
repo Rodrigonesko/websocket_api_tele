@@ -2031,6 +2031,9 @@ module.exports = {
             } else {
                 umaHoraDepois = moment(result.dataEntrevista).add(1, 'hours').format('HH:mm')
             }
+            if (moment(result.dataEntrevista).format('HH:mm') === '08:00' || moment(result.dataEntrevista).format('HH:mm') === '08:20' || moment(result.dataEntrevista).format('HH:mm') === '08:40') {
+                umaHoraAntes = '08:00'
+            }
 
             let msg = `Agendado para o dia ${moment(result.dataEntrevista).format("DD/MM/YYYY")} das ${umaHoraAntes} até as ${umaHoraDepois}.
 Lembrando que em caso de menor de idade a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação.`
