@@ -613,7 +613,7 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
             }
             //Caso não seja digitado um numero e o whatsapp é encontrado no banco, é enviado a mensagem de atendimento humanizado
             if ((isNaN(Number(Body)) && !find?.atendimentoHumanizado && !find?.perguntaAtendimentoHumanizado && !!find) && (Body !== 'Ok' && find?.statusWhatsapp !== 'Saudacao enviada')) {
-                const msg = 'Infelizmente ainda não entendemos sua mensagem, por favor siga as instruções informadas acima.'
+                const msg = 'Infelizmente ai nda não entendemos sua mensagem, por favor siga as instruções informadas acima.'
                 await sendMessage(To, From, msg)
                 await PropostaEntrevista.updateOne({
                     _id: find._id
@@ -712,6 +712,12 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                         status: { $ne: 'Cancelado', $ne: 'Concluído' }
                     })
                     const enfermeira = await enfermeiraComMenosAgendamentos(find.horarioEscolhido, find.diaEscolhido)
+                    if (!enfermeira) {
+                        const msg = `Infelizmente não temos enfermeiras disponíveis para o horário escolhido, por favor escolha outro horário.`
+                        await sendMessage(To, From, msg)
+                        return res.json({ msg: 'ok' })
+                    }
+
                     if (find.tipoAssociado === 'Titular' && dependentes.length > 0) {
                         // await agendaComOStatusPerguntaDependentes(find, enfermeira)
                         await agendaEntrevistaPorId(find, enfermeira)
