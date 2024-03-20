@@ -715,6 +715,17 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                     if (!enfermeira) {
                         const msg = `Infelizmente não temos enfermeiras disponíveis para o horário escolhido, por favor escolha outro horário.`
                         await sendMessage(To, From, msg)
+                        const diasDisponiveis = await buscarDiasDisponiveis()
+                        const msg2 = `Por gentileza escolha o dia em que o Sr (a) deseja realizar a entrevista.\nDigite somente o número referente ao dia escolhido.\n${diasDisponiveis.map((dia, index) => {
+                            return `${index + 1}. ${moment(dia).format('DD/MM/YYYY')}`
+                        }).join('\n')}`
+                        await sendMessage(To, From, msg2)
+                        await PropostaEntrevista.findByIdAndUpdate({
+                            _id: find._id
+                        }, {
+                            statusWhatsapp: 'Dia enviado',
+                            diasEnviados: diasDisponiveis,
+                        })
                         return res.json({ msg: 'ok' })
                     }
 
@@ -774,7 +785,7 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                         return `${index + 1}. ${moment(dia).format('DD/MM/YYYY')}`
                     }).join('\n')}`
                     await sendMessage(To, From, msg)
-                    const update = await PropostaEntrevista.findByIdAndUpdate({
+                    await PropostaEntrevista.findByIdAndUpdate({
                         _id: find._id
                     }, {
                         statusWhatsapp: 'Dia enviado',
