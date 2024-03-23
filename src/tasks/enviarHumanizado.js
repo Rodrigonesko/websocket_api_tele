@@ -31,11 +31,13 @@ async function enviarHumanizado() {
         const diff = moment().diff(proposta.horarioEnviado, 'hours')
         if (diff > 6) {
             if (proposta.tipoAssociado.indexOf('Dependente') !== -1) {
-                const titular = await PropostaEntrevista.findOne({ cpf: proposta.cpfTitular, tipoAssociado: 'Titular' })
-                console.log(`Olá, detectamos que ainda não foi agendado o dependente ${proposta.nome} do titular ${titular.nome} com a proposta ${proposta.proposta} e o CPF ${proposta.cpf}. Por favor, nos informe o melhor horário para contato.`);
+                //const titular = await PropostaEntrevista.findOne({ cpf: proposta.cpfTitular, tipoAssociado: 'Titular' })
+                await PropostaEntrevista.updateOne({ _id: proposta._id }, { atendimentoHumanizado: true })
+                //console.log(`Olá, detectamos que ainda não foi agendado o dependente ${proposta.nome} do titular ${titular.nome} com a proposta ${proposta.proposta} e o CPF ${proposta.cpf}. Por favor, nos informe o melhor horário para contato.`);
                 countDependentes++
             } else {
-                console.log(`Olá, detectamos que ainda não foi agendado o titular ${proposta.nome} com a proposta ${proposta.proposta} e o CPF ${proposta.cpf}. Por favor, nos informe o melhor horário para contato.`);
+                //console.log(`Olá, detectamos que ainda não foi agendado o titular ${proposta.nome} com a proposta ${proposta.proposta} e o CPF ${proposta.cpf}. Por favor, nos informe o melhor horário para contato.`);
+                await PropostaEntrevista.updateOne({ _id: proposta._id }, { atendimentoHumanizado: true })
             }
         }
     }

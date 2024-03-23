@@ -836,10 +836,18 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
 
             let wppSender = proposta.wppSender
 
+            if (wppSender === process.env.TWILIO_NUMBER) {
+                wppSender = 'whatsapp:+551150392183'
+            }
+
             const messageTwilio = await client.messages.create({
-                from: 'whatsapp:+551150392183',
-                body: msg,
-                to: proposta.whatsapp
+                from: wppSender,
+                //body: msg,
+                to: proposta.whatsapp,
+                contentSid: 'HXaefa3495a5af5e72491eaaea5dda9be9',
+                contentVariables: JSON.stringify({
+                    nome: proposta.nome
+                })
             })
 
             let statusMessage = await client.messages(messageTwilio.sid).fetch()
@@ -860,7 +868,7 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
             }
 
             await Chat.create({
-                de: 'whatsapp:+551150392183',
+                de: wppSender,
                 para: proposta.whatsapp,
                 mensagem: msg,
                 horario: moment().format('YYYY-MM-DD HH:mm'),
@@ -873,7 +881,7 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
             }, {
                 statusWhatsapp: 'Saudacao enviada',
                 situacao: 'Enviada',
-                wppSender: 'whatsapp:+551150392183',
+                wppSender,
                 horarioEnviado: moment().format('YYYY-MM-DD HH:mm'),
                 responsavelContato1: 'Bot Whatsapp',
                 contato1: moment().format('YYYY-MM-DD HH:mm')

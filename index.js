@@ -48,7 +48,9 @@ setInterval(reenviarMensagens, 4000000)
 
 setInterval(lembreteMensagem, 300000)
 
-//enviarHumanizado()
+enviarHumanizado()
+
+setInterval(enviarHumanizado, 600000)
 
 const routes = require('./src/config/routes')
 app.use(bodyParser.urlencoded({ extended: true }));
