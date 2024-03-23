@@ -842,7 +842,7 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
 
             const messageTwilio = await client.messages.create({
                 from: wppSender,
-                //body: msg,
+                body: msg,
                 to: proposta.whatsapp,
                 contentSid: 'HXaefa3495a5af5e72491eaaea5dda9be9',
                 contentVariables: JSON.stringify({
