@@ -976,7 +976,7 @@ module.exports = {
             let opcaoDia2 = data2
             let modelo
 
-            const wppSender = proposta.wppSender
+            const wppSender = process.env.TWILIO_NUMBER
 
             if (modeloEscolhido === 'Modelo 1') {
                 mensagem = modeloMensagem1(proposta.nome, data1, data2).mensagem
@@ -1062,6 +1062,7 @@ module.exports = {
                 modelo,
                 contato1: moment().format('YYYY-MM-DD HH:mm'),
                 responsavelContato1: 'Bot Whatsapp',
+                wppSender
             })
 
             const mensagemBanco = await Chat.create({
