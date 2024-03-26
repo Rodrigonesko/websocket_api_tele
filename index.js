@@ -38,7 +38,7 @@ module.exports = {
 
 const lembreteMensagem = require('./src/tasks/lembreteMensagem')
 const reenviarMensagens = require('./src/tasks/reenvioMensagem')
-c//onst enviarHumanizado = require('./src/tasks/enviarHumanizado')
+//onst enviarHumanizado = require('./src/tasks/enviarHumanizado')
 
 reenviarMensagens()
 
