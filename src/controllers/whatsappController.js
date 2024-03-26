@@ -830,6 +830,10 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                 _id
             })
 
+            if (proposta.whatsapp === 'whatsapp:+55') {
+                return res.json({ msg: 'Sem whatsapp' })
+            }
+
             const msg = `Prezado Sr. (a) ${proposta.nome},
 Somos da Área de Implantação da Amil e para concluirmos a contratação do Plano de Saúde do Sr.(a), e dos seus dependentes (caso tenha) precisamos confirmar alguns dados médicos.
 Por gentileza, poderia responder essa mensagem para podermos seguir com o atendimento?`
