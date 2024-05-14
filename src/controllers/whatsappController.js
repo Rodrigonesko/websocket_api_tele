@@ -547,7 +547,7 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                 }
 
                 if (find.status === 'Cancelado') {
-                    const msg = `Sua teleentrevista foi cancelada, você será encaminhado para o atendimento humanizado.`
+                    const msg = `Você será encaminhado para o atendimento humanizado.`
                     await sendMessage(To, From, msg)
                     await mandarParaAtendimentoHumanizado(find)
                     return res.json(msg)
@@ -586,11 +586,7 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                     wppSender: To,
                     statusWhatsapp: 'Cpf digitado',
                     telefone: From
-                });
-                find = await PropostaEntrevista.findOne({
-                    cpf: Number(Body),
-                    status: { $ne: 'Cancelado', $ne: 'Concluído' }
-                });
+                }, { new: true });
                 if (!find) {
                     const msg = 'Olá, seu CPF não consta em nossa base de contatos, por favor verifique se o mesmo foi digitado corretamente e tente novamente.'
                     await sendMessage(To, From, msg)

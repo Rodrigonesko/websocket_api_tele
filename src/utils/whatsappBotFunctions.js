@@ -213,46 +213,95 @@ async function reenviarMensagensVigencia() {
     try {
 
         const find = await PropostaEntrevista.find({
-            $or: [
-                { vigencia: '2024-03-01' },
-                { vigencia: '2024-03-04' },
-                { vigencia: '2024-03-05' },
-            ],
-            agendado: { $ne: 'agendado' },
-            $and: [
-                { status: { $ne: 'Cancelado' } },
-                { status: { $ne: 'Concluído' } }
-            ]
-        });
+            dataRecebimento: { $gte: '2024-04-05', $lte: '2024-04-30' }
+            ,
+            status: 'Cancelado'
+        }).lean()
 
         for (const proposta of find) {
-            if (proposta.whatsapp === 'whatsapp:+55' || proposta.whatsapp === 'whatsapp:+55undefinedundefined') {
+
+            try {
+                if (proposta.whatsapp === 'whatsapp:+55' || proposta.whatsapp === 'whatsapp:+55undefinedundefined') {
+                    continue;
+                }
+
+                if (proposta.wppSender === process.env.TWILIO_NUMBER) {
+                    const mensagem = modeloMensagem2(proposta.nome, '25/04/2024', '26/04/2024');
+                    console.log(proposta.whatsapp, mensagem.mensagem);
+
+                    await sendMessage(proposta.wppSender, proposta.whatsapp, mensagem.mensagem);
+
+                    await PropostaEntrevista.updateOne({
+                        _id: proposta._id
+                    }, {
+                        opcaoDia1: '25/04/2024',
+                        opcaoDia2: '26/04/2024',
+                        perguntaAtendimentoHumanizado: true,
+                        atendimentoHumanizado: false,
+                    });
+
+                    console.log('enviado antigo', proposta.whatsapp, proposta.nome);
+                } else {
+                    const msg = `Prezado Sr. (a) ${proposta.nome},
+                Somos da Área de Implantação da Amil e para concluirmos a contratação do Plano de Saúde do Sr.(a), e dos seus dependentes (caso tenha) precisamos confirmar alguns dados médicos.
+                Por gentileza, poderia responder essa mensagem para podermos seguir com o atendimento?`
+
+                    let wppSender = proposta.wppSender
+
+                    if (wppSender === process.env.TWILIO_NUMBER) {
+                        wppSender = 'whatsapp:+551150392183'
+                    }
+
+                    const messageTwilio = await client.messages.create({
+                        from: wppSender,
+                        body: msg,
+                        to: proposta.whatsapp,
+                        contentSid: 'HXaefa3495a5af5e72491eaaea5dda9be9',
+                        contentVariables: JSON.stringify({
+                            nome: proposta.nome
+                        })
+                    })
+
+                    let statusMessage = await client.messages(messageTwilio.sid).fetch()
+
+                    await Chat.create({
+                        de: wppSender,
+                        para: proposta.whatsapp,
+                        mensagem: msg,
+                        horario: moment().format('YYYY-MM-DD HH:mm'),
+                        status: messageTwilio.status,
+                        sid: messageTwilio.sid
+                    })
+
+                    await PropostaEntrevista.findByIdAndUpdate({
+                        _id: proposta._id
+                    }, {
+                        statusWhatsapp: 'Saudacao enviada',
+                        situacao: 'Enviada',
+                        wppSender,
+                        horarioEnviado: moment().format('YYYY-MM-DD HH:mm'),
+                        responsavelContato1: 'Bot Whatsapp',
+                        contato1: moment().format('YYYY-MM-DD HH:mm'),
+                        perguntaAtendimentoHumanizado: false,
+                        atendimentoHumanizado: false,
+                    })
+
+                    console.log('enviado', proposta.whatsapp, proposta.nome);
+                }
+            } catch (error) {
+                console.log(error);
                 continue;
             }
-
-            const mensagem = modeloMensagem2(proposta.nome, '11/03/2024', '12/03/2024');
-            console.log(proposta.whatsapp, mensagem.mensagem);
-
-            await sendMessage(proposta.wppSender, proposta.whatsapp, mensagem.mensagem);
-
-            await PropostaEntrevista.updateOne({
-                _id: proposta._id
-            }, {
-                opcaoDia1: '11/03/2024',
-                opcaoDia2: '12/03/2024',
-                perguntaAtendimentoHumanizado: true,
-                atendimentoHumanizado: false,
-            });
-
-            console.log('enviado', proposta.whatsapp, proposta.nome);
         }
-        
-        console.log('Terminou de enviar as mensagens');
+
+        console.log(find.length);
 
     } catch (error) {
         console.log(error);
     }
 }
+
+//reenviarMensagensVigencia();
 
 // reenviarMensagensVigencia()
 
