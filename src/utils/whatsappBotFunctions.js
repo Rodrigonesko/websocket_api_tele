@@ -226,7 +226,7 @@ async function reenviarMensagensVigencia() {
                 }
 
                 if (proposta.wppSender === process.env.TWILIO_NUMBER) {
-                    const mensagem = modeloMensagem2(proposta.nome, '25/04/2024', '26/04/2024');
+                    const mensagem = modeloMensagem2(proposta.nome, '15/05/2024', '16/05/2024');
                     console.log(proposta.whatsapp, mensagem.mensagem);
 
                     await sendMessage(proposta.wppSender, proposta.whatsapp, mensagem.mensagem);
@@ -234,8 +234,8 @@ async function reenviarMensagensVigencia() {
                     await PropostaEntrevista.updateOne({
                         _id: proposta._id
                     }, {
-                        opcaoDia1: '25/04/2024',
-                        opcaoDia2: '26/04/2024',
+                        opcaoDia1: '15/05/2024',
+                        opcaoDia2: '16/05/2024',
                         perguntaAtendimentoHumanizado: true,
                         atendimentoHumanizado: false,
                     });

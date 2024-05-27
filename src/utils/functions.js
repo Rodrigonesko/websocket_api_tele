@@ -140,7 +140,7 @@ async function buscarDiasDisponiveis() {
     hoje = yyyy + '-' + mm + '-' + dd;
 
     const horarios = await Horario.find({
-        dia: { $gt: hoje }, // $gte significa "maior ou igual a"
+        dia: { $gte: hoje }, // $gte significa "maior ou igual a"
         agendado: { $ne: 'Agendado' }
     });
 
@@ -150,6 +150,8 @@ async function buscarDiasDisponiveis() {
 
     return diasDisponiveis;
 }
+
+buscarDiasDisponiveis().then(dias => console.log(dias));
 
 async function buscarHorariosDisponiveis(dia) {
 
