@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require('express');
 const app = express();
 const cookieParser = require('cookie-parser')
@@ -17,7 +18,6 @@ const io = require('socket.io')(server, {
   }
 })
 
-require('dotenv').config()
 const cors = require("cors");
 app.use(cors({ credentials: true, origin: true }));
 
@@ -48,9 +48,6 @@ setInterval(reenviarMensagens, 4000000)
 
 setInterval(lembreteMensagem, 300000)
 
-// enviarHumanizado()
-
-// setInterval(enviarHumanizado, 600000)
 
 const routes = require('./src/config/routes')
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -64,8 +61,9 @@ app.use(function (req, res, next) {
   res.setHeader('Access-Control-Allow-Credentials', true);
   next();
 });
-
+const newWhatsappController = require('./src/controllers/newWhatsappController')
 app.use('/', routes)
+app.use('/newWhatsapp', newWhatsappController)
 
 const port = process.env.PORT || 3000
 

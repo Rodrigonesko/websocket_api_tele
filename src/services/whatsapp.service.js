@@ -1,0 +1,103 @@
+const Chat = require('../models/Chat');
+const ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
+const AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
+const MESSAGING_SERVICE_SID = process.env.MESSAGING_SERVICE_SID;
+const client = require('twilio')(ACCOUNT_SID, AUTH_TOKEN);
+const { io } = require('../../index')
+
+class WhatsappService {
+    constructor() { }
+
+    async sendTemplateMessage(de, para, template, variaveis, usuario) {
+        const contentVariables = variaveis.reduce((acc, cur, index) => {
+            acc[index + 1] = cur;
+            return acc;
+        }, {});
+
+        const response = await client.messages.create({
+            contentSid: template,
+            from: de,
+            to: para,
+            contentVariables: JSON.stringify(contentVariables),
+            messagingServiceSid: MESSAGING_SERVICE_SID
+        });
+
+        const chat = await Chat.create({
+            de,
+            para,
+            mensagem: response.body,
+            horario: response.dateCreated,
+            lida: false,
+            status: response.status,
+            sid: response.sid,
+            quemEnviou: usuario,
+            arquivo: null,
+            errorCode: response.errorCode
+        })
+
+        io.emit('message', chat)
+
+        return chat;
+    }
+
+    async sendMessage(de, para, mensagem, usuario) {
+        const response = await client.messages.create({
+            from: de,
+            to: para,
+            body: mensagem,
+            messagingServiceSid: MESSAGING_SERVICE_SID
+        });
+
+        const chat = await Chat.create({
+            de,
+            para,
+            mensagem: response.body,
+            horario: response.dateCreated,
+            lida: false,
+            status: response.status,
+            sid: response.sid,
+            quemEnviou: usuario,
+            arquivo: null,
+            errorCode: response.errorCode
+        })
+
+        io.emit('message', chat)
+
+        return chat;
+    }
+
+    async receiveMessage(body) {
+        const { From, To, Body } = body;
+        const response = await Chat.create({
+            de: From,
+            para: To,
+            mensagem: Body,
+            horario: new Date(),
+            lida: false,
+            status: 'received',
+            sid: null,
+            quemEnviou: 'cliente',
+            arquivo: null,
+            errorCode: null
+        })
+
+        io.emit('message', response)
+
+        return response;
+    }
+
+    async updateStatus(sid, status) {
+        const chat = await Chat.findOneAndUpdate({
+            sid
+        }, {
+            status
+        }, {
+            new: true
+        })
+
+        io.emit('message', chat)
+    }
+
+}
+
+module.exports = new WhatsappService();

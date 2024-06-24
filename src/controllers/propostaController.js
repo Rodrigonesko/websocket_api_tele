@@ -81,6 +81,7 @@ module.exports = {
 
                 try {
                     let wppSender = wppSenders[counter % wppSenders.length];
+                    if (item.TIPO_CONTRATO === 'ADESÃO') wppSender = 'whatsapp:+551150394280'
                     counter++;
 
                     let proposta = item.NUM_PROPOSTA || item.PROPOSTA
