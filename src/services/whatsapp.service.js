@@ -3,9 +3,8 @@ const ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
 const AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
 const MESSAGING_SERVICE_SID = process.env.MESSAGING_SERVICE_SID;
 const client = require('twilio')(ACCOUNT_SID, AUTH_TOKEN);
-const PropostaService = require('./proposta.service');
 const { io } = require('../../index');
-const propostaService = require('./proposta.service');
+import moment from 'moment';
 
 class WhatsappService {
     constructor() { }
