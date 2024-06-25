@@ -68,7 +68,15 @@ class WhatsappService {
     }
 
     async receiveMessage(body) {
-        const { From, To, Body } = body;
+        let { From, To, Body, SmsMessageSid } = body;
+
+        if (From.length === 22) {
+            let firstPart = From.slice(0, 14);
+            let lastPart = From.slice(14);
+
+            From = `${firstPart}9${lastPart}`;
+        }
+
         const response = await Chat.create({
             de: From,
             para: To,
@@ -76,7 +84,7 @@ class WhatsappService {
             horario: moment().format('YYYY-MM-DD HH:mm:ss'),
             lida: false,
             status: 'received',
-            sid: null,
+            sid: SmsMessageSid,
             quemEnviou: 'cliente',
             arquivo: null,
             errorCode: null
