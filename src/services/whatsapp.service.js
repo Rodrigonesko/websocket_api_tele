@@ -3,7 +3,9 @@ const ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
 const AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
 const MESSAGING_SERVICE_SID = process.env.MESSAGING_SERVICE_SID;
 const client = require('twilio')(ACCOUNT_SID, AUTH_TOKEN);
-const { io } = require('../../index')
+const PropostaService = require('./proposta.service');
+const { io } = require('../../index');
+const propostaService = require('./proposta.service');
 
 class WhatsappService {
     constructor() { }
@@ -26,7 +28,7 @@ class WhatsappService {
             de,
             para,
             mensagem: response.body,
-            horario: response.dateCreated,
+            horario: moment().format('YYYY-MM-DD HH:mm:ss'),
             lida: false,
             status: response.status,
             sid: response.sid,
@@ -52,7 +54,7 @@ class WhatsappService {
             de,
             para,
             mensagem: response.body,
-            horario: response.dateCreated,
+            horario: moment().format('YYYY-MM-DD HH:mm:ss'),
             lida: false,
             status: response.status,
             sid: response.sid,
@@ -72,7 +74,7 @@ class WhatsappService {
             de: From,
             para: To,
             mensagem: Body,
-            horario: new Date(),
+            horario: moment().format('YYYY-MM-DD HH:mm:ss'),
             lida: false,
             status: 'received',
             sid: null,
@@ -96,6 +98,8 @@ class WhatsappService {
         })
 
         io.emit('message', chat)
+
+        return chat;
     }
 
 }

@@ -62,8 +62,9 @@ app.use(function (req, res, next) {
   next();
 });
 const newWhatsappController = require('./src/controllers/newWhatsappController')
-app.use('/', routes)
-app.use('/newWhatsapp', newWhatsappController)
+app.use('/apiTele', routes)
+app.use('/apiTele/newWhatsapp', newWhatsappController)
+app.use('/apiTele/newProposta', require('./src/controllers/newPropostaController'))
 
 const port = process.env.PORT || 3000
 
