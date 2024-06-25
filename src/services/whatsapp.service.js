@@ -4,7 +4,7 @@ const AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
 const MESSAGING_SERVICE_SID = process.env.MESSAGING_SERVICE_SID;
 const client = require('twilio')(ACCOUNT_SID, AUTH_TOKEN);
 const { io } = require('../../index');
-import moment from 'moment';
+const moment = require('moment');
 
 class WhatsappService {
     constructor() { }
