@@ -24,6 +24,8 @@ class WhatsappService {
             messagingServiceSid: MESSAGING_SERVICE_SID
         });
 
+        console.log(response);
+
         const chat = await Chat.create({
             de,
             para,
@@ -115,7 +117,7 @@ class WhatsappService {
             new: true
         })
 
-        io.emit('message', chat)
+        io.emit('receivedMessage', chat)
 
         return chat;
     }
