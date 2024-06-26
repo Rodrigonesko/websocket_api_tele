@@ -1,4 +1,5 @@
 const Chat = require('../models/Chat');
+const Proposta = require('../models/PropostaEntrevista');
 const ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
 const AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
 const MESSAGING_SERVICE_SID = process.env.MESSAGING_SERVICE_SID;
@@ -73,7 +74,6 @@ class WhatsappService {
         if (From.length === 22) {
             let firstPart = From.slice(0, 14);
             let lastPart = From.slice(14);
-
             From = `${firstPart}9${lastPart}`;
         }
 
@@ -90,7 +90,18 @@ class WhatsappService {
             errorCode: null
         })
 
-        io.emit('message', response)
+        const proposta = await Proposta.findOne({
+            whatsapp: From
+        })
+
+        io.emit('receivedMessage', {
+            whatsapp: From,
+            mensagem: Body,
+            responsavel: proposta?.responsavelConversa,
+            enfermeo: proposta?.enfermeiro,
+            nome: proposta?.nome,
+            proposta: proposta?.proposta
+        })
 
         return response;
     }

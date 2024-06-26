@@ -3,6 +3,7 @@ const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = require('twilio')(accountSid, authToken);
 const TwilioNumber = process.env.TWILIO_NUMBER
 const moment = require('moment')
+const whatsappService = require('../services/whatsapp.service')
 
 const PropostaEntrevista = require('../models/PropostaEntrevista')
 const Chat = require('../models/Chat');
@@ -48,7 +49,17 @@ async function lembreteMensagem() {
                 lembrete: true
             })
 
-            await sendMessage(wppSender, whatsapp, mensagem)
+            if (item.tipoContrato === 'ADESÃO') {
+                await whatsappService.sendTemplateMessage(
+                    'whatsapp:+551150394280',
+                    whatsapp,
+                    'HXbd2e62dcdd2bf7c5a9f4eb17db4ab2fd',
+                    [item.nome, '(11) 4240-1232']
+                )
+            } else {
+                await sendMessage(wppSender, whatsapp, mensagem)
+            }
+
         }
     }
 }
