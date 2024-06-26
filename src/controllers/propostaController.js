@@ -1001,6 +1001,10 @@ module.exports = {
                 return res.json({ msg: 'Não ajustado' })
             }
 
+            if (proposta.tipoContrato === 'ADESÃO') {
+                return res.json({ msg: 'Adesão' })
+            }
+
             let whatsapp = proposta.whatsapp
 
 
