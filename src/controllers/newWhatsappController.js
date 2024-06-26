@@ -20,7 +20,7 @@ routes.post('/receiveMessage', async (req, res) => {
 })
 
 routes.post('/updateStatus', async (req, res) => {
-    return res.json(await whatsappService.updateStatus(req.body))
+    return res.json(await whatsappService.updateStatus(req.body.SmsSid, req.body.SmsStatus))
 })
 
 module.exports = routes
