@@ -24,7 +24,11 @@ class WhatsappService {
             messagingServiceSid: MESSAGING_SERVICE_SID
         });
 
-        const resTwilio = await client.messages(response.sid).fetch();
+        let resTwilio
+
+        for (let index = 0; index < 3; index++) {
+            resTwilio = await client.messages(response.sid).fetch()
+        }
 
         const chat = await Chat.create({
             de,
