@@ -24,15 +24,15 @@ class WhatsappService {
             messagingServiceSid: MESSAGING_SERVICE_SID
         });
 
-        console.log(response);
+        const resTwilio = await client.messages(response.sid).fetch();
 
         const chat = await Chat.create({
             de,
             para,
-            mensagem: response.body,
+            mensagem: resTwilio.body,
             horario: moment().format('YYYY-MM-DD HH:mm:ss'),
             lida: false,
-            status: response.status,
+            status: resTwilio.status,
             sid: response.sid,
             quemEnviou: usuario,
             arquivo: null,
