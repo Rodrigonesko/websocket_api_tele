@@ -96,7 +96,13 @@ const propostaScheema = new mongoose.Schema({
     diaEscolhido: String,
     horariosEnviados: [''],
     horarioEscolhido: String,
-    quemAjustou: String
+    quemAjustou: String,
+    dadosEntrevista: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'DadosEntrevista'
+    },
+    responsavel: String,
+    dataVigenciaAmil: String,
 }, {
     timestamps: true
 })

@@ -97,6 +97,7 @@ module.exports = {
                     let vigencia = ExcelDateToJSDate(item.DT_VENDA)
                     vigencia.setDate(vigencia.getDate() + 1)
                     vigencia = moment(vigencia).format('YYYY-MM-DD')
+                    const dataVigenciaAmil = vigencia
 
                     const filial = item.FILIAL
                     const riscoBeneficiario = item.RISCO_BENEF
@@ -267,6 +268,7 @@ module.exports = {
                         nomeOperadora,
                         wppSender,
                         newStatus: 'Agendar',
+                        dataVigenciaAmil
                     }
 
                     const existeProposta = await PropostaEntrevista.findOne({
