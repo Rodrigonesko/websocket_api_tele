@@ -529,6 +529,7 @@ module.exports = {
             if (find?.atendimentoHumanizado) {
                 return res.json(Body)
             }
+
             if (find) {
                 if (!find.statusWhatsapp) {
                     const msg = `Prezado Sr. (a) ${find.nome},
@@ -537,6 +538,10 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                     await sendMessage(To, From, msg)
                     await updatePropostaEntrevista(find, 'Saudacao enviada')
                     return res.json(msg)
+                }
+
+                if (find.tipoContrato === 'ADESÃO') {
+                    find.wppSender = 'whatsapp:+551150394280'
                 }
 
                 if (find.status === 'Concluído') {
@@ -555,8 +560,7 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                 await PropostaEntrevista.updateOne({
                     _id: find._id
                 }, {
-                    wppSender: To,
-
+                    wppSender: To
                 })
             }
             //Verifica se ja foi agendado
@@ -728,7 +732,7 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                     if (find.tipoAssociado === 'Titular' && dependentes.length > 0) {
                         // await agendaComOStatusPerguntaDependentes(find, enfermeira)
                         await agendaEntrevistaPorId(find, enfermeira)
-                        const msg = `Agradecemos a confirmação do horário, a teleentrevista será realizada no dia ${moment(find.diaEscolhido).format('DD/MM/YYYY')}, às ${find.horarioEscolhido}. Informamos que vamos ligar do número 11 42403554 (não será por whatsapp, será por ligação telefonica), pedimos para tirar do spam para evitar o bloqueio da ligação.`  //Lembrando que caso tenha dependentes, a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação. Gostaria de agendar os dependentes maiores de idade no mesmo horario?\n1 - sim\n2 - não.`
+                        const msg = `Agradecemos a confirmação do horário, a teleentrevista será realizada no dia ${moment(find.diaEscolhido).format('DD/MM/YYYY')}, às ${find.horarioEscolhido}. Informamos que vamos ligar do número ${find.tipoContrato === 'ADESÃO' ? '11 4240-1232' : '11 42403554'} (não será por whatsapp, será por ligação telefonica), pedimos para tirar do spam para evitar o bloqueio da ligação.`  //Lembrando que caso tenha dependentes, a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação. Gostaria de agendar os dependentes maiores de idade no mesmo horario?\n1 - sim\n2 - não.`
                         await sendMessage(To, From, msg)
                         //verofocar se os dependentes são maiores de idade
                         let maioresIdade = dependentes.filter(dependente => {

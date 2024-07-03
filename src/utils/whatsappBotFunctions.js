@@ -213,11 +213,14 @@ async function reenviarMensagensVigencia() {
     try {
 
         const find = await PropostaEntrevista.find({
-            dataRecebimento: { $gte: '2024-04-05', $lte: '2024-04-30' }
-            ,
-            status: 'Cancelado'
+            // dataRecebimento: { $gte: '2024-04-05', $lte: '2024-04-30' }
+            status: { $nin: ['Cancelado', 'Concluído'] },
+            tipoContrato: { $ne: 'ADESÃO' },
+            agendado: { $ne: 'agendado' }
         }).lean()
 
+
+        let countEnviado = 0;
         for (const proposta of find) {
 
             try {
@@ -226,7 +229,7 @@ async function reenviarMensagensVigencia() {
                 }
 
                 if (proposta.wppSender === process.env.TWILIO_NUMBER) {
-                    const mensagem = modeloMensagem2(proposta.nome, '15/05/2024', '16/05/2024');
+                    const mensagem = modeloMensagem2(proposta.nome, '28/06/2024', '01/07/2024');
                     console.log(proposta.whatsapp, mensagem.mensagem);
 
                     await sendMessage(proposta.wppSender, proposta.whatsapp, mensagem.mensagem);
@@ -234,8 +237,8 @@ async function reenviarMensagensVigencia() {
                     await PropostaEntrevista.updateOne({
                         _id: proposta._id
                     }, {
-                        opcaoDia1: '15/05/2024',
-                        opcaoDia2: '16/05/2024',
+                        opcaoDia1: '28/06/2024',
+                        opcaoDia2: '01/07/2024',
                         perguntaAtendimentoHumanizado: true,
                         atendimentoHumanizado: false,
                     });
@@ -269,7 +272,7 @@ async function reenviarMensagensVigencia() {
                         para: proposta.whatsapp,
                         mensagem: msg,
                         horario: moment().format('YYYY-MM-DD HH:mm'),
-                        status: messageTwilio.status,
+                        status: statusMessage.status,
                         sid: messageTwilio.sid
                     })
 
@@ -286,6 +289,7 @@ async function reenviarMensagensVigencia() {
                         atendimentoHumanizado: false,
                     })
 
+                    countEnviado++;
                     console.log('enviado', proposta.whatsapp, proposta.nome);
                 }
             } catch (error) {
@@ -295,11 +299,14 @@ async function reenviarMensagensVigencia() {
         }
 
         console.log(find.length);
+        console.log('Enviado: ' + countEnviado);
 
     } catch (error) {
         console.log(error);
     }
 }
+
+
 
 //reenviarMensagensVigencia();
 

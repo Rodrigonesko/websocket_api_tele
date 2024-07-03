@@ -29,6 +29,8 @@ module.exports = {
                 throw new Error("'result' deve ser um array");
             }
 
+            result.sort((a, b) => a.NUM_PROPOSTA - b.NUM_PROPOSTA)
+
             const arrCpfTitulares = result.reduce((acc, item) => {
                 let numPropostas = []
 
@@ -97,6 +99,7 @@ module.exports = {
                     let vigencia = ExcelDateToJSDate(item.DT_VENDA)
                     vigencia.setDate(vigencia.getDate() + 1)
                     vigencia = moment(vigencia).format('YYYY-MM-DD')
+                    const vigenciaAmil = vigencia
 
                     const filial = item.FILIAL
                     const riscoBeneficiario = item.RISCO_BENEF
@@ -159,8 +162,8 @@ module.exports = {
                     // }
 
                     const observacao = item['OBSERVAÇÕES']
-                    const ddd = item.NUM_DDD_CEL || item.NUM_DDD_TEL
-                    let numero = item.NUM_CEL?.toString().replace(/\s/g, '') || item.NUM_TEL?.toString().replace(/\s/g, '')
+                    const ddd = item.NUM_DDD_CEL || item.NUM_DDD_TEL || item.DDD
+                    let numero = item.NUM_CEL?.toString().replace(/\s/g, '') || item.NUM_TEL?.toString().replace(/\s/g, '') || item.TELEFONE?.toString().replace(/\s/g, '')
 
                     let telefone = ''
 
@@ -267,6 +270,7 @@ module.exports = {
                         nomeOperadora,
                         wppSender,
                         newStatus: 'Agendar',
+                        vigenciaAmil
                     }
 
                     const existeProposta = await PropostaEntrevista.findOne({
