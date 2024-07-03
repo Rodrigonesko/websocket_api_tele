@@ -97,16 +97,13 @@ const propostaScheema = new mongoose.Schema({
     horariosEnviados: [''],
     horarioEscolhido: String,
     quemAjustou: String,
-<<<<<<< HEAD
     vigenciaAmil: String,
-=======
     dadosEntrevista: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'DadosEntrevista'
     },
     responsavel: String,
     dataVigenciaAmil: String,
->>>>>>> d7d3bffb0006940192b4093368d4bca1bf3bff84
 }, {
     timestamps: true
 })
