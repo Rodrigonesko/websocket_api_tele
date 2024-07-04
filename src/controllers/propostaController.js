@@ -270,7 +270,7 @@ module.exports = {
                         nomeOperadora,
                         wppSender,
                         newStatus: 'Agendar',
-                        dataVigenciaAmil
+                        vigenciaAmil
                     }
 
                     const existeProposta = await PropostaEntrevista.findOne({
