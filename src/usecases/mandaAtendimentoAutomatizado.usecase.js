@@ -28,8 +28,6 @@ class MandaAtendimentoAutomatizado {
 Somos da Área de Implantação da Amil e para concluirmos a contratação do Plano de Saúde do Sr.(a), e dos seus dependentes (caso tenha) precisamos confirmar alguns dados médicos.
 Por gentileza, poderia responder essa mensagem para podermos seguir com o atendimento?`
 
-            console.log();
-
             const mensagemTwilio = await client.messages.create({
                 from: wppSender,
                 to: whatsapp,

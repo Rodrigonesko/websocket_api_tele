@@ -9,6 +9,8 @@ const TwilioNumber = process.env.TWILIO_NUMBER
 const { modeloMensagem1, modeloMensagem2, buscarDiasDisponiveis, buscarHorariosDisponiveis, enfermeiraComMenosAgendamentos, verificarHorarioDisponivel, horariosDisponiveis, verificarDependentesMenoresDeIdade } = require('../utils/functions')
 const { sendMessage, updatePropostaEntrevista, agendaEntrevistaPorCpfTitular, agendaEntrevistaPorId, encontrarPropostaPorWhatsapp, mandarParaAtendimentoHumanizado, agendaComOStatusPerguntaDependentes, agendarEntrevistaParaDependentesMenoresIdade } = require('../utils/whatsappBotFunctions')
 const { io } = require('../../index');
+const MESSAGING_SERVICE_SID = process.env.MESSAGING_SERVICE_SID;
+
 
 const fs = require('fs');
 const Log = require('../models/Log');
@@ -540,9 +542,9 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                     return res.json(msg)
                 }
 
-                if (find.tipoContrato === 'ADESÃO') {
-                    find.wppSender = 'whatsapp:+551150394280'
-                }
+                // if (find.tipoContrato === 'ADESÃO') {
+                //     find.wppSender = 'whatsapp:+551150394280'
+                // }
 
                 if (find.status === 'Concluído') {
                     const msg = `Sua teleentrevista ja foi concluída, você será encaminhado para o atendimento humanizado.`
@@ -826,17 +828,21 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
 
             const { _id } = req.body
 
+            console.log(_id);
+
             const proposta = await PropostaEntrevista.findOne({
                 _id
             })
+
+            console.log(proposta);
 
             if (proposta.whatsapp === 'whatsapp:+55') {
                 return res.json({ msg: 'Sem whatsapp' })
             }
 
-            if (proposta.tipoContrato === 'ADESÃO') {
-                return res.json({ msg: 'Adesão' })
-            }
+            // if (proposta.tipoContrato === 'ADESÃO') {
+            //     return res.json({ msg: 'Adesão' })
+            // }
 
             const msg = `Prezado Sr. (a) ${proposta.nome},
 Somos da Área de Implantação da Amil e para concluirmos a contratação do Plano de Saúde do Sr.(a), e dos seus dependentes (caso tenha) precisamos confirmar alguns dados médicos.
@@ -854,8 +860,9 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                 to: proposta.whatsapp,
                 contentSid: 'HXaefa3495a5af5e72491eaaea5dda9be9',
                 contentVariables: JSON.stringify({
-                    nome: proposta.nome
-                })
+                    '1': proposta.nome
+                }),
+                messagingServiceSid: proposta?.tipoContrato === 'ADESÃO' ? MESSAGING_SERVICE_SID : undefined,
             })
 
             let statusMessage = await client.messages(messageTwilio.sid).fetch()
