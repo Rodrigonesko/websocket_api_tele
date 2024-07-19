@@ -213,12 +213,10 @@ async function reenviarMensagensVigencia() {
     try {
 
         const find = await PropostaEntrevista.find({
-            // dataRecebimento: { $gte: '2024-04-05', $lte: '2024-04-30' }
-            status: { $nin: ['Cancelado', 'Concluído'] },
-            tipoContrato: { $ne: 'ADESÃO' },
-            agendado: { $ne: 'agendado' }
+            status: { $nin: ['Concluído', 'Cancelado'] },
+            agendado: { $ne: 'agendado' },
+            dataRecebimento: { $lte: '2024-07-16' }
         }).lean()
-
 
         let countEnviado = 0;
         for (const proposta of find) {
@@ -257,12 +255,13 @@ async function reenviarMensagensVigencia() {
 
                     const messageTwilio = await client.messages.create({
                         from: wppSender,
-                        body: msg,
+                        // body: msg,
                         to: proposta.whatsapp,
                         contentSid: 'HXaefa3495a5af5e72491eaaea5dda9be9',
                         contentVariables: JSON.stringify({
-                            nome: proposta.nome
-                        })
+                            '1': proposta.nome
+                        }),
+                        messagingServiceSid: process.env.MESSAGING_SERVICE_SID
                     })
 
                     let statusMessage = await client.messages(messageTwilio.sid).fetch()
@@ -276,6 +275,9 @@ async function reenviarMensagensVigencia() {
                         sid: messageTwilio.sid
                     })
 
+
+
+
                     await PropostaEntrevista.findByIdAndUpdate({
                         _id: proposta._id
                     }, {
@@ -283,8 +285,8 @@ async function reenviarMensagensVigencia() {
                         situacao: 'Enviada',
                         wppSender,
                         horarioEnviado: moment().format('YYYY-MM-DD HH:mm'),
-                        responsavelContato1: 'Bot Whatsapp',
-                        contato1: moment().format('YYYY-MM-DD HH:mm'),
+                        responsavelContato1: !proposta.responsavelContato1 ? 'Bot Whatsapp' : proposta.responsavelContato1,
+                        contato1: !proposta.contato1 ? moment().format('YYYY-MM-DD HH:mm') : proposta.contato1,
                         perguntaAtendimentoHumanizado: false,
                         atendimentoHumanizado: false,
                     })
@@ -306,7 +308,27 @@ async function reenviarMensagensVigencia() {
     }
 }
 
+async function atualizarVigenciaAmil() {
+    try {
+        const arquivo = 'src/utils/vigencias.csv';
+        const open = fs.readFileSync(arquivo, 'utf8');
+        const array = open.split('\n');
+        let contador = 0;
+        for (const item of array) {
+            const proposta = item.split(';')[0];
+            const vigencia = item.split(';')[2];
+            console.log(proposta, moment(vigencia, 'DD/MM/YYYY').format('YYYY-MM-DD'));
+            await PropostaEntrevista.updateOne({
+                proposta
+            }, {
+                vigencia: moment(vigencia, 'DD/MM/YYYY').format('YYYY-MM-DD')
+            });
+        }
 
+    } catch (error) {
+        console.log(error);
+    }
+}
 
 //reenviarMensagensVigencia();
 

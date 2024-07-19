@@ -151,8 +151,6 @@ async function buscarDiasDisponiveis() {
     return diasDisponiveis;
 }
 
-buscarDiasDisponiveis().then(dias => console.log(dias));
-
 async function buscarHorariosDisponiveis(dia) {
 
     if (dia < moment().format('YYYY-MM-DD')) {

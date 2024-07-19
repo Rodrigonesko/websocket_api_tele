@@ -615,7 +615,7 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
             }
             //Caso não seja digitado um numero e o whatsapp é encontrado no banco, é enviado a mensagem de atendimento humanizado
             if ((isNaN(Number(Body)) && !find?.atendimentoHumanizado && !find?.perguntaAtendimentoHumanizado && !!find) && (Body !== 'Ok' && find?.statusWhatsapp !== 'Saudacao enviada')) {
-                const msg = 'Infelizmente ai nda não entendemos sua mensagem, por favor siga as instruções informadas acima.'
+                const msg = 'Infelizmente ainda não entendemos sua mensagem, por favor siga as instruções informadas acima.'
                 await sendMessage(To, From, msg)
                 await PropostaEntrevista.updateOne({
                     _id: find._id
@@ -639,7 +639,6 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
             }
             //Retorna os horarios disponiveis
             if (find.statusWhatsapp === 'Dia enviado' && !isNaN(Number(Body))) {
-
                 if (find.diasEnviados[Number(Body) - 1] < moment().format('YYYY-MM-DD')) {
                     await sendMessage(To, From, 'O dia escolhido não pode ser anterior ao dia de hoje.')
                     const diasDisponiveis = await buscarDiasDisponiveis()
@@ -655,7 +654,6 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                     })
                     return res.json({ msg: 'ok' })
                 }
-
                 const horariosDisponiveis = await buscarHorariosDisponiveis(find.diasEnviados[Number(Body) - 1])
                 if (!find.diasEnviados[Number(Body) - 1]) {
                     const msg = `Por favor escolha um dia válido.`
@@ -696,7 +694,7 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                 }
                 const msg = `Por gentileza confirme o dia e horário escolhido para a entrevista.\n${moment(find.diaEscolhido).format('DD/MM/YYYY')} ${horarioEscolhido}\nDigite 1 para confirmar ou 2 para escolher outro horário.`
                 await sendMessage(To, From, msg)
-                const update = await PropostaEntrevista.findByIdAndUpdate({
+                await PropostaEntrevista.findByIdAndUpdate({
                     _id: find._id
                 }, {
                     statusWhatsapp: 'Confirmação de horario',
@@ -732,10 +730,10 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                     }
 
                     if (find.tipoAssociado === 'Titular' && dependentes.length > 0) {
-                        // await agendaComOStatusPerguntaDependentes(find, enfermeira)
                         await agendaEntrevistaPorId(find, enfermeira)
                         const msg = `Agradecemos a confirmação do horário, a teleentrevista será realizada no dia ${moment(find.diaEscolhido).format('DD/MM/YYYY')}, às ${find.horarioEscolhido}. Informamos que vamos ligar do número ${find.tipoContrato === 'ADESÃO' ? '11 4240-1232' : '11 42403554'} (não será por whatsapp, será por ligação telefonica), pedimos para tirar do spam para evitar o bloqueio da ligação.`  //Lembrando que caso tenha dependentes, a entrevista será realizada com o responsável legal, não necessitando da presença do menor no momento da ligação. Gostaria de agendar os dependentes maiores de idade no mesmo horario?\n1 - sim\n2 - não.`
                         await sendMessage(To, From, msg)
+
                         //verofocar se os dependentes são maiores de idade
                         let maioresIdade = dependentes.filter(dependente => {
                             return dependente.idade >= 18
@@ -777,9 +775,6 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                         })
                         return res.json({ msg: 'ok' })
                     }
-
-
-
                 }
                 if (Number(Body) === 2) {
                     const diasDisponiveis = await buscarDiasDisponiveis()
