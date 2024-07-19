@@ -921,7 +921,7 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
             }, {
                 statusWhatsapp: 'Saudacao enviada',
                 situacao: 'Enviada',
-                wppSender: 'whatsapp:+551150392183',
+                wppSender,
                 horarioEnviado: moment().format('YYYY-MM-DD HH:mm'),
                 responsavelContato1: 'Bot Whatsapp',
                 contato1: moment().format('YYYY-MM-DD HH:mm')
