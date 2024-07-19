@@ -917,8 +917,7 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
             })
 
             await PropostaEntrevista.updateMany({
-                cpfTitular: proposta.cpfTitular,
-                whatsapp: 'whatsapp:+55'
+                cpfTitular: proposta.cpfTitular
             }, {
                 statusWhatsapp: 'Saudacao enviada',
                 situacao: 'Enviada',
