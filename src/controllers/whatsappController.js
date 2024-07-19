@@ -601,6 +601,20 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
             }
             //Caso o cpf tenha sido digitado e o whatsapp encontrado no banco, é enviado os dias disponiveis
             if ((!isNaN(Number(Body)) && (find?.statusWhatsapp === 'Cpf digitado')) || find?.statusWhatsapp === 'Saudacao enviada') {
+                const dependentes = await PropostaEntrevista.find({
+                    cpfTitular: find.cpfTitular,
+                    status: { $ne: 'Cancelado', $ne: 'Concluído' }
+                })
+                if (dependentes.some(dependente => dependente.idade < 18 && dependente.idade > 8)) {
+                    const msg = `Um analista irá entrar em contato para realizar o seu agendamento e de seus dependentes o mais breve possível.`
+                    await sendMessage(To, From, msg)
+                    await PropostaEntrevista.updateMany({
+                        cpfTitular: find.cpfTitular
+                    }, {
+                        atendimentoHumanizado: true
+                    })
+                    return res.json(msg)
+                }
                 const diasDisponiveis = await buscarDiasDisponiveis()
                 const msg = `Olá, por gentileza escolha o dia em que o Sr (a) ${find.nome} deseja realizar a teleentrevista. Informamos que demora de 8 a 10 minutos e que a mesma é imprescindível para a continuidade na contratação do plano.\nDigite somente o número referente ao dia escolhido.\n${diasDisponiveis.map((dia, index) => {
                     return `${index + 1}. ${moment(dia).format('DD/MM/YYYY')}`
@@ -898,12 +912,11 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
             })
 
             await PropostaEntrevista.updateMany({
-                cpfTitular: proposta.cpfTitular,
-                whatsapp: 'whatsapp:+55'
+                cpfTitular: proposta.cpfTitular
             }, {
                 statusWhatsapp: 'Saudacao enviada',
                 situacao: 'Enviada',
-                wppSender: 'whatsapp:+551150392183',
+                wppSender,
                 horarioEnviado: moment().format('YYYY-MM-DD HH:mm'),
                 responsavelContato1: 'Bot Whatsapp',
                 contato1: moment().format('YYYY-MM-DD HH:mm')
