@@ -104,6 +104,7 @@ const propostaScheema = new mongoose.Schema({
     },
     responsavel: String,
     dataVigenciaAmil: String,
+    tentativasDeContato: [],
 }, {
     timestamps: true
 })

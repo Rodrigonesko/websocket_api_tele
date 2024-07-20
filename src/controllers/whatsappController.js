@@ -527,6 +527,7 @@ module.exports = {
                 arquivo: MediaUrl0
             })
             let find = await encontrarPropostaPorWhatsapp(From)
+            io.emit('receivedMessage', { whatsapp: fixed, mensagem, responsavel: find?.responsavelConversa, enfermeiro: find?.enfermeiro, nome: find?.nome, proposta: find?.proposta })
             //Verifica se esta no atendimento humazizado
             if (find?.atendimentoHumanizado) {
                 return res.json(Body)
