@@ -527,6 +527,7 @@ module.exports = {
                 arquivo: MediaUrl0
             })
             let find = await encontrarPropostaPorWhatsapp(From)
+            io.emit('receivedMessage', { whatsapp: fixed, mensagem, responsavel: find?.responsavelConversa, enfermeiro: find?.enfermeiro, nome: find?.nome, proposta: find?.proposta })
             //Verifica se esta no atendimento humazizado
             if (find?.atendimentoHumanizado) {
                 return res.json(Body)
@@ -907,8 +908,13 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                 situacao: 'Enviada',
                 wppSender,
                 horarioEnviado: moment().format('YYYY-MM-DD HH:mm'),
-                responsavelContato1: 'Bot Whatsapp',
-                contato1: moment().format('YYYY-MM-DD HH:mm')
+                tentativasDeContato: {
+                    $push: {
+                        data: moment().format('YYYY-MM-DD HH:mm'),
+                        responsavel: 'Bot Whatsapp',
+                        canal: 'WHATSAPP',
+                    }
+                }
             })
 
             await PropostaEntrevista.updateMany({
@@ -918,8 +924,13 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                 situacao: 'Enviada',
                 wppSender,
                 horarioEnviado: moment().format('YYYY-MM-DD HH:mm'),
-                responsavelContato1: 'Bot Whatsapp',
-                contato1: moment().format('YYYY-MM-DD HH:mm')
+                tentativasDeContato: {
+                    $push: {
+                        data: moment().format('YYYY-MM-DD HH:mm'),
+                        responsavel: 'Bot Whatsapp',
+                        canal: 'WHATSAPP',
+                    }
+                }
             })
 
             console.log('Mensagem enviada com sucesso');
