@@ -215,8 +215,17 @@ async function reenviarMensagensVigencia() {
         const find = await PropostaEntrevista.find({
             status: { $nin: ['Concluído', 'Cancelado'] },
             agendado: { $ne: 'agendado' },
-            dataRecebimento: { $lte: '2024-07-16' }
-        }).lean()
+            $and: [
+                {
+                    tentativasDeContato: { $size: 1 },
+                },
+                {
+                    'tentativasDeContato.0.responsavel': 'Bot Whatsapp'
+                }
+            ],
+            dataRecebimento: { $ne: '2024-07-22' },
+            atendimentoHumanizado: { $ne: true }
+        }).lean();
 
         let countEnviado = 0;
         for (const proposta of find) {
@@ -227,7 +236,7 @@ async function reenviarMensagensVigencia() {
                 }
 
                 if (proposta.wppSender === process.env.TWILIO_NUMBER) {
-                    const mensagem = modeloMensagem2(proposta.nome, '28/06/2024', '01/07/2024');
+                    const mensagem = modeloMensagem2(proposta.nome, '23/07/2024', '24/07/2024');
                     console.log(proposta.whatsapp, mensagem.mensagem);
 
                     await sendMessage(proposta.wppSender, proposta.whatsapp, mensagem.mensagem);
@@ -235,8 +244,8 @@ async function reenviarMensagensVigencia() {
                     await PropostaEntrevista.updateOne({
                         _id: proposta._id
                     }, {
-                        opcaoDia1: '28/06/2024',
-                        opcaoDia2: '01/07/2024',
+                        opcaoDia1: '23/07/2024',
+                        opcaoDia2: '24/07/2024',
                         perguntaAtendimentoHumanizado: true,
                         atendimentoHumanizado: false,
                     });
@@ -274,10 +283,6 @@ async function reenviarMensagensVigencia() {
                         status: statusMessage.status,
                         sid: messageTwilio.sid
                     })
-
-
-
-
                     await PropostaEntrevista.findByIdAndUpdate({
                         _id: proposta._id
                     }, {
@@ -285,10 +290,15 @@ async function reenviarMensagensVigencia() {
                         situacao: 'Enviada',
                         wppSender,
                         horarioEnviado: moment().format('YYYY-MM-DD HH:mm'),
-                        responsavelContato1: !proposta.responsavelContato1 ? 'Bot Whatsapp' : proposta.responsavelContato1,
-                        contato1: !proposta.contato1 ? moment().format('YYYY-MM-DD HH:mm') : proposta.contato1,
                         perguntaAtendimentoHumanizado: false,
                         atendimentoHumanizado: false,
+                        $push: {
+                            tentativasDeContato: {
+                                responsavel: 'Bot Whatsapp',
+                                data: moment().format('YYYY-MM-DD HH:mm'),
+                                canal: 'WHATSAPP'
+                            }
+                        }
                     })
 
                     countEnviado++;
@@ -330,7 +340,7 @@ async function atualizarVigenciaAmil() {
     }
 }
 
-//reenviarMensagensVigencia();
+// reenviarMensagensVigencia();
 
 // reenviarMensagensVigencia()
 
