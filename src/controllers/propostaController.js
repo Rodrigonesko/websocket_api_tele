@@ -1070,8 +1070,8 @@ module.exports = {
                 opcaoDia2,
                 modelo,
                 wppSender,
-                tentativasDeContato: {
-                    $push: {
+                $push: {
+                    tentativasDeContato: {
                         data: moment().format('YYYY-MM-DD HH:mm'),
                         responsavel: 'Bot Whatsapp',
                         canal: 'WHATSAPP',
@@ -2032,11 +2032,11 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
                 cpfTitular: proposta.cpfTitular
             }, {
                 perguntaAtendimentoHumanizado: true,
-                tentativasDeContato: {
-                    $push: {
-                        data: moment().format('DD/MM/YYYY HH:mm:ss'),
+                $push: {
+                    tentativasDeContato: {
+                        data: moment().format('YYYY-MM-DD HH:mm'),
+                        responsavel: 'Bot Whatsapp',
                         canal: 'WHATSAPP',
-                        responsavel: 'Bot Whatsapp'
                     }
                 }
             })
@@ -2115,11 +2115,11 @@ Lembrando que em caso de menor de idade a entrevista será realizada com o respo
                     perguntaAtendimentoHumanizado: true,
                     atendimentoHumanizado: true,
                     situacao: 'Atendimento humanizado',
-                    tentativasDeContato: {
-                        $push: {
-                            data: moment().format('DD/MM/YYYY HH:mm:ss'),
+                    $push: {
+                        tentativasDeContato: {
+                            data: moment().format('YYYY-MM-DD HH:mm'),
+                            responsavel: 'Bot Whatsapp',
                             canal: 'WHATSAPP',
-                            responsavel: 'Bot Whatsapp'
                         }
                     }
                 })

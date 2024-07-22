@@ -908,8 +908,8 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                 situacao: 'Enviada',
                 wppSender,
                 horarioEnviado: moment().format('YYYY-MM-DD HH:mm'),
-                tentativasDeContato: {
-                    $push: {
+                $push: {
+                    tentativasDeContato: {
                         data: moment().format('YYYY-MM-DD HH:mm'),
                         responsavel: 'Bot Whatsapp',
                         canal: 'WHATSAPP',
@@ -924,8 +924,8 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                 situacao: 'Enviada',
                 wppSender,
                 horarioEnviado: moment().format('YYYY-MM-DD HH:mm'),
-                tentativasDeContato: {
-                    $push: {
+                $push: {
+                    tentativasDeContato: {
                         data: moment().format('YYYY-MM-DD HH:mm'),
                         responsavel: 'Bot Whatsapp',
                         canal: 'WHATSAPP',
