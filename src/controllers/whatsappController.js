@@ -849,6 +849,12 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                 return res.json({ msg: 'Sem whatsapp' })
             }
 
+            if(proposta.tipoAssociado === 'Dependente') {
+                return res.json({ msg: 'Dependente' })
+            }
+        
+
+
             // if (proposta.tipoContrato === 'ADESÃO') {
             //     return res.json({ msg: 'Adesão' })
             // }

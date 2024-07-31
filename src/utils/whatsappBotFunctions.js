@@ -212,20 +212,35 @@ async function reenviarMensagensEmMassa() {
 async function reenviarMensagensVigencia() {
     try {
 
-        const find = await PropostaEntrevista.find({
-            status: { $nin: ['Concluído', 'Cancelado'] },
-            agendado: { $ne: 'agendado' },
-            $and: [
-                {
-                    tentativasDeContato: { $size: 1 },
-                },
-                {
-                    'tentativasDeContato.0.responsavel': 'Bot Whatsapp'
-                }
-            ],
-            dataRecebimento: { $ne: '2024-07-22' },
-            atendimentoHumanizado: { $ne: true }
-        }).lean();
+        const arquivo = 'src/utils/reenviar.csv';
+        const open = fs.readFileSync(arquivo, 'utf8');
+        const array = open.split('\n');
+
+        const promises = array.map(async item => {
+            return await PropostaEntrevista.findOne({
+                proposta: item.split(';')[0],
+                nome: item.split(';')[1].trim(),
+                status: { $nin: ['Cancelado', 'Concluído'] },
+                agendado: { $ne: 'agendado' },
+            });
+        });
+
+        const find = (await Promise.all(promises)).filter(item => item);
+        console.log(find.length);
+        // const find = await PropostaEntrevista.find({
+        //     status: { $nin: ['Concluído', 'Cancelado'] },
+        //     agendado: { $ne: 'agendado' },
+        //     $and: [
+        //         {
+        //             tentativasDeContato: { $size: 1 },
+        //         },
+        //         {
+        //             'tentativasDeContato.0.responsavel': 'Bot Whatsapp'
+        //         }
+        //     ],
+        //     dataRecebimento: { $ne: '2024-07-22' },
+        //     atendimentoHumanizado: { $ne: true }
+        // }).lean();
 
         let countEnviado = 0;
         for (const proposta of find) {
@@ -236,7 +251,7 @@ async function reenviarMensagensVigencia() {
                 }
 
                 if (proposta.wppSender === process.env.TWILIO_NUMBER) {
-                    const mensagem = modeloMensagem2(proposta.nome, '23/07/2024', '24/07/2024');
+                    const mensagem = modeloMensagem2(proposta.nome, '30/07/2024', '01/08/2024');
                     console.log(proposta.whatsapp, mensagem.mensagem);
 
                     await sendMessage(proposta.wppSender, proposta.whatsapp, mensagem.mensagem);
@@ -244,8 +259,8 @@ async function reenviarMensagensVigencia() {
                     await PropostaEntrevista.updateOne({
                         _id: proposta._id
                     }, {
-                        opcaoDia1: '23/07/2024',
-                        opcaoDia2: '24/07/2024',
+                        opcaoDia1: '30/07/2024',
+                        opcaoDia2: '01/08/2024',
                         perguntaAtendimentoHumanizado: true,
                         atendimentoHumanizado: false,
                     });
