@@ -849,11 +849,18 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                 return res.json({ msg: 'Sem whatsapp' })
             }
 
-            if(proposta.tipoAssociado === 'Dependente') {
+            if (proposta.tipoAssociado === 'Dependente') {
                 return res.json({ msg: 'Dependente' })
             }
-        
 
+            if (proposta.tipoContrato !== 'ADESÃO') {
+                const find = await PropostaEntrevista.find({
+                    cpfTitular: proposta.cpfTitular
+                })
+                if (find.some(item => item.idade < 18 && item.idade > 8)) {
+                    return res.json({ msg: 'Menor de idade' })
+                }
+            }
 
             // if (proposta.tipoContrato === 'ADESÃO') {
             //     return res.json({ msg: 'Adesão' })
