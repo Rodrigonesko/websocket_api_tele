@@ -533,12 +533,19 @@ module.exports = {
             }
 
             if (find) {
+
                 if (!find.statusWhatsapp) {
                     const msg = `Prezado Sr. (a) ${find.nome},
 Somos da Área de Implantação da Amil e para concluirmos a contratação do Plano de Saúde do Sr.(a), e dos seus dependentes (caso tenha) precisamos confirmar alguns dados médicos.
 Por gentileza, poderia responder essa mensagem para podermos seguir com o atendimento?`
                     await sendMessage(To, From, msg)
                     await updatePropostaEntrevista(find, 'Saudacao enviada')
+                    await PropostaEntrevista.updateOne({
+                        _id: find._id
+                    }, {
+                        wppSender: To,
+                        horarioRespondido: moment().format('YYYY-MM-DD HH:mm:ss')
+                    })
                     return res.json(msg)
                 }
 
@@ -591,7 +598,8 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                     whatsapp: From,
                     wppSender: To,
                     statusWhatsapp: 'Cpf digitado',
-                    telefone: From
+                    telefone: From,
+                    horarioRespondido: moment().format('YYYY-MM-DD HH:mm:ss')
                 }, { new: true });
                 if (!find) {
                     const msg = 'Olá, seu CPF não consta em nossa base de contatos, por favor verifique se o mesmo foi digitado corretamente e tente novamente.'
@@ -625,6 +633,7 @@ Por gentileza, poderia responder essa mensagem para podermos seguir com o atendi
                 }, {
                     statusWhatsapp: 'Dia enviado',
                     diasEnviados: diasDisponiveis,
+                    horarioRespondido: moment().format('YYYY-MM-DD HH:mm:ss')
                 })
             }
             //Caso não seja digitado um numero e o whatsapp é encontrado no banco, é enviado a mensagem de atendimento humanizado
