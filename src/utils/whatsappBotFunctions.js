@@ -211,11 +211,154 @@ async function reenviarMensagensEmMassa() {
 
 async function reenviarMensagensVigencia() {
     try {
+
+        // let find = []
+
+        // fs.readFile('src/utils/reenvio 27-08-24.csv', 'utf8', async (err, data) => {
+        //     if (err) {
+        //         console.log(err);
+        //         return;
+        //     }
+        //     const array = data.split('\n')
+        //     let countEnviado = 0;
+        //     for (const item of array) {
+        //         let proposta = item.split(';')[0]?.trim();
+        //         let nome = item.split(';')[1]?.trim();
+        //         const findProposta = await PropostaEntrevista.findOne({
+        //             proposta,
+        //             nome
+        //         })
+        //         if (!findProposta) continue;
+        //         find.push(findProposta);
+        //         console.log(findProposta._id);
+        //     }
+        //     for (const proposta of find) {
+        //         try {
+        //             if (proposta.whatsapp === 'whatsapp:+55' || proposta.whatsapp === 'whatsapp:+55undefinedundefined') {
+        //                 const findTitular = await PropostaEntrevista.findOne({
+        //                     cpf: proposta.cpfTitular,
+        //                 });
+        //                 if (findTitular) {
+
+        //                     const msg = `Prezado(a) Sr(a) ${findTitular.nome}, verificamos que consta pendente a entrevista do(s) seu(s) dependente(s). Solicitamos que acesse o link a seguir para realizar o agendamento. A Amil agradece e aguardo o seu contato.
+        // https://wa.me/${findTitular.wppSender}?text=Olá,%20gostaria%20de%20agendar%20meu%20horário%20para%20a%20entrevista.`
+
+        //                     let wppSender = findTitular.wppSender
+
+        //                     const messageTwilio = await client.messages.create({
+        //                         from: wppSender,
+        //                         // body: msg,
+        //                         to: findTitular.whatsapp,
+        //                         contentSid: 'HXee7778e84b9bcd574c5c819afaa06e59',
+        //                         contentVariables: JSON.stringify({
+        //                             '1': findTitular.nome,
+        //                             '2': `https://wa.me/${findTitular.wppSender}?text=Olá,%20gostaria%20de%20agendar%20meu%20horário%20para%20a%20entrevista.`
+        //                         }),
+        //                         messagingServiceSid: process.env.MESSAGING_SERVICE_SID
+        //                     })
+
+        //                     let statusMessage = await client.messages(messageTwilio.sid).fetch()
+
+        //                     await Chat.create({
+        //                         de: wppSender,
+        //                         para: findTitular.whatsapp,
+        //                         mensagem: msg,
+        //                         horario: moment().format('YYYY-MM-DD HH:mm'),
+        //                         status: statusMessage.status,
+        //                         sid: messageTwilio.sid
+        //                     })
+        //                     await PropostaEntrevista.findByIdAndUpdate({
+        //                         _id: proposta._id
+        //                     }, {
+        //                         statusWhatsapp: 'Saudacao enviada',
+        //                         situacao: 'Enviada',
+        //                         wppSender,
+        //                         horarioEnviado: moment().format('YYYY-MM-DD HH:mm'),
+        //                         perguntaAtendimentoHumanizado: false,
+        //                         atendimentoHumanizado: false,
+        //                         $push: {
+        //                             tentativasDeContato: {
+        //                                 responsavel: 'Bot Whatsapp',
+        //                                 data: moment().format('YYYY-MM-DD HH:mm'),
+        //                                 canal: 'WHATSAPP'
+        //                             }
+        //                         }
+        //                     })
+
+        //                     countEnviado++;
+        //                     console.log('enviado', proposta.whatsapp, proposta.nome);
+        //                 }
+        //                 continue;
+        //             }
+
+
+        //             const msg = `Prezado(a) Sr(a) ${proposta.nome}, verificamos que consta pendente a entrevista do(s) seu(s) dependente(s). Solicitamos que acesse o link a seguir para realizar o agendamento. A Amil agradece e aguardo o seu contato.
+        // https://wa.me/${proposta.wppSender}?text=Olá,%20gostaria%20de%20agendar%20meu%20horário%20para%20a%20entrevista.`
+
+        //             let wppSender = proposta.wppSender
+
+        //             const messageTwilio = await client.messages.create({
+        //                 from: wppSender,
+        //                 // body: msg,
+        //                 to: proposta.whatsapp,
+        //                 contentSid: 'HXee7778e84b9bcd574c5c819afaa06e59',
+        //                 contentVariables: JSON.stringify({
+        //                     '1': proposta.nome,
+        //                     '2': `https://wa.me/${proposta.wppSender}?text=Olá,%20gostaria%20de%20agendar%20meu%20horário%20para%20a%20entrevista.`
+        //                 }),
+        //                 messagingServiceSid: process.env.MESSAGING_SERVICE_SID
+        //             })
+
+        //             let statusMessage = await client.messages(messageTwilio.sid).fetch()
+
+        //             await Chat.create({
+        //                 de: wppSender,
+        //                 para: proposta.whatsapp,
+        //                 mensagem: msg,
+        //                 horario: moment().format('YYYY-MM-DD HH:mm'),
+        //                 status: statusMessage.status,
+        //                 sid: messageTwilio.sid
+        //             })
+        //             await PropostaEntrevista.findByIdAndUpdate({
+        //                 _id: proposta._id
+        //             }, {
+        //                 statusWhatsapp: 'Saudacao enviada',
+        //                 situacao: 'Enviada',
+        //                 wppSender,
+        //                 horarioEnviado: moment().format('YYYY-MM-DD HH:mm'),
+        //                 perguntaAtendimentoHumanizado: false,
+        //                 atendimentoHumanizado: false,
+        //                 $push: {
+        //                     tentativasDeContato: {
+        //                         responsavel: 'Bot Whatsapp',
+        //                         data: moment().format('YYYY-MM-DD HH:mm'),
+        //                         canal: 'WHATSAPP'
+        //                     }
+        //                 }
+        //             })
+
+        //             countEnviado++;
+        //             console.log('enviado', proposta.whatsapp, proposta.nome);
+
+        //         } catch (error) {
+        //             console.log(error);
+        //             continue;
+        //         }
+        //     }
+        //     console.log(find.length);
+        //     console.log('Enviado: ' + countEnviado);
+        // })
+
         const find = await PropostaEntrevista.find({
             status: { $nin: ['Concluído', 'Cancelado'] },
             agendado: { $ne: 'agendado' },
-            atendimentoHumanizado: { $ne: true },
-            tipoContrato: 'ADESÃO'
+            tipoContrato: 'ADESÃO',
+            // $or: [
+            //     {tentativasDeContato: {$size: 0}},
+            //     {tentativasDeContato: {$size: 1}},
+            //     {tentativasDeContato: {$size: 2}},
+            //     {tentativasDeContato: {$size: 3}},
+            // ]
         }).lean();
 
         let countEnviado = 0;
@@ -227,7 +370,7 @@ async function reenviarMensagensVigencia() {
                 }
 
                 if (proposta.wppSender === process.env.TWILIO_NUMBER) {
-                    const mensagem = modeloMensagem2(proposta.nome, '30/07/2024', '01/08/2024');
+                    const mensagem = modeloMensagem2(proposta.nome, '03/09/2024', '04/09/2024');
                     console.log(proposta.whatsapp, mensagem.mensagem);
 
                     await sendMessage(proposta.wppSender, proposta.whatsapp, mensagem.mensagem);
@@ -235,17 +378,16 @@ async function reenviarMensagensVigencia() {
                     await PropostaEntrevista.updateOne({
                         _id: proposta._id
                     }, {
-                        opcaoDia1: '30/07/2024',
-                        opcaoDia2: '01/08/2024',
+                        opcaoDia1: '03/09/2024',
+                        opcaoDia2: '04/09/2024',
                         perguntaAtendimentoHumanizado: true,
                         atendimentoHumanizado: false,
                     });
 
                     console.log('enviado antigo', proposta.whatsapp, proposta.nome);
                 } else {
-                    const msg = `Prezado Sr. (a) ${proposta.nome},
-                Somos da Área de Implantação da Amil e para concluirmos a contratação do Plano de Saúde do Sr.(a), e dos seus dependentes (caso tenha) precisamos confirmar alguns dados médicos.
-                Por gentileza, poderia responder essa mensagem para podermos seguir com o atendimento?`
+                    const msg = `Prezado(a) Sr(a), desculpe a demora em retornar. Podemos retomar o seu agendamento?
+Se sim, por favor, digitar OK`
 
                     let wppSender = proposta.wppSender
 
@@ -257,10 +399,10 @@ async function reenviarMensagensVigencia() {
                         from: wppSender,
                         // body: msg,
                         to: proposta.whatsapp,
-                        contentSid: 'HXaefa3495a5af5e72491eaaea5dda9be9',
-                        contentVariables: JSON.stringify({
-                            '1': proposta.nome
-                        }),
+                        contentSid: 'HX7f2a237a69f8b792eaa10eab3aa95ee2',
+                        // contentVariables: JSON.stringify({
+                        //     '1': proposta.nome
+                        // }),
                         messagingServiceSid: process.env.MESSAGING_SERVICE_SID
                     })
 

@@ -279,7 +279,7 @@ module.exports = {
                     })
 
                     if (!existeProposta) {
-                        const newPropostaEntrevista = await PropostaEntrevista.create(resultado)
+                        await PropostaEntrevista.create(resultado)
                         quantidade++
                     }
                 } catch (error) {
@@ -287,7 +287,6 @@ module.exports = {
                     return res.status(400).json({
                         error: `Erro ao processar a proposta ${item.NUM_PROPOSTA}, Todas as propostas anteriores foram inseridas`
                     })
-                    //throw new Error(`Erro ao processar a proposta ${item.NUM_PROPOSTA}`)
                 }
             }
 
