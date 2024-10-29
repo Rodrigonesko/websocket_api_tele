@@ -1783,7 +1783,6 @@ module.exports = {
             await PropostaEntrevista.updateOne({
                 _id: find._id
             }, {
-                atendimentoHumanizado: true,
                 perguntaAtendimentoHumanizado: true
             })
 
