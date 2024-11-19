@@ -212,243 +212,219 @@ async function reenviarMensagensEmMassa() {
 async function reenviarMensagensVigencia() {
     try {
 
-        let find = []
+        // let find = []
 
-        fs.readFile('src/utils/reenviar 28-10.csv', 'utf8', async (err, data) => {
-            if (err) {
-                console.log(err);
-                return;
-            }
-            const array = data.split('\n')
-            let countEnviado = 0;
-            for (const item of array) {
-                let proposta = item.split(';')[0]?.trim();
-                let nome = item.split(';')[1]?.trim();
-                const findProposta = await PropostaEntrevista.findOne({
-                    proposta,
-                    nome,
-                    status: { $nin: ['Concluído', 'Cancelado'] },
-                    agendado: { $ne: 'agendado' }
-                })
-                if (!findProposta) continue;
-                find.push(findProposta);
-                console.log(findProposta._id);
-            }
-            for (const proposta of find) {
-                try {
-                    if (proposta.whatsapp === 'whatsapp:+55' || proposta.whatsapp === 'whatsapp:+55undefinedundefined') {
-                        const findTitular = await PropostaEntrevista.findOne({
-                            cpf: proposta.cpfTitular,
-                        });
-                        if (findTitular) {
+        // fs.readFile('src/utils/reenviar 18-11.csv', 'utf8', async (err, data) => {
+        //     if (err) {
+        //         console.log(err);
+        //         return;
+        //     }
+        //     const array = data.split('\n')
+        //     let countEnviado = 0;
+        //     for (const item of array) {
+        //         let proposta = item.split(';')[0]?.trim();
+        //         let nome = item.split(';')[1]?.trim();
+        //         const findProposta = await PropostaEntrevista.findOne({
+        //             proposta,
+        //             nome,
+        //             status: { $nin: ['Concluído', 'Cancelado'] },
+        //             agendado: { $ne: 'agendado' }
+        //         })
+        //         if (!findProposta) continue;
+        //         find.push(findProposta);
+        //         console.log(findProposta._id);
+        //     }
+        //     for (const proposta of find) {
+        //         try {
+        //             if (proposta.whatsapp === 'whatsapp:+55' || proposta.whatsapp === 'whatsapp:+55undefinedundefined') {
+        //                 const findTitular = await PropostaEntrevista.findOne({
+        //                     cpf: proposta.cpfTitular,
+        //                 });
+        //                 if (findTitular) {
 
-                            const msg = `Prezado(a) Sr(a) ${proposta.nome}, verificamos que consta pendente Entrevista(s) em seu Plano de Saúde. Digite 1000 para Atendimento Humanizado OU acesse o link a seguir para realizar o agendamento automático. A Amil agradece e aguardo o seu contato.
-        https://wa.me/${findTitular.wppSender}?text=Olá,%20gostaria%20de%20agendar%20meu%20horário%20para%20a%20entrevista.`
+        //                     //                     const msg = `Prezado(a) Sr(a) ${proposta.nome}, verificamos que consta pendente Entrevista(s) em seu Plano de Saúde. Digite 1000 para Atendimento Humanizado OU acesse o link a seguir para realizar o agendamento automático. A Amil agradece e aguardo o seu contato.
+        //                     // https://wa.me/${findTitular.wppSender}?text=Olá,%20gostaria%20de%20agendar%20meu%20horário%20para%20a%20entrevista.`
 
-                            let wppSender = findTitular.wppSender
+        //                     const msg = `Prezado(a) Sr(a) ${findTitular.nome}, verificamos que consta pendente Entrevista(s) em seu Plano de Saúde do Grupo Amil. Acesse o link a seguir para realizar o agendamento automático 
+        //                                 https://wa.me/${findTitular.wppSender}?text=Olá,%20gostaria%20de%20agendar%20meu%20horário%20para%20a%20entrevista
+        //                                 Caso encontre alguma dificuldade ou fique com alguma dúvida digite 1000 para Atendimento Humanizado. A Amil agradece e aguarda o seu contato.`
 
-                            const messageTwilio = await client.messages.create({
-                                from: wppSender,
-                                // body: msg,
-                                to: findTitular.whatsapp,
-                                contentSid: 'HX8a5dd4ffffb01bee3c922eb368f01044',
-                                contentVariables: JSON.stringify({
-                                    '1': findTitular.nome,
-                                    '2': `https://wa.me/${findTitular.wppSender}?text=Olá,%20gostaria%20de%20agendar%20meu%20horário%20para%20a%20entrevista.`
-                                }),
-                                messagingServiceSid: process.env.MESSAGING_SERVICE_SID
-                            })
+        //                     let wppSender = findTitular.wppSender
 
-                            let statusMessage = await client.messages(messageTwilio.sid).fetch()
+        //                     const messageTwilio = await client.messages.create({
+        //                         from: wppSender,
+        //                         // body: msg,
+        //                         to: findTitular.whatsapp,
+        //                         contentSid: 'HX5d6fa25f1fa882a55ef593f893dc030d',
+        //                         contentVariables: JSON.stringify({
+        //                             '1': findTitular.nome,
+        //                             '2': `https://wa.me/${findTitular.wppSender}?text=Olá,%20gostaria%20de%20agendar%20meu%20horário%20para%20a%20entrevista`
+        //                         }),
+        //                         messagingServiceSid: process.env.MESSAGING_SERVICE_SID
+        //                     })
 
-                            await Chat.create({
-                                de: wppSender,
-                                para: findTitular.whatsapp,
-                                mensagem: msg,
-                                horario: moment().format('YYYY-MM-DD HH:mm'),
-                                status: statusMessage.status,
-                                sid: messageTwilio.sid
-                            })
-                            await PropostaEntrevista.findByIdAndUpdate({
-                                _id: proposta._id
-                            }, {
-                                statusWhatsapp: 'Saudacao enviada',
-                                situacao: 'Enviada',
-                                wppSender,
-                                perguntaAtendimentoHumanizado: false,
-                                atendimentoHumanizado: false,
-                                $push: {
-                                    tentativasDeContato: {
-                                        responsavel: 'Bot Whatsapp',
-                                        data: moment().format('YYYY-MM-DD HH:mm'),
-                                        canal: 'WHATSAPP'
-                                    }
-                                }
-                            })
+        //                     let statusMessage = await client.messages(messageTwilio.sid).fetch()
 
-                            countEnviado++;
-                            console.log('enviado', proposta.whatsapp, proposta.nome);
-                        }
-                        continue;
-                    }
-
-
-                    const msg = `Prezado(a) Sr(a) ${proposta.nome}, verificamos que consta pendente Entrevista(s) em seu Plano de Saúde. Digite 1000 para Atendimento Humanizado OU acesse o link a seguir para realizar o agendamento automático. A Amil agradece e aguardo o seu contato.
-        https://wa.me/${proposta.wppSender}?text=Olá,%20gostaria%20de%20agendar%20meu%20horário%20para%20a%20entrevista.`
-
-                    let wppSender = proposta.wppSender
-
-                    const messageTwilio = await client.messages.create({
-                        from: wppSender,
-                        // body: msg,
-                        to: proposta.whatsapp,
-                        contentSid: 'HX8a5dd4ffffb01bee3c922eb368f01044',
-                        contentVariables: JSON.stringify({
-                            '1': proposta.nome,
-                            '2': `https://wa.me/${proposta.wppSender}?text=Olá,%20gostaria%20de%20agendar%20meu%20horário%20para%20a%20entrevista.`
-                        }),
-                        messagingServiceSid: process.env.MESSAGING_SERVICE_SID
-                    })
-
-                    let statusMessage = await client.messages(messageTwilio.sid).fetch()
-
-                    await Chat.create({
-                        de: wppSender,
-                        para: proposta.whatsapp,
-                        mensagem: msg,
-                        horario: moment().format('YYYY-MM-DD HH:mm'),
-                        status: statusMessage.status,
-                        sid: messageTwilio.sid
-                    })
-                    await PropostaEntrevista.findByIdAndUpdate({
-                        _id: proposta._id
-                    }, {
-                        statusWhatsapp: 'Saudacao enviada',
-                        situacao: 'Enviada',
-                        wppSender,
-                        perguntaAtendimentoHumanizado: false,
-                        atendimentoHumanizado: false,
-                        $push: {
-                            tentativasDeContato: {
-                                responsavel: 'Bot Whatsapp',
-                                data: moment().format('YYYY-MM-DD HH:mm'),
-                                canal: 'WHATSAPP'
-                            }
-                        }
-                    })
-
-                    countEnviado++;
-                    console.log('enviado', proposta.whatsapp, proposta.nome);
-
-                } catch (error) {
-                    console.log(error);
-                    continue;
-                }
-            }
-            console.log(find.length);
-            console.log('Enviado: ' + countEnviado);
-        })
-
-
-
-
-        //         const find = await PropostaEntrevista.find({
-        //             status: 'Cancelado',
-        //             newStatus: 'Cancelado',
-        //             vigenciaAmil: '2024-10-10',
-        //             tipoContrato: 'ADESÃO',
-        //             proposta: {
-        //                 $nin: [
-        //                     '19695962',
-        //                     '19696055',
-        //                     '19697061',
-        //                     '19696352',
-        //                     '19696730',
-        //                     '19696732',
-        //                     '19696804',
-        //                     '19696812',
-        //                     '19697031',
-        //                     '19697062',
-        //                     '19697070',
-        //                     '19697073',
-        //                     '19697143',
-        //                     '19697147',
-        //                     '19699799',
-        //                     '19699799',
-        //                     '19695767',
-        //                     '19696914',
-        //                     '19696991',
-        //                     '19697069',
-        //                     '19696285',
-        //                     '700000',
-        //                     '700000',
-        //                     '19696771',
-        //                     '19697218'
-        //                 ]
-        //             }
-        //         }).lean();
-
-        //         let countEnviado = 0;
-        //         for (const proposta of find) {
-
-        //             try {
-        //                 if (proposta.whatsapp === 'whatsapp:+55' || proposta.whatsapp === 'whatsapp:+55undefinedundefined') {
-        //                     continue;
-        //                 }
-
-        //                 const msg = `Prezado(a) Sr(a), desculpe a demora em retornar. Podemos retomar o seu agendamento?
-        // Se sim, por favor, digitar OK`
-
-        //                 let wppSender = proposta.wppSender
-
-        //                 const messageTwilio = await client.messages.create({
-        //                     from: wppSender,
-        //                     // body: msg,
-        //                     to: proposta.whatsapp,
-        //                     contentSid: 'HX7f2a237a69f8b792eaa10eab3aa95ee2',
-        //                     // contentVariables: JSON.stringify({
-        //                     //     '1': proposta.nome,
-        //                     //     '2': `https://wa.me/${proposta.wppSender}?text=Olá,%20gostaria%20de%20agendar%20meu%20horário%20para%20a%20entrevista.`
-        //                     // }),
-        //                     messagingServiceSid: process.env.MESSAGING_SERVICE_SID
-        //                 })
-
-        //                 let statusMessage = await client.messages(messageTwilio.sid).fetch()
-
-        //                 await Chat.create({
-        //                     de: wppSender,
-        //                     para: proposta.whatsapp,
-        //                     mensagem: msg,
-        //                     horario: moment().format('YYYY-MM-DD HH:mm'),
-        //                     status: statusMessage.status,
-        //                     sid: messageTwilio.sid
-        //                 })
-        //                 await PropostaEntrevista.findByIdAndUpdate({
-        //                     _id: proposta._id
-        //                 }, {
-        //                     statusWhatsapp: 'Saudacao enviada',
-        //                     situacao: 'Enviada',
-        //                     wppSender,
-        //                     horarioEnviado: moment().format('YYYY-MM-DD HH:mm'),
-        //                     perguntaAtendimentoHumanizado: true,
-        //                     atendimentoHumanizado: false,
-        //                     $push: {
-        //                         tentativasDeContato: {
-        //                             responsavel: 'Bot Whatsapp',
-        //                             data: moment().format('YYYY-MM-DD HH:mm'),
-        //                             canal: 'WHATSAPP'
+        //                     await Chat.create({
+        //                         de: wppSender,
+        //                         para: findTitular.whatsapp,
+        //                         mensagem: msg,
+        //                         horario: moment().format('YYYY-MM-DD HH:mm'),
+        //                         status: statusMessage.status,
+        //                         sid: messageTwilio.sid
+        //                     })
+        //                     await PropostaEntrevista.findByIdAndUpdate({
+        //                         _id: proposta._id
+        //                     }, {
+        //                         statusWhatsapp: 'Saudacao enviada',
+        //                         situacao: 'Enviada',
+        //                         wppSender,
+        //                         perguntaAtendimentoHumanizado: false,
+        //                         atendimentoHumanizado: false,
+        //                         $push: {
+        //                             tentativasDeContato: {
+        //                                 responsavel: 'Bot Whatsapp',
+        //                                 data: moment().format('YYYY-MM-DD HH:mm'),
+        //                                 canal: 'WHATSAPP'
+        //                             }
         //                         }
-        //                     }
-        //                 })
+        //                     })
 
-        //                 countEnviado++;
-        //                 console.log('enviado', proposta.whatsapp, proposta.nome);
-
-        //             } catch (error) {
-        //                 console.log(error);
+        //                     countEnviado++;
+        //                     console.log('enviado', proposta.whatsapp, proposta.nome);
+        //                 }
         //                 continue;
         //             }
+
+
+        //             const msg = `Prezado(a) Sr(a) ${proposta.nome}, verificamos que consta pendente Entrevista(s) em seu Plano de Saúde do Grupo Amil. Acesse o link a seguir para realizar o agendamento automático 
+        //             https://wa.me/${proposta.wppSender}?text=Olá,%20gostaria%20de%20agendar%20meu%20horário%20para%20a%20entrevista
+        //             Caso encontre alguma dificuldade ou fique com alguma dúvida digite 1000 para Atendimento Humanizado. A Amil agradece e aguarda o seu contato.`
+
+        //             let wppSender = proposta.wppSender
+
+        //             const messageTwilio = await client.messages.create({
+        //                 from: wppSender,
+        //                 // body: msg,
+        //                 to: proposta.whatsapp,
+        //                 contentSid: 'HX5d6fa25f1fa882a55ef593f893dc030d',
+        //                 contentVariables: JSON.stringify({
+        //                     '1': proposta.nome,
+        //                     '2': `https://wa.me/${proposta.wppSender}?text=Olá,%20gostaria%20de%20agendar%20meu%20horário%20para%20a%20entrevista.`
+        //                 }),
+        //                 messagingServiceSid: process.env.MESSAGING_SERVICE_SID
+        //             })
+
+        //             let statusMessage = await client.messages(messageTwilio.sid).fetch()
+
+        //             await Chat.create({
+        //                 de: wppSender,
+        //                 para: proposta.whatsapp,
+        //                 mensagem: msg,
+        //                 horario: moment().format('YYYY-MM-DD HH:mm'),
+        //                 status: statusMessage.status,
+        //                 sid: messageTwilio.sid
+        //             })
+        //             await PropostaEntrevista.findByIdAndUpdate({
+        //                 _id: proposta._id
+        //             }, {
+        //                 statusWhatsapp: 'Saudacao enviada',
+        //                 situacao: 'Enviada',
+        //                 wppSender,
+        //                 perguntaAtendimentoHumanizado: false,
+        //                 atendimentoHumanizado: false,
+        //                 $push: {
+        //                     tentativasDeContato: {
+        //                         responsavel: 'Bot Whatsapp',
+        //                         data: moment().format('YYYY-MM-DD HH:mm'),
+        //                         canal: 'WHATSAPP'
+        //                     }
+        //                 }
+        //             })
+
+        //             countEnviado++;
+        //             console.log('enviado', proposta.whatsapp, proposta.nome);
+
+        //         } catch (error) {
+        //             console.log(error);
+        //             continue;
         //         }
+        //     }
+        //     console.log(find.length);
+        //     console.log('Enviado: ' + countEnviado);
+        // })
+
+        const find = await PropostaEntrevista.find({
+            status: { $nin: ['Concluído', 'Cancelado'] },
+            agendado: { $ne: 'agendado' },
+            $or: [
+                { dataRecebimento: '2024-11-18' },
+                { dataRecebimento: '2024-11-14' },
+            ],
+        }).lean();
+
+        let countEnviado = 0;
+        for (const proposta of find) {
+
+            try {
+                if (proposta.whatsapp === 'whatsapp:+55' || proposta.whatsapp === 'whatsapp:+55undefinedundefined') {
+                    continue;
+                }
+
+                const msg = `Prezado(a) Sr(a) ${proposta.nome}, verificamos que consta pendente Entrevista(s) em seu Plano de Saúde do Grupo Amil. Acesse o link a seguir para realizar o agendamento automático 
+                     https://wa.me/${proposta.wppSender}?text=Olá,%20gostaria%20de%20agendar%20meu%20horário%20para%20a%20entrevista
+                     Caso encontre alguma dificuldade ou fique com alguma dúvida digite 1000 para Atendimento Humanizado. A Amil agradece e aguarda o seu contato.`
+
+                let wppSender = proposta.wppSender
+
+                const messageTwilio = await client.messages.create({
+                    from: wppSender,
+                    // body: msg,
+                    to: proposta.whatsapp,
+                    contentSid: 'HX5d6fa25f1fa882a55ef593f893dc030d',
+                    contentVariables: JSON.stringify({
+                        '1': proposta.nome,
+                        '2': `https://wa.me/${proposta.wppSender}?text=Olá,%20gostaria%20de%20agendar%20meu%20horário%20para%20a%20entrevista.`
+                    }),
+                    messagingServiceSid: process.env.MESSAGING_SERVICE_SID
+                })
+
+                let statusMessage = await client.messages(messageTwilio.sid).fetch()
+
+                await Chat.create({
+                    de: wppSender,
+                    para: proposta.whatsapp,
+                    mensagem: msg,
+                    horario: moment().format('YYYY-MM-DD HH:mm'),
+                    status: statusMessage.status,
+                    sid: messageTwilio.sid
+                })
+                await PropostaEntrevista.findByIdAndUpdate({
+                    _id: proposta._id
+                }, {
+                    statusWhatsapp: 'Saudacao enviada',
+                    situacao: 'Enviada',
+                    wppSender,
+                    horarioEnviado: moment().format('YYYY-MM-DD HH:mm'),
+                    perguntaAtendimentoHumanizado: true,
+                    atendimentoHumanizado: false,
+                    $push: {
+                        tentativasDeContato: {
+                            responsavel: 'Bot Whatsapp',
+                            data: moment().format('YYYY-MM-DD HH:mm'),
+                            canal: 'WHATSAPP'
+                        }
+                    }
+                })
+
+                countEnviado++;
+                console.log('enviado', proposta.whatsapp, proposta.nome);
+
+            } catch (error) {
+                console.log(error);
+                continue;
+            }
+        }
         console.log(find.length);
         console.log('Enviado: ' + countEnviado);
 
@@ -492,8 +468,38 @@ async function whatsapps() {
         console.log(proposta.whatsapp);
 
     })
-
 }
+
+async function excluirPropostas() {
+    let find = []
+
+    fs.readFile('src/utils/excluir 31-10.csv', 'utf8', async (err, data) => {
+        if (err) {
+            console.log(err);
+            return;
+        }
+        const array = data.split('\n')
+        // let countEnviado = 0;
+        for (const item of array) {
+            let proposta = item.split(';')[0]?.trim();
+            let nome = item.split(';')[1]?.trim();
+            const findProposta = await PropostaEntrevista.findOne({
+                proposta,
+                nome
+            })
+            if (!findProposta) continue;
+            find.push(findProposta);
+            console.log(findProposta._id);
+        }
+        for (const proposta of find) {
+            await PropostaEntrevista.findByIdAndDelete(proposta._id);
+            console.log('excluido', proposta._id);
+        }
+        console.log(find.length);
+    })
+}
+
+//excluirPropostas();
 
 //whatsapps();
 
